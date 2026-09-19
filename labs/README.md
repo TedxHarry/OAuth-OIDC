@@ -2,6 +2,14 @@
 
 The labs are where the course turns into working skill.
 
+## Available now
+
+- [Day 1 — Architecture and requirements](day-01-architecture-and-requirements.md)
+
+More lab files will be added as we execute each day.
+
+## Working method
+
 For every major topic:
 
 1. Build the successful flow first.
@@ -14,4 +22,4 @@ For every major topic:
 8. Repeat the transaction and prove the result changed for the expected reason.
 9. Write a short root-cause explanation.
 
-Lab files will be added as we execute each day. Do not skip the break/fix step.
+Do not skip the break/fix step.
