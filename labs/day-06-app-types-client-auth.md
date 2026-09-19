@@ -101,7 +101,12 @@ Locate:
 ~~~text
 Client ID
 Client Secret
+Client authentication setting, if shown
 ~~~
+
+For this lab we are using the normal Web Application secret-based setup demonstrated by Okta's Authorization Code guide.
+
+Before building the Postman request, verify that you have not deliberately changed the client to another authentication method.
 
 Compare:
 
@@ -325,7 +330,34 @@ Complete:
 
 You will implement private_key_jwt later.
 
-## Part 14 - Architecture classification
+## Part 14 - Correlate failures with Okta System Log
+
+After the successful token exchange, wrong-secret test, and wrong-verifier test, open the Okta System Log.
+
+Use request time and the Day 6 Web Application to correlate the events.
+
+Record only what the log actually proves:
+
+```text
+successful or failed outcome
+client/application
+grant or token activity when shown
+available failure reason or debug context
+```
+
+Then compare it with the Postman evidence.
+
+The important troubleshooting distinction is:
+
+```text
+wrong secret
+-> client-authentication problem
+
+wrong verifier
+-> PKCE/code-redemption problem
+```
+
+## Part 15 - Architecture classification
 
 Classify each:
 
@@ -352,6 +384,13 @@ Public or confidential?
 Likely Okta app type or pattern?
 Can it protect a client secret?
 ~~~
+
+Add one more classification:
+
+### F
+A packaged desktop application.
+
+Do not answer from the word "desktop" alone. State what additional fact you need about how it is deployed and whether it can protect client credentials.
 
 ## Self-check after you finish
 
@@ -381,6 +420,10 @@ If it only receives and validates access tokens, it is a resource server, not an
 ### API Service
 
 It represents a service client. It is not another name for every custom API.
+
+### Desktop software
+
+"Desktop" by itself is not enough information. Inspect the actual deployment and whether the client can protect its credential.
 
 </details>
 
