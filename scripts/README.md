@@ -17,6 +17,12 @@ Small Python and PowerShell examples used during the course.
 
 These are useful for Day 3 when you want to see the verifier/challenge relationship directly instead of relying only on an SDK.
 
+### Day 4 token inspection
+
+- [Python - decode an ID token for inspection only](python/day04_decode_id_token.py)
+
+The Day 4 decoder does not validate the token. Day 5 adds validation.
+
 ## Added later as the course reaches them
 
 - Client Credentials
