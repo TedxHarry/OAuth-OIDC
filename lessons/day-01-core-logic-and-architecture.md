@@ -2,6 +2,8 @@
 
 Today we are not configuring Okta yet.
 
+[Open the Day 1 flow diagrams](../diagrams/day-01-flows.md)
+
 The goal is to understand what problem each component is solving. Later, when you see settings such as `client_id`, `redirect_uri`, `scope`, `audience`, or `client authentication`, you should know why they exist.
 
 ## Start with a real requirement
@@ -27,6 +29,27 @@ Authorization
 ```
 
 Keep these separate.
+
+### Architecture view
+
+```mermaid
+flowchart LR
+    U[Employee] --> C[Employee Portal]
+    C -->|Sign-in request| O[Okta]
+    O -->|ID token and access token| C
+    C -->|Bearer access token| A[Employee API]
+    A -->|Protected data| C
+```
+
+Read the diagram in two parts:
+
+```text
+Employee -> Employee Portal -> Okta
+Authentication
+
+Employee Portal -> Employee API
+API authorization
+```
 
 ## Authentication
 
@@ -364,6 +387,18 @@ Scheduled Python Job
 ```
 
 This is a service-to-service pattern.
+
+```mermaid
+sequenceDiagram
+    participant J as Scheduled Python Job
+    participant O as Okta
+    participant A as Employee API
+
+    J->>O: Authenticate as the service
+    O-->>J: Access token
+    J->>A: API request with access token
+    A-->>J: Protected response
+```
 
 Later we will use Client Credentials for this type of integration.
 
