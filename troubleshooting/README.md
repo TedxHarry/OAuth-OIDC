@@ -6,7 +6,11 @@ The first question for an OAuth/OIDC problem is:
 
 Then investigate the next step.
 
-Use this order:
+## Quick reference
+
+- [Symptom → first areas to investigate](symptom-map.md)
+
+## Investigation order
 
 1. application builds the request
 2. browser reaches `/authorize`
