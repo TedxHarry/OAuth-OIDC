@@ -60,6 +60,12 @@ def main():
 
     okta_domain = normalize_domain(args.okta_domain)
     verifier, challenge = create_pkce_values()
+
+    if not 43 <= len(verifier) <= 128:
+        raise RuntimeError(
+            f"Generated PKCE verifier length {len(verifier)} is outside 43-128."
+        )
+
     state = secrets.token_urlsafe(32)
     nonce = secrets.token_urlsafe(32)
 
