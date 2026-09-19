@@ -2,7 +2,9 @@
 
 **15-day practical track — implementation, integration, automation, and troubleshooting**
 
-**Master version:** reference curriculum + detailed mentor-led lessons + labs + troubleshooting drills + advanced second-pass appendix.
+**Consolidated snapshot:** reference curriculum + detailed lessons + labs + troubleshooting drills + advanced second-pass appendix.
+
+> **Working-source note:** The split files in `lessons/`, `labs/`, `troubleshooting/`, `reference/`, and `advanced/` are authoritative for ongoing edits. This file is kept as a consolidated reference snapshot and may lag behind later lesson-by-lesson updates.
 
 This course is built for one outcome: you should be able to walk into a real Okta/OAuth project, understand the requirement, choose the right design, configure it, integrate it, test it, troubleshoot it, and explain what is happening without guessing.
 
