@@ -2,6 +2,30 @@
 
 This repository is a practical 15-day course for learning OAuth 2.0 and OpenID Connect in the way an Okta implementation engineer uses them at work.
 
+## Who this course is for
+
+This course assumes the learner is new to OAuth/OIDC.
+
+The learner does not need prior OAuth/OIDC knowledge. Each topic must be taught before the learner is asked to configure, test, or troubleshoot it.
+
+The goal is not to rush through 15 days. The goal is to learn, understand, practice where useful, and become comfortable enough to reason through a real implementation without depending on memorized steps.
+
+The course should build knowledge in this order:
+
+1. Start with a real requirement.
+2. Explain the problem that needs to be solved.
+3. Teach the concept in plain language.
+4. Explain why the concept exists.
+5. Draw the architecture or transaction.
+6. Show what each component does.
+7. Walk through one successful example.
+8. Use hands-on work when it helps make the concept clear.
+9. Break something only after the successful behavior is understood.
+10. Troubleshoot from evidence.
+11. Ask the learner to explain the result in their own words.
+
+A lab must not introduce important concepts that the lesson has not already explained.
+
 The focus is on:
 
 - understanding the logic behind each flow and configuration
