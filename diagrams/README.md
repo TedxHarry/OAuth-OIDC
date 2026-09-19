@@ -16,6 +16,7 @@ GitHub renders the Mermaid diagrams directly in Markdown.
 
 - [Day 1 flows](day-01-flows.md)
 - [Day 2 HTTP flows](day-02-http-flow.md)
+- [Day 3 Authorization Code with PKCE](day-03-authorization-code-pkce.md)
 
 ## Diagram plan
 
