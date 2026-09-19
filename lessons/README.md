@@ -1,6 +1,22 @@
 # Lessons
 
-Work through these in order. Each lesson teaches the logic first, then the implementation, then the failure modes and troubleshooting.
+Work through these in order.
+
+The reader is assumed to be new to OAuth/OIDC. Each lesson must teach the concept before asking the reader to configure or troubleshoot it.
+
+The order is:
+
+1. requirement
+2. explanation
+3. why it exists
+4. diagram or transaction
+5. successful example
+6. hands-on work when useful
+7. break/fix
+8. troubleshooting
+9. explain-back
+
+The goal is understanding first. Hands-on work is used to make that understanding concrete.
 
 1. [Day 1 — Core logic and architecture](day-01-core-logic-and-architecture.md)
 2. [Day 2 — Read the HTTP transaction](day-02-http-transaction.md)
