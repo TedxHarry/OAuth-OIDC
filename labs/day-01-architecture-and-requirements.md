@@ -161,10 +161,6 @@ A nightly Python process sends records to an internal API with no user present.
 
 ### Requirement D
 
-A PowerShell process calls Okta Management APIs without a human user.
-
-### Requirement E
-
 A SaaS application needs employee SSO and automatic account creation/deactivation.
 
 Do not worry yet about choosing every exact Okta setting.
@@ -187,6 +183,76 @@ Why provisioning is separate
 Try to explain it naturally in less than two minutes.
 
 Do not read definitions.
+
+## Self-check after you finish
+
+Do not read this section until you have attempted the lab.
+
+<details>
+<summary>Expected reasoning</summary>
+
+### Part 1
+
+| Component | OAuth/OIDC role | Human user involved in this client flow? | Public, confidential, or neither? | Main responsibility |
+|---|---|---|---|---|
+| React Employee Portal | Client | Yes | Public | Starts the user-facing flow and calls the API |
+| Java Employee API | Resource server | It receives a request made in a user context, but it is not the user-facing OAuth client in this scenario | Neither | Hosts the protected API and evaluates access tokens |
+| Scheduled Python Job | Client | No | Confidential | Gets an access token and calls the API as a service |
+| Okta | Authorization server and OpenID Provider | It authenticates the user in the employee flow | Neither | Authenticates the user and issues tokens |
+
+The important point is that "public" and "confidential" describe clients. The Employee API is acting as a resource server here.
+
+### Part 2
+
+A strong answer should explain:
+
+- Employee sign-in is an authentication problem.
+- Calling the Employee API is an authorization problem.
+- The ID token is for the React client.
+- The access token is presented to the Employee API.
+- The Employee API validates the access token and checks the required permission.
+- The scheduled job has no human user and therefore does not need an ID token for user authentication.
+
+### Part 5
+
+1. Incorrect. A browser SPA cannot safely protect a client secret from the user.
+2. Incorrect. The ID token is for the client application. The API should normally receive the access token.
+3. Incorrect. A scheduled job has no human user available for an interactive sign-in.
+4. Incorrect. OIDC does not perform downstream account lifecycle management.
+5. Incorrect. Authentication can succeed and the API can still reject the later access-token request.
+
+### Part 6
+
+Requirement A:
+- Human user: Yes
+- Client: React portal
+- Resource server: Payroll API
+- Authentication: Yes
+- API authorization: Yes
+- Client type: Public
+
+Requirement B:
+- Human user: Yes
+- Client: Server-side Java application
+- Authentication: Yes
+- Custom API authorization: Not required by the stated requirement
+- Client type: Confidential
+
+Requirement C:
+- Human user: No
+- Client: Nightly Python process
+- Resource server: Internal API
+- Authentication of a human user: No
+- API authorization: Yes
+- Client type: Confidential
+
+Requirement D:
+- Human user: Yes for SSO
+- Authentication: Yes
+- Provisioning: Yes
+- Important conclusion: SSO and provisioning are separate requirements
+
+</details>
 
 ## Day 1 evidence
 
