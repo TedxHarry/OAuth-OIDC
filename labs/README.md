@@ -17,6 +17,7 @@ Hands-on work is used when it helps the learner understand the concept more clea
 - [Day 1 - Architecture and requirements](day-01-architecture-and-requirements.md)
 - [Day 2 - Read real HTTP requests](day-02-http-basics.md)
 - [Day 3 - Authorization Code with PKCE against Okta](day-03-authorization-code-pkce.md)
+- [Day 4 - Inspect tokens and refresh them](day-04-token-lifecycle.md)
 
 More lab files will be added as we execute each day.
 
