@@ -82,9 +82,28 @@ Authorization server /token endpoint
 
 Ask:
 
-> Who is supposed to receive and use this token?
+> Who is the token intended for, and which component should consume or present it?
 
-That question eliminates many design mistakes.
+There is an important delivery distinction:
+
+```text
+At token issuance:
+Okta returns ID, access, and refresh tokens to the client.
+
+After issuance:
+ID token
+-> client validates and consumes it
+
+Access token
+-> client presents it to the intended resource server
+
+Refresh token
+-> client stores it and later presents it back to the authorization server /token endpoint
+```
+
+So "consumer" does not mean Okta sends each token directly to that component.
+
+That distinction eliminates many design mistakes.
 
 ## ID token
 
@@ -366,6 +385,8 @@ New access token
 
 The refresh token is a credential used with the authorization server.
 
+The client should treat the refresh token as an opaque credential. Do not build application logic by decoding or depending on its internal format.
+
 It is not sent to the resource server.
 
 ## Who consumes the refresh token?
@@ -641,6 +662,37 @@ service requests a new access token
 Do not force the user refresh-token pattern onto Client Credentials.
 
 Day 11 teaches that flow.
+
+## Keep issuance path and usage path separate
+
+A successful token response may return several tokens to the same client:
+
+```text
+Okta /token
+     |
+     v
+Client receives:
+- ID token
+- access token
+- refresh token
+```
+
+What happens next depends on token type:
+
+```text
+ID token
+-> stays with client for OIDC authentication processing
+
+Access token
+-> client sends it to the intended resource server
+
+Refresh token
+-> client keeps it and sends it back only when requesting new tokens
+```
+
+For our current Org Authorization Server lab, the intended resource server for the access token is Okta.
+
+Our own Employee API comes later with a Custom Authorization Server.
 
 ## Common mistakes to catch early
 
