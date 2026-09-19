@@ -493,9 +493,11 @@ The scopes requested during refresh must stay within what was originally granted
 
 ## Refresh token rotation
 
-A long-lived refresh token is valuable, especially in a public client.
+A long-lived refresh token is powerful, especially in a public client.
 
-Rotation reduces the risk of repeatedly using one persistent refresh token.
+A browser-based application cannot guarantee that a persistent credential stored in the browser is accessible only to the intended application code. A browser compromise such as script injection can expose stored credentials.
+
+Rotation reduces the risk of repeatedly using one persistent refresh token. It does not make unsafe browser code safe, but it limits and detects replay behavior when used with Okta's reuse-detection controls.
 
 At a high level:
 
