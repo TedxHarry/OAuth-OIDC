@@ -14,7 +14,8 @@ Hands-on work is used when it helps the learner understand the concept more clea
 
 ## Available now
 
-- [Day 1 — Architecture and requirements](day-01-architecture-and-requirements.md)
+- [Day 1 - Architecture and requirements](day-01-architecture-and-requirements.md)
+- [Day 2 - Read real HTTP requests](day-02-http-basics.md)
 
 More lab files will be added as we execute each day.
 
