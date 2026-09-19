@@ -322,6 +322,10 @@ Do not hardcode one public key forever.
 
 Okta publishes signing keys dynamically and rotates keys.
 
+For the Org Authorization Server, Okta can also use client-specific ID-token signing-key behavior when a client is configured that way. Our lab assumes the normal automatic signing-key setup used by the SPA we created earlier.
+
+If a real client uses pinned or client-specific signing keys, follow that client's configured key-discovery behavior instead of assuming every org/client has the same key set.
+
 Libraries should cache and refresh keys appropriately.
 
 ## What signature validation proves
@@ -357,6 +361,8 @@ At a practical level, validate:
 ~~~
 
 A maintained OIDC/JWT library should perform most of this.
+
+OIDC can require additional checks in situations we are not using in this lab. For example, when an ID token contains multiple audiences, the `azp` claim can become relevant. The goal here is to master the common single-client validation path without pretending this short list replaces the full OIDC specification.
 
 Do not hand-write cryptographic verification in production.
 
@@ -543,6 +549,14 @@ valid or invalid
 ~~~
 
 The application does not need a network call to Okta for every local validation after appropriate metadata and key caching.
+
+## Lab assumption about Org Authorization Server signing keys
+
+The Day 5 Python lab discovers `jwks_uri` from the Org Authorization Server metadata and resolves the token's `kid` from that key set.
+
+That matches the normal automatic signing-key setup used by our training app.
+
+If a production app has been configured to use client-specific or pinned ID-token signing keys, key retrieval can differ. Do not "fix" that by bypassing signature validation. Inspect the client signing-key configuration and use the correct published key source.
 
 ## Key rotation and caching
 
