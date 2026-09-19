@@ -7,20 +7,21 @@ These diagrams support the Day 4 lesson.
 **Question answered:** Which component is supposed to use each token?
 
 ~~~mermaid
-flowchart LR
-    O["Authorization Server<br/>Okta"]
+flowchart TB
+    O["1. OKTA TOKEN ENDPOINT<br/>Issues token response"]
+    C["2. CLIENT APPLICATION<br/>Receives the token response"]
 
-    ID["ID TOKEN<br/>Authentication result<br/>for the client"]
-    AT["ACCESS TOKEN<br/>Authorization credential<br/>for a resource server"]
-    RT["REFRESH TOKEN<br/>Renewal credential<br/>for the authorization server"]
+    ID["ID TOKEN<br/>Client validates and consumes it"]
+    AT["ACCESS TOKEN<br/>Client presents it to intended resource server"]
+    RT["REFRESH TOKEN<br/>Client stores it and later returns it to /token"]
 
-    C["Client Application"]
-    API["Resource Server / API"]
-    TOKEN["Authorization Server<br/>/token endpoint"]
+    API["3A. INTENDED RESOURCE SERVER<br/>Receives access token from client"]
+    TOKEN["3B. OKTA /token<br/>Receives refresh token from client"]
 
-    O --> ID --> C
-    O --> AT --> API
-    O --> RT --> TOKEN
+    O -->|"Returns ID + access + refresh tokens"| C
+    C --> ID
+    C --> AT -->|"Authorization: Bearer"| API
+    C --> RT -->|"Later refresh request"| TOKEN
 ~~~
 
 ## 2. Token lifecycle
@@ -52,7 +53,7 @@ sequenceDiagram
     autonumber
     participant C as Public SPA Client
     participant T as Okta /token
-    participant R as Intended Resource Server
+    participant R as Intended Resource Server<br/>(Okta in current Org-AS lab)
 
     Note over C: Client already has<br/>access token + refresh token
 
@@ -68,7 +69,9 @@ sequenceDiagram
     C->>R: Later use the new access token
 ~~~
 
-The refresh token goes to the authorization server, not the resource server.
+The refresh token goes back to the authorization server, not the resource server.
+
+For the current Org Authorization Server lab, Okta is also the intended resource server for the access token. Our own API is introduced later with a Custom Authorization Server.
 
 ## 4. How a refresh token is obtained
 
