@@ -198,6 +198,14 @@ random-high-entropy-url-safe-value
 
 Okta's current guide states that the verifier is a random URL-safe string with a minimum length of 43 characters.
 
+RFC 7636 defines the full verifier length as:
+
+```text
+43 to 128 characters
+```
+
+The verifier must be cryptographically random and high entropy. Do not build it from a username, timestamp, client ID, or other predictable value.
+
 The client then calculates:
 
 ```text
@@ -656,12 +664,38 @@ Be able to explain every parameter.
 |---|---|
 | `client_id` | Identifies the Okta app integration |
 | `response_type=code` | Requests an authorization code |
-| `scope` | Requests OIDC/OAuth permissions |
+| `scope` | States what the client is requesting. In this lab, `openid` turns the request into OIDC and allows an ID token to be returned; `profile` and `email` request standard user claims |
 | `redirect_uri` | Tells Okta where the browser should return |
 | `state` | Lets the client validate the returned browser transaction |
 | `nonce` | Lets the OIDC client bind the ID token to the request |
 | `code_challenge` | Sends the derived PKCE proof |
 | `code_challenge_method=S256` | Says the challenge was derived using SHA-256 |
+
+## Understand the scopes used in this lab
+
+Our authorization request uses:
+
+```text
+openid profile email
+```
+
+For a beginner, the important part is:
+
+```text
+openid
+-> this is an OpenID Connect authentication request
+-> allows the token response to include an ID token
+
+profile
+-> requests standard profile claims
+
+email
+-> requests standard email claims
+```
+
+Without `openid`, you are no longer asking for an OIDC ID token.
+
+Later, when we protect our own API, scopes will also represent API permissions. Do not mix that later custom-API use with today's basic OIDC scopes.
 
 ## The callback
 
@@ -884,6 +918,16 @@ Before doing the lab, explain these in your own words:
 
 If those answers make sense, continue to the lab.
 
+## Manual protocol work vs production implementation
+
+We are building the requests manually because it makes every protocol value visible.
+
+That is a training technique.
+
+In production, use a maintained OAuth/OIDC library or an Okta-supported SDK where appropriate. The library should generate and retain values such as state, nonce, and the PKCE verifier, validate responses, handle token storage correctly, and reduce the chance of protocol mistakes.
+
+Do not copy the Day 3 pattern of manually moving authorization codes and verifiers between tools into a production application.
+
 ## Day 3 lab
 
 [Day 3 Lab - Run Authorization Code with PKCE against Okta](../labs/day-03-authorization-code-pkce.md)
@@ -923,3 +967,4 @@ Why a stolen code alone should not be sufficient
 - [Okta: Authorization Code with PKCE](https://developer.okta.com/docs/guides/implement-grant-type/authcodepkce/main/)
 - [Okta: OAuth 2.0 and OpenID Connect overview](https://developer.okta.com/docs/concepts/oauth-openid/)
 - [Okta: Create an app integration](https://developer.okta.com/docs/guides/create-an-app-integration/-/main/)
+- [RFC 7636: Proof Key for Code Exchange](https://www.rfc-editor.org/rfc/rfc7636.html)
