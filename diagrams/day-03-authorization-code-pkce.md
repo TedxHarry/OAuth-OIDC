@@ -74,6 +74,8 @@ PKCE connects Phase 1 and Phase 2.
 
 In the lab, Python and Postman temporarily perform pieces that a real SPA library would normally perform automatically.
 
+**Important:** all of these tools together represent one logical training client. They are separated only so the learner can inspect each protocol step.
+
 ```mermaid
 sequenceDiagram
     autonumber
