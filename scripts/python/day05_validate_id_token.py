@@ -92,7 +92,14 @@ def main():
     try:
         jwk_client = PyJWKClient(jwks_uri)
         signing_key = jwk_client.get_signing_key_from_jwt(token)
+    except Exception as exc:
+        raise SystemExit(
+            "ID TOKEN VALIDATION FAILED\n"
+            "Stage: JWKS key resolution\n"
+            f"{type(exc).__name__}: {exc}"
+        ) from exc
 
+    try:
         claims = jwt.decode(
             token,
             signing_key.key,
@@ -104,9 +111,47 @@ def main():
                 "require": ["iss", "sub", "aud", "iat", "exp"],
             },
         )
-    except Exception as exc:
+    except jwt.ExpiredSignatureError as exc:
         raise SystemExit(
-            f"ID TOKEN VALIDATION FAILED\n{type(exc).__name__}: {exc}"
+            "ID TOKEN VALIDATION FAILED\n"
+            "Stage: expiration check\n"
+            f"{type(exc).__name__}: {exc}"
+        ) from exc
+    except jwt.InvalidAudienceError as exc:
+        raise SystemExit(
+            "ID TOKEN VALIDATION FAILED\n"
+            "Stage: audience check\n"
+            f"{type(exc).__name__}: {exc}"
+        ) from exc
+    except jwt.InvalidIssuerError as exc:
+        raise SystemExit(
+            "ID TOKEN VALIDATION FAILED\n"
+            "Stage: issuer check\n"
+            f"{type(exc).__name__}: {exc}"
+        ) from exc
+    except jwt.InvalidSignatureError as exc:
+        raise SystemExit(
+            "ID TOKEN VALIDATION FAILED\n"
+            "Stage: signature verification\n"
+            f"{type(exc).__name__}: {exc}"
+        ) from exc
+    except jwt.ImmatureSignatureError as exc:
+        raise SystemExit(
+            "ID TOKEN VALIDATION FAILED\n"
+            "Stage: time claim check\n"
+            f"{type(exc).__name__}: {exc}"
+        ) from exc
+    except jwt.MissingRequiredClaimError as exc:
+        raise SystemExit(
+            "ID TOKEN VALIDATION FAILED\n"
+            "Stage: required-claim check\n"
+            f"{type(exc).__name__}: {exc}"
+        ) from exc
+    except jwt.PyJWTError as exc:
+        raise SystemExit(
+            "ID TOKEN VALIDATION FAILED\n"
+            "Stage: JWT signature or claim validation\n"
+            f"{type(exc).__name__}: {exc}"
         ) from exc
 
     if args.nonce is not None:
@@ -114,6 +159,7 @@ def main():
         if actual_nonce != args.nonce:
             raise SystemExit(
                 "ID TOKEN VALIDATION FAILED\n"
+                "Stage: nonce check\n"
                 "Nonce mismatch: returned nonce does not equal expected nonce."
             )
 
