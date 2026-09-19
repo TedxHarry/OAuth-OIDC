@@ -23,6 +23,13 @@ These are useful for Day 3 when you want to see the verifier/challenge relations
 
 The Day 4 decoder does not validate the token. Day 5 adds validation.
 
+### Day 5 JWT validation
+
+- [Python - validate an Okta ID token](python/day05_validate_id_token.py)
+- [Python - create intentionally invalid JWTs for break/fix](python/day05_tamper_jwt.py)
+
+Dependency for the validator: `PyJWT[crypto]`.
+
 ## Added later as the course reaches them
 
 - Client Credentials
