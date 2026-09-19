@@ -39,6 +39,16 @@ For troubleshooting, use three sources whenever possible:
 
 Do not accept "I changed this setting and it worked" as a diagnosis.
 
+## Start here
+
+1. [Open the Day 1–15 lesson index](lessons/README.md)
+2. [Use the 15-day execution plan](reference/15-day-plan.md)
+3. [Keep the project intake checklist for real integrations](reference/project-intake-checklist.md)
+4. [Use the engineer confidence checklist to measure progress](reference/engineer-confidence-checklist.md)
+5. [Use the full master course as the reference book](reference/master-course.md)
+
+The `advanced/` material is a second pass. Do not study it during the core 15 days.
+
 ## Course structure
 
 - `lessons/` — the actual day-by-day teaching material
