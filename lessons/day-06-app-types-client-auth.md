@@ -807,3 +807,4 @@ API Service client
 - [Okta: Client authentication methods](https://developer.okta.com/docs/api/openapi/okta-oauth/guides/client-auth)
 - [Okta: Authorization Code grant](https://developer.okta.com/docs/guides/implement-grant-type/main/)
 - [Okta: Authorization Code with PKCE](https://developer.okta.com/docs/guides/implement-grant-type/authcodepkce/main/)
+- [Okta: OAuth 2.0 and OpenID Connect overview](https://developer.okta.com/docs/concepts/oauth-openid/)
