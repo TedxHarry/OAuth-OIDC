@@ -22,7 +22,7 @@ The goal is understanding first. Hands-on work is used to make that understandin
 2. [Day 2 - Read the HTTP transaction](day-02-http-transaction.md)
 3. [Day 3 - Authorization Code + PKCE](day-03-authorization-code-pkce.md)
 4. [Day 4 - ID, access, and refresh tokens](day-04-tokens-and-refresh.md)
-5. [Day 5 - JWT, discovery, JWKS, and validation](day-05-jwt-validation-discovery-jwks-and-why-it-decodes-proves-almo.md)
+5. [Day 5 - JWT, discovery, JWKS, and validation](day-05-jwt-validation.md)
 6. [Day 6 - Okta application configuration and client authentication](day-06-okta-application-configuration-and-client-authentication.md)
 7. [Day 7 - Web app and SPA integrations](day-07-implement-a-web-app-and-a-spa-then-compare-where-trust-lives.md)
 8. [Day 8 - Protect the API](day-08-protect-the-api-validation-first-authorization-second.md)
