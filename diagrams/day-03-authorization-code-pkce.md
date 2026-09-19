@@ -4,198 +4,257 @@ These diagrams are part of the Day 3 lesson.
 
 Each diagram answers one specific question.
 
-## 1. Complete Authorization Code with PKCE transaction
+## 1. Conceptual SPA Authorization Code with PKCE flow
 
-**Question answered:** Who sends what, to whom, and in what order?
+**Question answered:** What happens in a normal SPA flow, and in what order?
+
+The SPA client logic runs inside the browser. It is shown as one participant so the diagram does not imply that the SPA and browser are separate systems.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor U as Employee
-    participant C as Public Client
-    participant B as Browser
+    participant SPA as SPA Client Logic<br/>(inside browser)
     participant A as Okta /authorize
-    participant CB as App Callback
     participant T as Okta /token
 
-    Note over C: Create state
-    Note over C: Create nonce
-    Note over C: Create code_verifier
-    Note over C: Derive code_challenge
+    Note over SPA: STEP 1<br/>Create state, nonce, code_verifier
+    Note over SPA: STEP 2<br/>Derive code_challenge
 
-    C->>B: Open authorization URL
+    SPA->>A: STEP 3 - GET /authorize<br/>client_id<br/>redirect_uri<br/>scope<br/>state<br/>nonce<br/>code_challenge<br/>code_challenge_method=S256
 
-    B->>A: GET /authorize
-    Note right of B: Sends client_id<br/>redirect_uri<br/>scope<br/>state<br/>nonce<br/>code_challenge<br/>S256
+    A->>U: STEP 4 - Show sign-in when required
+    U->>A: STEP 5 - Complete authentication
 
-    A->>U: Request sign-in when required
-    U->>A: Complete authentication
+    A-->>SPA: STEP 6 - Browser redirect to callback<br/>code + state
 
-    A-->>B: HTTP 302 redirect
-    Note right of A: Location contains<br/>code + state
+    Note over SPA: STEP 7 - CLIENT CHECK<br/>returned state must equal expected state
 
-    B->>CB: GET /callback?code=...&state=...
+    SPA->>T: STEP 8 - POST /token<br/>code<br/>client_id<br/>redirect_uri<br/>code_verifier
 
-    Note over C,CB: CLIENT CHECK<br/>Returned state must equal expected state
+    Note over T: STEP 9 - OKTA CHECK<br/>derive challenge from verifier<br/>compare with stored challenge
 
-    C->>T: POST /token
-    Note right of C: Sends code<br/>client_id<br/>redirect_uri<br/>code_verifier
-
-    Note over T: OKTA PKCE CHECK<br/>SHA256 + Base64URL(verifier)<br/>must match stored challenge
-
-    T-->>C: Access token + ID token
+    T-->>SPA: STEP 10 - Token response<br/>access_token + id_token
 ```
 
-### How to read it
-
-There are two major phases:
+### Read it as two phases
 
 ```text
-PHASE 1
-Browser authorization
-/authorize
-        |
-        v
-authorization code
+PHASE 1 - Browser authorization
+
+SPA client
+   |
+   | GET /authorize with challenge
+   v
+Okta
+   |
+   | user authentication
+   v
+SPA callback receives code + state
 
 
-PHASE 2
-Code redemption
-/token
-        |
-        v
-tokens
+PHASE 2 - Code redemption
+
+SPA client
+   |
+   | POST /token with code + verifier
+   v
+Okta
+   |
+   | PKCE verification
+   v
+Tokens
 ```
 
-PKCE connects the two phases.
+PKCE connects Phase 1 and Phase 2.
 
-## 2. How the PKCE values are created
+## 2. Day 3 lab flow
 
-**Question answered:** What is the relationship between the verifier and challenge?
+**Question answered:** How does our training lab reproduce the same flow manually?
+
+In the lab, Python and Postman temporarily perform pieces that a real SPA library would normally perform automatically.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Learner
+    participant P as Python Preparation Script
+    participant B as Browser
+    participant A as Okta /authorize
+    participant C as Python Callback Server
+    participant PM as Postman
+    participant T as Okta /token
+
+    U->>P: Run preparation script
+    P-->>U: state + nonce + verifier + challenge + authorize URL
+
+    U->>B: Paste authorization URL
+    B->>A: GET /authorize with challenge and transaction values
+
+    A->>U: Show sign-in when required
+    U->>A: Complete authentication
+
+    A-->>B: 302 redirect with code + state
+    B->>C: GET /callback?code=...&state=...
+
+    C-->>U: Display returned code and state
+    Note over U: Compare returned state<br/>with generated state
+
+    U->>PM: Build token request with<br/>code + original verifier
+    PM->>T: POST /token
+    T-->>PM: access_token + id_token
+```
+
+### What each lab tool represents
+
+| Lab tool | What it is doing |
+|---|---|
+| Python preparation script | Generates values a real SPA library would generate |
+| Browser | Carries the front-channel authorization request and redirect |
+| Python callback server | Receives the browser callback for training |
+| Postman | Manually performs the token request that client code would normally perform |
+| Okta | Authorization server and OpenID Provider |
+
+## 3. How the PKCE values are created
+
+**Question answered:** What is the exact relationship between the verifier and challenge?
 
 ```mermaid
 flowchart LR
-    V["1. code_verifier<br/>Random secret for this transaction"]
+    V["1. code_verifier<br/>Random secret for one transaction"]
     H["2. SHA-256<br/>Hash the verifier"]
-    E["3. Base64URL<br/>Encode without padding"]
-    C["4. code_challenge<br/>Derived public value"]
+    E["3. Base64URL<br/>Encode the hash without padding"]
+    C["4. code_challenge<br/>Derived value"]
 
     V --> H --> E --> C
 ```
 
-Important:
+### Where they go
 
 ```text
 code_verifier
--> keep for /token
+-> keep with the client
+-> send later to /token
 
 code_challenge
--> send to /authorize
+-> safe derived value
+-> send first to /authorize
 ```
 
-## 3. Where each important value travels
+## 4. Which values travel at each stage
 
-**Question answered:** Which values go to /authorize, callback, and /token?
+**Question answered:** What is sent to /authorize, returned to the callback, and sent to /token?
 
 ```mermaid
 flowchart TB
-    START["Client creates<br/>state + nonce + verifier + challenge"]
+    START["CLIENT CREATES<br/>state<br/>nonce<br/>code_verifier<br/>code_challenge"]
 
-    AUTH["/authorize request<br/><br/>client_id<br/>response_type=code<br/>redirect_uri<br/>scope<br/>state<br/>nonce<br/>code_challenge<br/>code_challenge_method=S256"]
+    AUTH["STEP A - /authorize<br/><br/>SEND:<br/>client_id<br/>response_type=code<br/>redirect_uri<br/>scope<br/>state<br/>nonce<br/>code_challenge<br/>code_challenge_method=S256"]
 
-    CALLBACK["Callback response<br/><br/>code<br/>state"]
+    CALLBACK["STEP B - callback<br/><br/>RECEIVE:<br/>authorization code<br/>returned state"]
 
-    CHECK["Client-side check<br/><br/>returned state == expected state"]
+    CHECK["STEP C - client validation<br/><br/>CHECK:<br/>returned state == expected state"]
 
-    TOKEN["/token request<br/><br/>grant_type=authorization_code<br/>client_id<br/>redirect_uri<br/>code<br/>code_verifier"]
+    TOKEN["STEP D - /token<br/><br/>SEND:<br/>grant_type=authorization_code<br/>client_id<br/>redirect_uri<br/>authorization code<br/>code_verifier"]
 
-    RESULT["Token response<br/><br/>access_token<br/>id_token"]
+    RESULT["STEP E - token response<br/><br/>RECEIVE:<br/>access_token<br/>id_token"]
 
     START --> AUTH --> CALLBACK --> CHECK --> TOKEN --> RESULT
 ```
 
-The verifier skips the browser authorization request.
+The original verifier does **not** go to `/authorize`.
 
-It appears only when redeeming the code.
+The challenge does **not** replace the verifier at `/token`.
 
-## 4. PKCE verification inside Okta
+## 5. What exactly Okta checks for PKCE
 
-**Question answered:** What exactly does Okta compare?
+**Question answered:** What comparison causes PKCE to pass or fail?
 
 ```mermaid
 flowchart LR
-    SV["Stored from /authorize<br/>code_challenge"]
-    RV["Received at /token<br/>code_verifier"]
-    HASH["Okta calculates<br/>Base64URL(SHA256(code_verifier))"]
-    CMP{"Calculated challenge<br/>matches stored challenge?"}
-    YES["YES<br/>PKCE check passes"]
-    NO["NO<br/>Token request rejected"]
+    STORED["Stored from /authorize<br/><br/>code_challenge"]
+    RECEIVED["Received at /token<br/><br/>code_verifier"]
+    DERIVE["Okta derives<br/><br/>Base64URL(SHA256(code_verifier))"]
+    COMPARE{"Does calculated challenge<br/>equal stored challenge?"}
+    PASS["YES<br/><br/>PKCE check passes"]
+    FAIL["NO<br/><br/>Token request rejected"]
 
-    RV --> HASH --> CMP
-    SV --> CMP
-    CMP -->|Match| YES
-    CMP -->|No match| NO
+    RECEIVED --> DERIVE --> COMPARE
+    STORED --> COMPARE
+    COMPARE -->|Match| PASS
+    COMPARE -->|No match| FAIL
 ```
 
-## 5. Why a stolen authorization code is not enough
+## 6. Why a stolen authorization code is not enough
 
-**Question answered:** What protection does PKCE add?
+**Question answered:** What additional protection does PKCE give the code?
 
 ```mermaid
 flowchart TB
     CODE["Attacker obtains<br/>authorization code"]
-    Q{"Does attacker also have<br/>the original code_verifier?"}
-    WRONG["Wrong or missing verifier"]
-    FAIL["Derived challenge does not match<br/>Token request rejected"]
-    RIGHT["Original verifier"]
-    CHECK["PKCE check can pass<br/>subject to all other token checks"]
+    Q{"Does attacker also possess<br/>the original code_verifier?"}
+    NO["No verifier<br/>or wrong verifier"]
+    FAIL["Calculated challenge differs<br/>from stored challenge<br/><br/>TOKEN REQUEST REJECTED"]
+    YES["Original verifier is also compromised"]
+    CONTINUE["PKCE proof can pass<br/>subject to all other token checks"]
 
     CODE --> Q
-    Q -->|No| WRONG --> FAIL
-    Q -->|Yes| RIGHT --> CHECK
+    Q -->|No| NO --> FAIL
+    Q -->|Yes| YES --> CONTINUE
 ```
 
-PKCE is not saying the code is harmless.
+PKCE does not make the authorization code unimportant.
 
-It adds another required proof for redemption.
+It makes possession of the code alone insufficient for a valid PKCE redemption.
 
-## 6. State, nonce, and PKCE are different controls
+## 7. State, nonce, and PKCE protect different things
 
-**Question answered:** Which control protects which part of the flow?
-
-```mermaid
-flowchart LR
-    S["state<br/><br/>Protects and correlates<br/>browser authorization response"]
-    N["nonce<br/><br/>Binds OIDC ID token<br/>to authentication request"]
-    P["PKCE<br/><br/>Binds authorization-code redemption<br/>to the verifier created by client"]
-
-    S --> SC["Checked by client<br/>after callback"]
-    N --> NC["Checked by OIDC client<br/>when validating ID token"]
-    P --> PC["Checked by Okta<br/>during /token request"]
-```
-
-Do not substitute one for another.
-
-## 7. Public SPA vs confidential web application
-
-**Question answered:** How do PKCE and client authentication differ?
+**Question answered:** Which control is responsible for which validation?
 
 ```mermaid
 flowchart TB
-    SPA["Public SPA<br/>Runs in browser"]
-    WEB["Confidential web app<br/>Runs on controlled backend"]
+    S["state<br/><br/>Protects and correlates<br/>the browser authorization response"]
+    N["nonce<br/><br/>Binds the OIDC ID token<br/>to the authentication request"]
+    P["PKCE<br/><br/>Binds code redemption<br/>to the verifier created before authorization"]
 
-    SPA --> SPK["Authorization Code + PKCE"]
-    SPA --> NONE["No protected client secret"]
+    SC["WHO CHECKS IT?<br/>Client application<br/>after callback"]
+    NC["WHO CHECKS IT?<br/>OIDC client<br/>during ID token validation"]
+    PC["WHO CHECKS IT?<br/>Okta<br/>during /token processing"]
 
-    WEB --> WPK["Authorization Code + PKCE"]
-    WEB --> AUTH["Can also authenticate client<br/>with secret or private key"]
-
-    SPK --> RULE["PKCE protects code redemption"]
-    WPK --> RULE
-    AUTH --> CR["Client authentication proves<br/>registered client identity"]
+    S --> SC
+    N --> NC
+    P --> PC
 ```
 
-Both controls can exist in the same confidential-client flow.
+### Quick comparison
 
-They solve different problems.
+| Control | Created by | Sent first | Checked by | Protects |
+|---|---|---|---|---|
+| `state` | Client | `/authorize` | Client | Browser authorization response |
+| `nonce` | Client | `/authorize` | OIDC client | ID token binding |
+| PKCE verifier/challenge | Client | Challenge at `/authorize` | Okta at `/token` | Authorization-code redemption |
+
+## 8. Public SPA vs confidential web application
+
+**Question answered:** How are PKCE and client authentication different?
+
+```mermaid
+flowchart TB
+    SPA["PUBLIC SPA<br/>Runs in user's browser"]
+    WEB["CONFIDENTIAL WEB APP<br/>Runs on controlled backend"]
+
+    SPA --> SPK["Uses Authorization Code + PKCE"]
+    SPA --> NONE["Does not rely on a protected client secret"]
+
+    WEB --> WPK["Can use Authorization Code + PKCE"]
+    WEB --> AUTH["Can also authenticate the client<br/>using a secret or private key"]
+
+    SPK --> PKCERULE["PKCE<br/>Protects code redemption"]
+    WPK --> PKCERULE
+
+    AUTH --> CARULE["Client authentication<br/>Proves registered client identity"]
+```
+
+PKCE and client authentication can both exist in a confidential-client flow.
+
+They are not substitutes.
