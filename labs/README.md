@@ -18,6 +18,7 @@ Hands-on work is used when it helps the learner understand the concept more clea
 - [Day 2 - Read real HTTP requests](day-02-http-basics.md)
 - [Day 3 - Authorization Code with PKCE against Okta](day-03-authorization-code-pkce.md)
 - [Day 4 - Inspect tokens and refresh them](day-04-token-lifecycle.md)
+- [Day 5 - Validate a real Okta ID token](day-05-jwt-validation.md)
 
 More lab files will be added as we execute each day.
 
