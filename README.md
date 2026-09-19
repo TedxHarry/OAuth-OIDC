@@ -44,6 +44,7 @@ Do not accept "I changed this setting and it worked" as a diagnosis.
 The **split files are the authoritative working course**:
 
 - `lessons/` for the day-by-day teaching material
+- `diagrams/` for reusable architecture and transaction flows
 - `labs/` for hands-on and break/fix exercises
 - `troubleshooting/` for reusable investigation guides
 - `reference/` for the execution plan and checklists
@@ -63,12 +64,13 @@ The `advanced/` material is a second pass. Do not study it during the core 15 da
 
 ## Course structure
 
-- `lessons/` — the actual day-by-day teaching material
-- `labs/` — hands-on exercises and break/fix work
-- `troubleshooting/` — reusable investigation guides
-- `reference/` — curriculum, checklists, and project intake material
-- `scripts/` — Python and PowerShell examples used in automation labs
-- `advanced/` — second-pass topics only after the 15-day core is comfortable
+- `lessons/` - the actual day-by-day teaching material
+- `diagrams/` - Mermaid architecture and transaction flows
+- `labs/` - hands-on exercises and break/fix work
+- `troubleshooting/` - reusable investigation guides
+- `reference/` - curriculum, checklists, and project intake material
+- `scripts/` - Python and PowerShell examples used in automation labs
+- `advanced/` - second-pass topics only after the 15-day core is comfortable
 
 ## 15-day path
 
