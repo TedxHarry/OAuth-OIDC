@@ -15,6 +15,7 @@ GitHub renders the Mermaid diagrams directly in Markdown.
 ## Available
 
 - [Day 1 flows](day-01-flows.md)
+- [Day 2 HTTP flows](day-02-http-flow.md)
 
 ## Diagram plan
 
