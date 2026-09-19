@@ -76,6 +76,8 @@ https://YOUR-OKTA-DOMAIN
 
 because we are still using the org authorization server.
 
+This lab assumes the normal automatic ID-token signing-key configuration used by our training SPA. If your app has been deliberately configured with client-specific or pinned signing keys, stop and inspect that configuration before assuming the shared discovery JWKS will behave the same way.
+
 ## Part 3 - Inspect discovery
 
 Open:
@@ -205,6 +207,14 @@ Keep issuer, token, and nonce correct.
 
 Record the validation failure.
 
+The updated validator should identify:
+
+```text
+Stage: audience check
+```
+
+along with the library error.
+
 Explain:
 
 > Why can a correctly signed ID token still be rejected when aud is wrong?
@@ -258,8 +268,10 @@ Run the normal validator against it.
 Expected:
 
 ~~~text
-signature validation failure
+Stage: signature verification
 ~~~
+
+with a signature validation failure.
 
 Explain:
 
@@ -291,6 +303,12 @@ without creating a new signature.
 Validate that token.
 
 The validator should not find a trusted signing key for that kid and should reject the token.
+
+The validator should identify the failure at:
+
+```text
+Stage: JWKS key resolution
+```
 
 Record the actual error.
 
