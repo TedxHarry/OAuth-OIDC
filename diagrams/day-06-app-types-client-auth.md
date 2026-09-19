@@ -9,26 +9,27 @@ These diagrams support the Day 6 lesson.
 ~~~mermaid
 flowchart TB
     Q["START<br/>Which component requests authorization or tokens?"]
-    BROWSER{"Does the client run in a browser<br/>and lack secure credential storage?"}
-    BACKEND{"Does the client run on a controlled backend<br/>and protect credentials?"}
-    NATIVE{"Is it installed on a user-controlled device?"}
-    SERVICE{"Is it a non-user service<br/>requesting tokens?"}
+    USER{"Is a human user part of<br/>this client's authorization flow?"}
+    SERVICE["SERVICE CLIENT<br/>No end user<br/>Confidential machine-to-machine client"]
+
+    BROWSER{"Does the client logic run in the browser<br/>where it cannot protect a credential?"}
+    NATIVE{"Does it run on a user-controlled device<br/>without protected client credentials?"}
+    BACKEND{"Does it run on a controlled backend<br/>that can protect credentials?"}
 
     SPA["SPA<br/>PUBLIC CLIENT"]
-    WEB["Web Application<br/>CONFIDENTIAL CLIENT"]
     NAT["Native Application<br/>PUBLIC CLIENT"]
-    SVC["Service / API Service pattern<br/>CONFIDENTIAL SERVICE CLIENT"]
-    REVIEW["Review the actual architecture<br/>before choosing"]
+    WEB["Web Application<br/>CONFIDENTIAL CLIENT"]
+    REVIEW["REVIEW ARCHITECTURE<br/>Do not classify from project name alone"]
 
-    Q --> BROWSER
+    Q --> USER
+    USER -->|No| SERVICE
+    USER -->|Yes| BROWSER
     BROWSER -->|Yes| SPA
-    BROWSER -->|No| BACKEND
-    BACKEND -->|Yes| WEB
-    BACKEND -->|No| NATIVE
+    BROWSER -->|No| NATIVE
     NATIVE -->|Yes| NAT
-    NATIVE -->|No| SERVICE
-    SERVICE -->|Yes| SVC
-    SERVICE -->|No| REVIEW
+    NATIVE -->|No| BACKEND
+    BACKEND -->|Yes| WEB
+    BACKEND -->|No| REVIEW
 ~~~
 
 The runtime component decides the classification.
@@ -41,21 +42,24 @@ The runtime component decides the classification.
 flowchart LR
     USER["Employee Browser"]
     SPA["React SPA<br/>OAuth Client<br/>Public"]
-    API["Employee API<br/>Resource Server"]
     JOB["Nightly Python Job<br/>OAuth Client<br/>Confidential"]
-    OKTA["Okta<br/>Authorization Server"]
+    AS["Authorization Server for Employee API<br/><br/>Custom AS covered on Day 9"]
+    API["Employee API<br/>RESOURCE SERVER"]
 
     USER --> SPA
-    SPA -->|Authorization request| OKTA
-    OKTA -->|Tokens| SPA
+
+    SPA -->|Authorization request| AS
+    AS -->|Access token intended for Employee API| SPA
     SPA -->|Bearer access token| API
 
-    JOB -->|Token request| OKTA
-    OKTA -->|Access token| JOB
+    JOB -->|Machine-to-machine token request| AS
+    AS -->|Access token intended for Employee API| JOB
     JOB -->|Bearer access token| API
 ~~~
 
 The Employee API is a resource server here, not automatically an OAuth client.
+
+The authorization server shown here is **not** the Org Authorization Server used in the earlier SSO labs. A custom API needs an access token intended for that API. We configure that boundary on Day 9.
 
 ## 3. Public SPA token request
 
