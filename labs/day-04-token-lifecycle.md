@@ -148,8 +148,8 @@ Record whether each field is present.
 | Response field | Present? | Consumer |
 |---|---|---|
 | id_token |  | Client application |
-| access_token |  | Intended resource server |
-| refresh_token |  | Authorization server token endpoint |
+| access_token |  | Client receives it, then presents it to the intended resource server. In this Org-AS lab, the intended resource server is Okta |
+| refresh_token |  | Client receives and stores it, then later presents it to the authorization server token endpoint |
 | expires_in |  | Access-token lifetime in seconds |
 | scope |  | Scopes associated with response |
 
@@ -224,6 +224,8 @@ Day 5 performs validation.
 ## Part 10 - Respect the org-AS access-token boundary
 
 Do not build logic around the access token's internal claims.
+
+Also do not send this Org-AS access token to our future Employee API.
 
 Record this rule:
 
@@ -363,7 +365,27 @@ This is a refresh-token processing failure at /token.
 
 It is not a user-authentication failure.
 
-## Part 16 - Draw the lifecycle
+## Part 16 - Explain the delivery path before drawing it
+
+In your own words explain:
+
+```text
+Who receives all three tokens from /token?
+Who consumes the ID token?
+Who receives the access token later?
+Where does the refresh token go later?
+```
+
+Correct working logic:
+
+```text
+Okta returns tokens to client
+Client consumes ID token
+Client presents access token to intended resource server
+Client later presents refresh token back to Okta /token
+```
+
+## Part 17 - Draw the lifecycle
 
 Without looking at the diagram, draw:
 
@@ -389,7 +411,7 @@ Compare with:
 
 [Day 4 flow diagrams](../diagrams/day-04-token-lifecycle.md)
 
-## Part 17 - Evidence record
+## Part 18 - Evidence record
 
 Record:
 
