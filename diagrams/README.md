@@ -18,6 +18,7 @@ GitHub renders the Mermaid diagrams directly in Markdown.
 - [Day 2 HTTP flows](day-02-http-flow.md)
 - [Day 3 Authorization Code with PKCE](day-03-authorization-code-pkce.md)
 - [Day 4 token lifecycle](day-04-token-lifecycle.md)
+- [Day 5 JWT validation](day-05-jwt-validation.md)
 
 ## Diagram plan
 
