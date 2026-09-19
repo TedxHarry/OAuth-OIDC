@@ -47,6 +47,28 @@ Tokens returned
 
 Then you will deliberately break code redemption and prove why it fails.
 
+## Training architecture warning
+
+This lab splits one logical OAuth client across several tools so that you can see every step:
+
+```text
+Python
+-> generates transaction values
+
+Browser
+-> carries the front-channel authorization request and callback
+
+Python callback server
+-> receives the callback
+
+Postman
+-> manually performs the token request
+```
+
+A real SPA does not ask a human to copy the authorization code and verifier into Postman.
+
+In production, the SPA or its OAuth/OIDC library performs those steps as one client implementation.
+
 ## Important lab boundary
 
 For Day 3, use the **Okta org authorization server**.
@@ -233,6 +255,19 @@ code_challenge_method
 ```
 
 For each one, say what it does.
+
+For `scope`, specifically explain:
+
+```text
+openid
+-> request OIDC authentication and an ID token
+
+profile
+-> request standard profile claims
+
+email
+-> request standard email claims
+```
 
 Do not continue until you can explain why the verifier is not present in the authorization URL.
 
@@ -579,6 +614,38 @@ Complete this for:
 
 1. wrong code verifier
 2. reused authorization code
+
+## Part 18 - Correlate with Okta System Log
+
+After the successful transaction and at least one failed token request, open the Okta System Log.
+
+Use the approximate time and the Day 3 client/application to locate relevant OAuth/OIDC activity.
+
+The exact event details can vary, so do not force the System Log to say what you expect.
+
+Instead compare:
+
+```text
+successful transaction time
+failed transaction time
+client/app involved
+outcome
+available debug or failure details
+```
+
+Your primary evidence for the PKCE failure is still the actual `/token` request and response.
+
+The System Log is supporting server-side evidence.
+
+This is the troubleshooting habit we will keep using:
+
+```text
+Browser or Postman evidence
+        +
+token/request evidence
+        +
+Okta System Log when useful
+```
 
 ## Self-check after you finish
 
