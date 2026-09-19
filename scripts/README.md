@@ -4,10 +4,14 @@ Small Python and PowerShell examples used during the course.
 
 ## Available now
 
+### Day 2 HTTP lab
+
+- [Python - local HTTP lab server](python/day02_http_lab_server.py)
+
 ### PKCE
 
-- [Python — generate PKCE verifier and S256 challenge](python/generate_pkce_pair.py)
-- [PowerShell — generate PKCE verifier and S256 challenge](powershell/Generate-PkcePair.ps1)
+- [Python - generate PKCE verifier and S256 challenge](python/generate_pkce_pair.py)
+- [PowerShell - generate PKCE verifier and S256 challenge](powershell/Generate-PkcePair.ps1)
 
 These are useful for Day 3 when you want to see the verifier/challenge relationship directly instead of relying only on an SDK.
 
