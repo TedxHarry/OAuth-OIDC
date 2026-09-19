@@ -478,31 +478,28 @@ Here is the complete transaction at the level you need today.
 ```mermaid
 sequenceDiagram
     autonumber
-    participant U as Employee
-    participant C as Public Client
-    participant B as Browser
-    participant O as Okta Authorization Server
-    participant CB as Local Callback
-    participant T as Okta Token Endpoint
+    actor U as Employee
+    participant SPA as SPA Client Logic<br/>(runs in browser)
+    participant A as Okta /authorize
+    participant T as Okta /token
 
-    Note over C: Generate state, nonce, and code_verifier
-    Note over C: Derive code_challenge from code_verifier
+    Note over SPA: Create state, nonce, and code_verifier
+    Note over SPA: Derive code_challenge from code_verifier
 
-    C->>B: Open authorization request
-    B->>O: GET /authorize with client_id, redirect_uri, scope, state, nonce, code_challenge, S256
+    SPA->>A: Browser GET /authorize<br/>client_id + redirect_uri + scope<br/>state + nonce + code_challenge + S256
 
-    O->>U: Present sign-in when needed
-    U->>O: Complete authentication
+    A->>U: Show sign-in when required
+    U->>A: Complete authentication
 
-    O-->>B: 302 redirect with code and state
-    B->>CB: GET /callback?code=...&state=...
+    A-->>SPA: Browser redirect to registered callback<br/>code + state
 
-    Note over C,CB: Client checks returned state before continuing
+    Note over SPA: Check returned state<br/>before code redemption
 
-    C->>T: POST /token with code, client_id, redirect_uri, code_verifier
-    Note over T: Recalculate PKCE challenge and compare
+    SPA->>T: POST /token<br/>code + client_id + redirect_uri + code_verifier
 
-    T-->>C: Access token and ID token
+    Note over T: Recalculate challenge from verifier<br/>and compare with stored challenge
+
+    T-->>SPA: Access token + ID token
 ```
 
 Read the numbered flow slowly.
