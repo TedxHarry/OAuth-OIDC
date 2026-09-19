@@ -2,8 +2,8 @@
 
 Work through these in order. Each lesson teaches the logic first, then the implementation, then the failure modes and troubleshooting.
 
-1. [Day 1 — Core logic and architecture](day-01-understand-the-core-logic-before-touching-configuration.md)
-2. [Day 2 — Read the HTTP transaction](day-02-read-the-http-transaction-before-changing-settings.md)
+1. [Day 1 — Core logic and architecture](day-01-core-logic-and-architecture.md)
+2. [Day 2 — Read the HTTP transaction](day-02-http-transaction.md)
 3. [Day 3 — Authorization Code + PKCE](day-03-authorization-code-pkce-understand-why-every-piece-exists.md)
 4. [Day 4 — ID, access, and refresh tokens](day-04-tokens-know-what-each-one-is-for-and-how-its-lifecycle-works.md)
 5. [Day 5 — JWT, discovery, JWKS, and validation](day-05-jwt-validation-discovery-jwks-and-why-it-decodes-proves-almo.md)
