@@ -1,8 +1,17 @@
 # Scripts
 
-This folder will hold the small Python and PowerShell examples used during the course.
+Small Python and PowerShell examples used during the course.
 
-The scripts are for understanding and testing real OAuth/OIDC behavior, especially:
+## Available now
+
+### PKCE
+
+- [Python — generate PKCE verifier and S256 challenge](python/generate_pkce_pair.py)
+- [PowerShell — generate PKCE verifier and S256 challenge](powershell/Generate-PkcePair.ps1)
+
+These are useful for Day 3 when you want to see the verifier/challenge relationship directly instead of relying only on an SDK.
+
+## Added later as the course reaches them
 
 - Client Credentials
 - `private_key_jwt`
