@@ -213,13 +213,17 @@ They are not the same control.
 
 A Native Application is installed on a user's device.
 
-Examples:
+Examples for this course:
 
 ~~~text
 iOS application
 Android application
-desktop application
+other installed applications where the client credential would ship to a user-controlled device
 ~~~
+
+Do not classify every desktop application from the word "desktop" alone.
+
+Desktop deployment models vary. Classify the actual client by asking whether its credentials can truly be protected in that deployment.
 
 The application package is distributed to devices the user controls.
 
@@ -380,6 +384,8 @@ The client credential is carried in the Authorization header.
 
 This is the method we use in today's Web Application lab.
 
+Okta's default token endpoint authentication method, when another method isn't specified, is `client_secret_basic`. If a real client has been changed to another authentication method, use that configured method instead of assuming Basic authentication.
+
 ## client_secret_post
 
 With client_secret_post, the client credentials are sent as form parameters in the POST body.
@@ -514,7 +520,9 @@ Authorization transaction
             the registered client identity
 ~~~
 
-Current Okta web-app examples can use Authorization Code, PKCE, and a confidential client credential together.
+Okta's current OAuth overview recommends Authorization Code with PKCE for server-side, SPA, and Native application use cases when possible. A confidential Web Application can also authenticate itself with a client secret or private key.
+
+Our Day 6 lab intentionally combines PKCE with confidential-client authentication so you can see that the two checks are independent.
 
 A strong modern baseline is:
 
@@ -625,11 +633,13 @@ Single-Page Application
 Web Application
 ~~~
 
-### Installed mobile or desktop application
+### Installed mobile application or other user-device client that cannot protect a credential
 
 ~~~text
 Native Application
 ~~~
+
+For desktop software, review the actual deployment and credential-protection model before classifying it.
 
 ### Non-user service accessing Okta APIs
 
@@ -640,6 +650,36 @@ OAuth service / API Service pattern
 The project name does not decide the app type.
 
 The runtime architecture does.
+
+## Authorization server choice is a separate decision
+
+App type answers:
+
+> What kind of OAuth client is this?
+
+It does **not** by itself answer:
+
+> Which authorization server should issue the access token for the resource?
+
+For example:
+
+~~~text
+SPA client
+or
+service client
+        |
+        v
+needs access token for Employee API
+        |
+        v
+authorization server must issue a token intended for Employee API
+~~~
+
+The Org Authorization Server tokens used in Days 3 to 5 are intended for Okta.
+
+When we protect our own Employee API, we will use a Custom Authorization Server. That is taught in Day 9.
+
+Do not infer authorization-server choice from app type.
 
 ## One system can need more than one app integration
 
