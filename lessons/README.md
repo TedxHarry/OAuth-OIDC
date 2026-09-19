@@ -1,0 +1,32 @@
+# Lessons
+
+Work through these in order. Each lesson teaches the logic first, then the implementation, then the failure modes and troubleshooting.
+
+1. [Day 1 — Core logic and architecture](day-01-understand-the-core-logic-before-touching-configuration.md)
+2. [Day 2 — Read the HTTP transaction](day-02-read-the-http-transaction-before-changing-settings.md)
+3. [Day 3 — Authorization Code + PKCE](day-03-authorization-code-pkce-understand-why-every-piece-exists.md)
+4. [Day 4 — ID, access, and refresh tokens](day-04-tokens-know-what-each-one-is-for-and-how-its-lifecycle-works.md)
+5. [Day 5 — JWT, discovery, JWKS, and validation](day-05-jwt-validation-discovery-jwks-and-why-it-decodes-proves-almo.md)
+6. [Day 6 — Okta application configuration and client authentication](day-06-okta-application-configuration-and-client-authentication.md)
+7. [Day 7 — Web app and SPA integrations](day-07-implement-a-web-app-and-a-spa-then-compare-where-trust-lives.md)
+8. [Day 8 — Protect the API](day-08-protect-the-api-validation-first-authorization-second.md)
+9. [Day 9 — Authorization servers, scopes, claims, audience, and policies](day-09-authorization-servers-scopes-claims-audience-and-policy-laye.md)
+10. [Day 10 — Sessions, logout, UserInfo, refresh, revocation](day-10-sessions-logout-userinfo-revocation-and-the-why-did-it-sign-.md)
+11. [Day 11 — Client Credentials and machine-to-machine](day-11-client-credentials-machine-to-machine-without-pretending-the.md)
+12. [Day 12 — Okta Management API automation](day-12-automate-okta-management-apis-with-an-oauth-service-app.md)
+13. [Day 13 — Browser and authentication troubleshooting](day-13-browser-and-authentication-troubleshooting-work-from-evidenc.md)
+14. [Day 14 — Token, API, and automation troubleshooting](day-14-token-api-and-automation-troubleshooting.md)
+15. [Day 15 — Capstone](day-15-capstone-operate-like-the-implementation-engineer.md)
+
+## Working rule
+
+Do not move on because a section makes sense while reading it. Move on when you can:
+
+- explain why it exists
+- draw the transaction
+- identify what the browser, application, Okta, and API are each doing
+- configure or implement it
+- break it deliberately
+- locate the failed step
+- prove the cause from evidence
+- explain the root cause in plain language
