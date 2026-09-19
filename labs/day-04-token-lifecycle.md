@@ -411,7 +411,37 @@ Compare with:
 
 [Day 4 flow diagrams](../diagrams/day-04-token-lifecycle.md)
 
-## Part 18 - Evidence record
+## Part 18 - Correlate refresh activity with Okta System Log
+
+After one successful refresh request and the deliberately invalid refresh-token request, open the Okta System Log.
+
+Use:
+
+```text
+time of request
+Day 3/Day 4 application
+client ID when available
+OAuth/OIDC event category
+outcome
+```
+
+to correlate what Okta recorded.
+
+Do not replace the HTTP evidence with the System Log.
+
+Use them together:
+
+```text
+Postman request and response
+        +
+token-flow reasoning
+        +
+Okta System Log
+```
+
+If the System Log does not expose the exact detail you expected, record only what it actually shows.
+
+## Part 19 - Evidence record
 
 Record:
 
