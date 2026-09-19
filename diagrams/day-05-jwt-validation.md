@@ -56,25 +56,29 @@ flowchart LR
 
 ~~~mermaid
 flowchart TB
-    START["Receive ID token"]
-    ISSUER["Start from configured<br/>expected issuer"]
-    DISC["Retrieve or cache<br/>discovery and JWKS"]
-    ALG{"alg is expected<br/>RS256?"}
-    KID{"Matching kid<br/>available?"}
-    SIG{"Signature valid?"}
-    ISS{"iss equals<br/>expected issuer?"}
-    AUD{"aud includes<br/>this client ID?"}
-    TIME{"Time claims valid?<br/>exp not expired"}
-    NONCE{"Nonce was used?"}
-    NMATCH{"nonce equals<br/>expected nonce?"}
+    START["1. Receive ID token"]
+    ISSUER["2. Use configured<br/>expected issuer"]
+    DISC["3. Retrieve or use cached<br/>discovery and JWKS"]
+    ALG{"4. alg is expected<br/>RS256?"}
+    KID{"5. Matching kid<br/>available?"}
+    REFRESH["Refresh JWKS from<br/>trusted jwks_uri"]
+    KID2{"Matching kid<br/>available now?"}
+    SIG{"6. Signature valid?"}
+    ISS{"7. iss equals<br/>expected issuer?"}
+    AUD{"8. aud includes<br/>this client ID?"}
+    TIME{"9. Time claims valid?<br/>exp not expired"}
+    NONCE{"10. Nonce was used?"}
+    NMATCH{"11. nonce equals<br/>expected nonce?"}
     VALID["VALID ID TOKEN<br/>for intended OIDC use"]
     REJECT["REJECT"]
 
     START --> ISSUER --> DISC --> ALG
     ALG -->|No| REJECT
     ALG -->|Yes| KID
-    KID -->|No after refresh| REJECT
     KID -->|Yes| SIG
+    KID -->|No| REFRESH --> KID2
+    KID2 -->|No| REJECT
+    KID2 -->|Yes| SIG
     SIG -->|No| REJECT
     SIG -->|Yes| ISS
     ISS -->|No| REJECT
@@ -137,6 +141,8 @@ Do not bypass validation.
 ## 7. Validation vs authorization
 
 **Question answered:** What happens after a token becomes trusted?
+
+This diagram is a **future API access-token example**. Our Day 5 hands-on lab is validating an ID token for the client.
 
 ~~~mermaid
 flowchart TB
