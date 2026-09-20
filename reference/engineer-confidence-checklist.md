@@ -68,6 +68,16 @@ Before you call yourself comfortable with OAuth/OIDC in Okta, you should be able
 - I use Network/Postman + token evidence + System Log to prove the cause.
 - I can explain the root cause to an application owner in plain language.
 
+## Capstone
+
+- I can turn a mixed user + API + machine requirement into separate trust relationships.
+- I can design a React SPA user path and Java resource-server path without being given the answer first.
+- I can keep Custom Authorization Server and Org Authorization Server use cases separate.
+- I can design user scopes, machine scopes, policies, refresh, logout, and environment isolation deliberately.
+- I can prove 401, 403, refresh failure, machine-client failure, and environment mismatch from evidence.
+- I can produce a handoff that another engineer can operate without needing my memory of the project.
+- I can complete the Day 15 capstone and diagnose at least twelve failures from the last-successful-step method.
+
 If these are true, you have the working model needed for normal implementation-engineer work. The remaining gaps will usually be product-specific or edge-case features that you can learn from vendor documentation when a project actually requires them.
 
 ---
