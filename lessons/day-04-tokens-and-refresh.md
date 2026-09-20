@@ -166,6 +166,10 @@ Today we only inspect the structure and a few claims.
 
 ## ID token claims
 
+An ID token contains base claims and can contain additional claims depending on the flow, requested scopes, and configuration.
+
+Do not assume that requesting `profile` or `email` guarantees every corresponding user claim will appear in the ID token. With an access token present, `/userinfo` is also an OIDC source for scope-dependent user claims.
+
 An ID token can contain claims such as:
 
 ~~~json
@@ -564,6 +568,8 @@ A token response often contains:
 ~~~
 
 That tells the client how many seconds the access token is valid from issuance.
+
+For the Okta Org Authorization Server used in our current lab, Okta currently documents a 60-minute access-token lifetime and a 60-minute ID-token lifetime. Later, with a Custom Authorization Server, access-token lifetime can be configured by policy.
 
 An ID token also contains an exp claim.
 
