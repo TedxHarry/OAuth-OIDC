@@ -26,6 +26,7 @@ Hands-on work is used when it helps the learner understand the concept more clea
 - [Day 10 - Prove session and token lifecycle](day-10-session-token-lifecycle.md)
 - [Day 11 - Machine-to-machine Employee Reporting](day-11-client-credentials.md)
 - [Day 12 - Automate Okta Management APIs](day-12-okta-api-automation.md)
+- [Day 13 - Browser and authentication troubleshooting](day-13-browser-auth-troubleshooting.md)
 
 More lab files will be added as we execute each day.
 
