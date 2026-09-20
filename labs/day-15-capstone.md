@@ -834,3 +834,359 @@ Complete from actual evidence.
 | future Okta automation design |  |  |
 
 A row without evidence is not complete.
+
+
+## Part 35 - Blind incident A
+
+Symptom:
+
+~~~text
+Employee clicks Sign in.
+Browser reaches Okta.
+No callback reaches the React application.
+~~~
+
+Write:
+
+~~~text
+Last confirmed successful step:
+First failed step:
+Evidence to collect first:
+Three plausible causes:
+One change you would NOT make yet:
+~~~
+
+Diagnose from the actual system before opening the answer key.
+
+## Part 36 - Blind incident B
+
+Symptom:
+
+~~~text
+Callback reaches the SPA.
+The token request fails.
+The browser client has no client secret.
+~~~
+
+Write:
+
+~~~text
+Grant type:
+What proof or credential is being validated?:
+Evidence to collect:
+Likely failure layers:
+~~~
+
+Do not automatically classify it as invalid_client.
+
+## Part 37 - Blind incident C
+
+Symptom:
+
+~~~text
+The Java API returns 401.
+The access token has employee.read when decoded.
+~~~
+
+Write:
+
+~~~text
+Does unvalidated scp prove the token is trusted?:
+Validation stages to inspect:
+Evidence from WWW-Authenticate or API log:
+~~~
+
+Do not add another scope before proving token trust.
+
+## Part 38 - Blind incident D
+
+Symptom:
+
+~~~text
+The Java API returns 403 for GET /salary.
+The API log says token validation passed.
+~~~
+
+Write:
+
+~~~text
+First layer to inspect:
+Required scope:
+Granted scope:
+One thing you would NOT rotate:
+~~~
+
+## Part 39 - Blind incident E
+
+Symptom:
+
+~~~text
+The reporting service receives invalid_client.
+No Java API request appears.
+~~~
+
+Write:
+
+~~~text
+Human authentication relevant?:
+Browser CORS relevant?:
+Client-authentication evidence:
+Credential and configuration pairs to compare:
+~~~
+
+## Part 40 - Blind incident F
+
+Symptom:
+
+~~~text
+The reporting service receives a token.
+The Java API returns 401 with an unexpected client-id stage.
+~~~
+
+Write:
+
+~~~text
+What upstream step is already proven?:
+What should NOT be regenerated first?:
+Which Java API trust setting is suspect?:
+~~~
+
+## Part 41 - Blind incident G
+
+Symptom:
+
+~~~text
+A refresh request worked yesterday.
+Today the stored refresh token is rejected.
+System Log contains a refresh-token reuse event.
+~~~
+
+Write:
+
+~~~text
+Which refresh token should the client have stored?:
+What rotation behavior must be reviewed?:
+What may have happened to newer tokens?:
+What should not be replayed repeatedly?:
+~~~
+
+## Part 42 - Blind incident H
+
+Symptom:
+
+~~~text
+The same application code works in development.
+Production API rejects the token for audience.
+~~~
+
+Write a comparison containing:
+
+~~~text
+issuer
+authorization server ID
+audience
+client ID
+API expected audience
+~~~
+
+Do not treat identical source code as proof that configuration is identical.
+
+## Part 43 - Blind incident I
+
+Symptom:
+
+~~~text
+Future Okta automation obtains a token containing okta.users.read.
+GET /api/v1/users is denied.
+~~~
+
+Write:
+
+~~~text
+Which Day 12 layer is already proven?:
+Which authorization layer remains?:
+What role or resource evidence is needed?:
+Why would a new private key not be the first fix?:
+~~~
+
+## Part 44 - Blind incident J
+
+Symptom:
+
+~~~text
+The React app signs in successfully.
+The API returns 200.
+The UI still shows the user as signed out and immediately starts another authorization request.
+~~~
+
+Write:
+
+~~~text
+Which OAuth/OIDC steps are already proven?:
+Which local application state is suspect?:
+What browser evidence should be inspected?:
+~~~
+
+## Part 45 - Blind incident K
+
+Symptom:
+
+~~~text
+Postman can call the Java API.
+The React browser call never sends the real GET after OPTIONS.
+~~~
+
+Write:
+
+~~~text
+What browser control is involved?:
+Who owns CORS for the Java API?:
+Would an Okta Trusted Origin configure Java API CORS?:
+~~~
+
+## Part 46 - Blind incident L
+
+Symptom:
+
+~~~text
+A fresh valid token contains a kid not present in the API cached JWKS.
+After refreshing the JWKS from the configured trusted issuer, the kid appears.
+~~~
+
+Write:
+
+~~~text
+Likely cause:
+Safe recovery:
+Unsafe recovery:
+~~~
+
+## Part 47 - Diagnose at least twelve failures in your implementation
+
+Use a mix of:
+
+~~~text
+redirect URI
+wrong issuer
+lost state or transaction
+wrong PKCE verifier
+unrequested salary.read
+non-HR salary request
+wrong audience
+ID token sent to API
+unknown kid
+expired access token
+revoked refresh token
+wrong reporting secret
+wrong service scope
+wrong expected service client ID
+CORS or preflight
+local auth-state failure
+dev or prod mismatch
+Okta API scope vs admin-role failure
+~~~
+
+Do not select twelve failures from one layer.
+
+For each create an incident note.
+
+## Part 48 - Restore every temporary break/fix change
+
+Create a restoration checklist:
+
+~~~text
+redirect URIs restored
+policy order restored
+HR membership restored
+temporary scopes removed
+temporary admin roles removed
+API audience restored
+API expected client IDs restored
+CORS restored
+test secrets or keys restored
+test group membership restored
+browser or app configuration restored
+~~~
+
+A troubleshooting lab is not complete while the environment remains intentionally broken.
+
+## Part 49 - Produce the final architecture record
+
+Your handoff must include:
+
+~~~text
+architecture diagram
+trust-boundary table
+component classification
+authorization-server mapping
+scope table
+claim table
+policy or rule table
+endpoint authorization table
+refresh or lifecycle description
+logout behavior
+machine-client design
+dev or prod matrix
+future Okta automation design
+~~~
+
+Every value should identify its environment.
+
+## Part 50 - Produce the operations record
+
+Include:
+
+~~~text
+secret or key owner
+storage location
+rotation owner or process
+token lifetime
+monitoring source
+System Log access
+API correlation-ID location
+safe logging rules
+failure alerting
+retry or backoff behavior
+runbook links
+~~~
+
+Do not include credentials.
+
+## Part 51 - Produce three explanations
+
+Explain the final implementation to:
+
+### Application owner
+
+No unnecessary protocol detail.
+
+### Developer
+
+Include HTTP, token, callback, and API behavior.
+
+### IAM or security engineer
+
+Include trust boundaries, policies, client authentication, least privilege, lifecycle, rotation, and evidence.
+
+The architecture must remain the same in all three explanations.
+
+## Part 52 - Self-check your design against the reference architecture
+
+Only now open the reference architecture section in:
+
+~~~text
+lessons/day-15-capstone.md
+~~~
+
+Compare:
+
+~~~text
+same important trust boundaries?:
+same resource-server distinction?:
+same user vs machine separation?:
+same Custom-AS vs Org-AS separation?:
+same requested-then-permitted scope behavior?:
+same validation-before-authorization behavior?:
+~~~
+
+Differences are allowed if you can defend them and they still satisfy the requirement securely.
