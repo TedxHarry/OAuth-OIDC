@@ -4,7 +4,7 @@
 
 **Consolidated snapshot:** reference curriculum + detailed lessons + labs + troubleshooting drills + advanced second-pass appendix.
 
-> **Working-source note:** The split files in `lessons/`, `labs/`, `troubleshooting/`, `reference/`, and `advanced/` are authoritative for ongoing edits. This file is kept as a consolidated reference snapshot and may lag behind later lesson-by-lesson updates.
+> **ARCHIVED SNAPSHOT - DO NOT USE AS THE CORE COURSE.** The split files in `lessons/`, `labs/`, `diagrams/`, `troubleshooting/`, and the current `reference/` checklists are authoritative. This consolidated snapshot predates later day-by-day rebuilds and contains stale exercises and wording. It is retained only for historical/reference comparison. Start from `README.md` and `lessons/README.md`.
 
 This course is built for one outcome: you should be able to walk into a real Okta/OAuth project, understand the requirement, choose the right design, configure it, integrate it, test it, troubleshoot it, and explain what is happening without guessing.
 
