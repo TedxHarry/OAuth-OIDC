@@ -86,51 +86,82 @@
     }
   };
 
+  const mermaidSvgs = () => {
+    return Array.from(
+      document.querySelectorAll(
+        ".mermaid svg, svg[id^='mermaid-'], svg[aria-roledescription*='flowchart'], svg[aria-roledescription*='sequence']"
+      )
+    );
+  };
+
   const styleRenderedMermaid = () => {
-    document.querySelectorAll(".mermaid svg").forEach((svg) => {
-      svg.querySelectorAll(
-        ".node rect, .node polygon, .node circle, .node ellipse, rect.actor, .actor rect"
-      ).forEach((shape) => {
-        shape.style.setProperty("fill", "#17263d", "important");
-        shape.style.setProperty("stroke", "#b78d49", "important");
-        shape.style.setProperty("stroke-width", "1.7px", "important");
-      });
+    mermaidSvgs().forEach((svg) => {
+      svg.style.setProperty("background", "#fffdf8", "important");
 
       svg.querySelectorAll(
-        ".nodeLabel, .nodeLabel p, .nodeLabel span, .node foreignObject div, .actor text, .actor tspan"
-      ).forEach((label) => {
-        label.style.setProperty("color", "#fffaf0", "important");
-        label.style.setProperty("fill", "#fffaf0", "important");
-        label.style.setProperty("opacity", "1", "important");
-      });
-
-      svg.querySelectorAll(
-        ".edgeLabel, .edgeLabel p, .edgeLabel span, .edgeLabel foreignObject div, .messageText, .messageText tspan, .labelText, .labelText tspan, .loopText, .loopText tspan"
+        "text, tspan, foreignObject, foreignObject *, .nodeLabel, .nodeLabel *, .edgeLabel, .edgeLabel *, .messageText, .messageText *, .labelText, .labelText *, .loopText, .loopText *, .noteText, .noteText *, .cluster-label, .cluster-label *"
       ).forEach((label) => {
         label.style.setProperty("color", "#172033", "important");
         label.style.setProperty("fill", "#172033", "important");
         label.style.setProperty("opacity", "1", "important");
       });
 
+      svg.querySelectorAll(
+        ".node rect, .node polygon, .node circle, .node ellipse, rect.actor, .actor rect"
+      ).forEach((shape) => {
+        shape.setAttribute("fill", "#f3e7cf");
+        shape.setAttribute("stroke", "#8c672b");
+        shape.style.setProperty("fill", "#f3e7cf", "important");
+        shape.style.setProperty("stroke", "#8c672b", "important");
+        shape.style.setProperty("stroke-width", "1.8px", "important");
+        shape.style.setProperty("opacity", "1", "important");
+      });
+
       svg.querySelectorAll(".edgeLabel rect, .labelBox, .labelBkg")
         .forEach((box) => {
+          box.setAttribute("fill", "#fffdf8");
           box.style.setProperty("fill", "#fffdf8", "important");
-          box.style.setProperty("stroke", "#d1b67e", "important");
+          box.style.setProperty("stroke", "#c6a564", "important");
           box.style.setProperty("opacity", "1", "important");
         });
 
       svg.querySelectorAll(
-        ".messageLine0, .messageLine1, .actor-line, .flowchart-link, path.path"
+        ".messageLine0, .messageLine1, .actor-line, .flowchart-link, path.path, line"
       ).forEach((line) => {
-        line.style.setProperty("stroke", "#4b5b70", "important");
-        line.style.setProperty("stroke-width", "1.8px", "important");
+        line.setAttribute("stroke", "#34445a");
+        line.style.setProperty("stroke", "#34445a", "important");
+        line.style.setProperty("stroke-width", "1.9px", "important");
+        line.style.setProperty("opacity", "1", "important");
       });
 
       svg.querySelectorAll("marker path").forEach((marker) => {
-        marker.style.setProperty("fill", "#4b5b70", "important");
-        marker.style.setProperty("stroke", "#4b5b70", "important");
+        marker.setAttribute("fill", "#34445a");
+        marker.setAttribute("stroke", "#34445a");
+        marker.style.setProperty("fill", "#34445a", "important");
+        marker.style.setProperty("stroke", "#34445a", "important");
       });
     });
+  };
+
+  let mermaidObserver;
+
+  const observeMermaidRendering = () => {
+    if (mermaidObserver) {
+      mermaidObserver.disconnect();
+    }
+
+    mermaidObserver = new MutationObserver(() => {
+      styleRenderedMermaid();
+    });
+
+    mermaidObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    window.setTimeout(styleRenderedMermaid, 50);
+    window.setTimeout(styleRenderedMermaid, 250);
+    window.setTimeout(styleRenderedMermaid, 750);
   };
 
   const initializeMermaid = async () => {
@@ -144,25 +175,25 @@
       theme: "base",
       themeVariables: {
         background: "#fcfaf5",
-        primaryColor: "#17263d",
-        primaryTextColor: "#fffaf0",
-        primaryBorderColor: "#b78d49",
-        secondaryColor: "#204f4b",
-        secondaryTextColor: "#fffaf0",
-        secondaryBorderColor: "#8fbab5",
+        primaryColor: "#f3e7cf",
+        primaryTextColor: "#172033",
+        primaryBorderColor: "#8c672b",
+        secondaryColor: "#dcebe8",
+        secondaryTextColor: "#172033",
+        secondaryBorderColor: "#497f79",
         tertiaryColor: "#f2ede2",
         tertiaryTextColor: "#172033",
         tertiaryBorderColor: "#a98a55",
         lineColor: "#4b5b70",
         textColor: "#172033",
-        mainBkg: "#17263d",
-        nodeBorder: "#b78d49",
+        mainBkg: "#f3e7cf",
+        nodeBorder: "#8c672b",
         clusterBkg: "#f2ede2",
         clusterBorder: "#a98a55",
         edgeLabelBackground: "#fffdf8",
-        actorBkg: "#17263d",
-        actorBorder: "#b78d49",
-        actorTextColor: "#fffaf0",
+        actorBkg: "#f3e7cf",
+        actorBorder: "#8c672b",
+        actorTextColor: "#172033",
         actorLineColor: "#647086",
         signalColor: "#4b5b70",
         signalTextColor: "#172033",
@@ -189,6 +220,7 @@
     if (nodes.length) {
       await window.mermaid.run({ nodes });
       styleRenderedMermaid();
+      observeMermaidRendering();
     }
   };
 
@@ -196,6 +228,7 @@
     initializeCourseNavToggle();
     updateProgress();
     initializeMermaid();
+    observeMermaidRendering();
 
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(collapseCourseSections);
