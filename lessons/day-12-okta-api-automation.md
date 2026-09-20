@@ -312,6 +312,34 @@ A practical Okta behavior matters here:
 
 Do not plan to use a client secret as the token-endpoint credential for this Okta API service pattern.
 
+## DPoP is a separate option
+
+Some service-app configurations expose:
+
+~~~text
+Require Demonstrating Proof of Possession (DPoP) header in token requests
+~~~
+
+The core Day 12 helper does not implement DPoP.
+
+For this lab, keep that requirement disabled.
+
+Do not confuse the two key uses:
+
+~~~text
+private_key_jwt key pair
+-> authenticates the OAuth client
+
+DPoP key pair
+-> sender-constrains a token/proves possession for DPoP requests
+~~~
+
+Okta documents these as separate JWKs.
+
+Know the DPoP setting exists because an unexpected DPoP requirement can make an otherwise correct private_key_jwt token request fail.
+
+DPoP stays a recognize-only advanced topic in this course.
+
 ## The client assertion
 
 The client assertion is a short-lived JWT used to authenticate the OAuth client to the token endpoint.
@@ -1058,10 +1086,12 @@ Automation signs with kid B
 Verify successful token acquisition
         |
         v
-Retire public key A after safe overlap
+Deactivate and retire public key A after safe overlap
 ~~~
 
 Do not remove key A before every running instance of the automation has moved to key B.
+
+When using Okta's signing-key management API, deactivate an old key before deleting it.
 
 ## Private-key storage
 
