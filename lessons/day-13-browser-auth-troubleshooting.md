@@ -740,3 +740,696 @@ Current Okta Auth JS redirect guidance recommends a custom domain for reliable b
 Do not diagnose every sign-in problem as third-party cookies.
 
 Keep browser privacy and domain architecture in the evidence set when behavior differs by browser or profile.
+
+
+## Case 10: works in Postman, fails in browser
+
+This is useful evidence.
+
+Postman proves:
+
+~~~text
+that specific HTTP request worked outside browser security/runtime behavior
+~~~
+
+It does not prove:
+
+~~~text
+browser redirect handling
+CORS
+cookie behavior
+browser storage
+callback routing
+SPA transaction state
+mixed content
+browser privacy behavior
+application JavaScript
+~~~
+
+Therefore:
+
+~~~text
+Postman works
++
+browser fails
+~~~
+
+moves browser-specific layers higher in the investigation.
+
+It does not automatically prove the complete browser integration is configured correctly.
+
+## Case 11: CORS
+
+CORS is enforced by browsers.
+
+Server-to-server clients such as:
+
+~~~text
+Python
+Postman
+curl
+backend Web Application
+~~~
+
+are not blocked by browser CORS enforcement.
+
+Browser JavaScript can be.
+
+The first question is:
+
+> Which browser request is cross-origin?
+
+Record:
+
+~~~text
+page origin
+target origin
+HTTP method
+request headers
+preflight OPTIONS present?
+response Access-Control-Allow-* headers
+browser Console error
+~~~
+
+Do not start by adding origins randomly.
+
+## Your own API vs Okta Trusted Origins
+
+These are different configuration owners.
+
+### Browser SPA calls your Employee API
+
+Example:
+
+~~~text
+SPA:
+http://localhost:5173
+
+API:
+http://localhost:7000
+~~~
+
+If browser JavaScript calls the Employee API directly, your Employee API must return the appropriate CORS response for the SPA origin.
+
+Adding an Okta Trusted Origin does not configure CORS on your Flask, Java, Node, or other application API.
+
+### Browser JavaScript calls an Okta API using the Okta session cookie
+
+Okta Trusted Origins can be relevant.
+
+Okta requires explicitly permitted origins for supported cookie/session-based cross-origin calls.
+
+### Browser uses an OAuth bearer token to call a supported Okta API
+
+Okta documents an important distinction:
+
+~~~text
+Bearer-token Okta API request
+-> does not rely on the Okta session cookie
+-> Trusted Origin is not required for cookie-based trust
+~~~
+
+Do not use:
+
+~~~text
+CORS error
+-> always add Trusted Origin
+~~~
+
+as a troubleshooting rule.
+
+## Endpoint CORS support matters
+
+Even with a trusted origin, not every operation is automatically browser-callable.
+
+Okta documents CORS support per API operation.
+
+For your own API, your framework's CORS configuration decides what the browser receives.
+
+Always ask:
+
+~~~text
+Does the endpoint support this browser call?
+Does the server allow this origin?
+Does it allow this method?
+Does it allow required headers?
+Are credentials involved?
+~~~
+
+## Preflight requests
+
+Browser JavaScript may send:
+
+~~~http
+OPTIONS /resource
+Origin: http://localhost:5173
+Access-Control-Request-Method: GET
+Access-Control-Request-Headers: authorization
+~~~
+
+before the actual request.
+
+If the preflight fails, the browser may never send the protected GET or POST.
+
+That creates a useful troubleshooting question:
+
+> Did my API receive the real request, or only the preflight?
+
+## Case 12: wrong app type
+
+Architecture and app registration must agree.
+
+Examples:
+
+~~~text
+SPA
+-> public client
+-> no protected client secret
+
+Server-side Web Application
+-> confidential client
+-> client authentication
+~~~
+
+If a browser public client is configured as a confidential client that requires a secret, the flow can fail at token exchange.
+
+Do not repair that by embedding a secret into JavaScript.
+
+Fix the app/client architecture.
+
+## Case 13: callback reached SPA but SPA remains signed out
+
+Prove:
+
+~~~text
+callback URL reached?
+code/state returned?
+token request attempted?
+token request succeeded?
+callback parsing succeeded?
+tokens entered token manager?
+auth-state manager updated?
+application route/UI recognized auth state?
+~~~
+
+Possible result:
+
+~~~text
+OAuth succeeded
+but
+SPA application state failed
+~~~
+
+Do not restart authentication-policy troubleshooting after token issuance is already proven.
+
+## Case 14: callback reached Web Application but user still appears signed out
+
+Prove:
+
+~~~text
+callback reached?
+state validated?
+backend /token succeeded?
+ID token validated?
+local session created?
+Set-Cookie returned?
+cookie stored?
+cookie sent back?
+server found session?
+~~~
+
+This is one of the strongest examples of:
+
+~~~text
+OIDC authentication success
+!=
+application-session success
+~~~
+
+## Case 15: environment works in dev, fails in prod
+
+Compare environment values systematically.
+
+~~~text
+issuer
+client ID
+app type
+redirect URI
+sign-out URI
+browser origin
+Trusted Origin need
+custom domain
+HTTPS
+cookie Secure/SameSite/domain
+application base URL
+reverse proxy headers
+load balancer
+session-store sharing
+policy assignment
+app assignment
+authorization-server policy
+~~~
+
+Do not copy dev settings into production one line at a time until it starts working.
+
+Create a difference table.
+
+## Environment comparison table
+
+| Setting | Dev | Prod | Same intentionally? |
+|---|---|---|---|
+| Issuer |  |  |  |
+| Client ID |  |  |  |
+| App type |  |  |  |
+| Redirect URI |  |  |  |
+| Sign-out URI |  |  |  |
+| Browser origin |  |  |  |
+| Trusted Origin need |  |  |  |
+| HTTPS |  |  |  |
+| Cookie settings |  |  |  |
+| App sign-in policy |  |  |  |
+| Controlled Access |  |  |  |
+| Assignment |  |  |  |
+
+Treat an environment mismatch as a hypothesis you prove from the table.
+
+## Use System Log as correlated evidence
+
+Okta's System Log is especially useful for:
+
+~~~text
+user sign-in
+session creation
+SSO to app
+assignment changes
+policy evaluation
+failed authentication
+~~~
+
+Do not read one isolated row and stop.
+
+Correlate related events when possible using:
+
+~~~text
+transaction.id
+authenticationContext.externalSessionId
+authenticationContext.rootSessionId
+time
+user
+application/client
+~~~
+
+A System Log success also does not prove:
+
+~~~text
+your callback route executed correctly
+your backend created a local session
+your SPA stored tokens
+your browser accepted your app cookie
+~~~
+
+Those are application/browser facts.
+
+## The last-successful-step decision sequence
+
+### Browser never left app
+
+Investigate:
+
+~~~text
+application click/route
+JavaScript error
+configuration initialization
+SDK initialization
+~~~
+
+### Browser reached /authorize but Okta rejected request
+
+Investigate:
+
+~~~text
+client ID
+redirect URI
+issuer/endpoint
+request parameters
+app status
+~~~
+
+### User reached sign-in but access or authentication was denied
+
+Investigate:
+
+~~~text
+assignment/Controlled Access
+user state
+Global Session Policy
+app sign-in policy
+authenticator state
+routing/IdP if relevant
+System Log
+~~~
+
+### Callback reached app but app rejects it
+
+Investigate:
+
+~~~text
+state
+pending transaction
+callback route
+code
+transaction cookie/storage
+~~~
+
+### /token failed
+
+Investigate:
+
+~~~text
+code
+PKCE verifier
+redirect URI
+client authentication
+issuer/token endpoint
+code reuse/expiry
+~~~
+
+Day 14 goes deeper into token-endpoint failures.
+
+### Tokens validated but app still says signed out
+
+Investigate:
+
+~~~text
+local app session
+SPA auth state
+cookie/storage
+protected-route logic
+~~~
+
+### Browser API call fails while Postman works
+
+Investigate:
+
+~~~text
+CORS
+origin
+preflight
+browser headers
+cookie/privacy
+mixed content
+JavaScript request construction
+~~~
+
+## Do not change multiple controls at once
+
+Bad troubleshooting:
+
+~~~text
+change redirect URI
+add Trusted Origin
+change policy
+clear cookies
+change issuer
+restart app
+~~~
+
+Then:
+
+> It works now.
+
+You do not know why.
+
+Better:
+
+~~~text
+1. Capture baseline failure.
+2. State one hypothesis.
+3. Change one relevant control.
+4. Repeat the same transaction.
+5. Compare evidence.
+6. Restore temporary diagnostic changes.
+~~~
+
+## Distinguish observation from interpretation
+
+### Observation
+
+~~~text
+Browser Network:
+callback request contains code and state
+
+Backend log:
+State validation passed
+
+Backend log:
+No token exchange success
+~~~
+
+### Interpretation
+
+~~~text
+Browser authorization reached the callback.
+Failure occurs at or after backend token exchange.
+~~~
+
+Do not write:
+
+> Okta is broken.
+
+That is not evidence.
+
+## Incident note quality
+
+Weak:
+
+> Login failed because CORS. Added origin and fixed it.
+
+Strong:
+
+~~~text
+Observed symptom:
+SPA returned from sign-in, but browser API request failed.
+
+Last confirmed successful step:
+OAuth callback processed and access token was present.
+
+First failed step:
+Browser preflight to Employee API.
+
+Evidence:
+OPTIONS response did not allow http://localhost:5173.
+The same API GET succeeded in Postman.
+
+Root cause:
+Employee API CORS policy did not allow the SPA development origin.
+
+Change:
+Allowed only the SPA development origin on the Employee API.
+
+Proof:
+OPTIONS succeeded and browser sent the subsequent GET successfully.
+~~~
+
+The strong note can be reviewed and repeated.
+
+## Safe policy testing
+
+Do not casually edit a broad Global Session Policy or shared app sign-in policy just to create a lab failure.
+
+Prefer:
+
+~~~text
+dedicated test app
+dedicated test user/group
+narrow app sign-in policy
+temporary change
+restore immediately after evidence capture
+~~~
+
+The same principle applies to assignment testing.
+
+Do not unassign your only administrator or only test identity.
+
+## Common mistakes
+
+### Mistake 1: Start with a favorite cause
+
+Examples:
+
+~~~text
+always assignment
+always cookies
+always CORS
+always policy
+~~~
+
+Wrong.
+
+Find the failed checkpoint first.
+
+### Mistake 2: Treat all policies as one policy
+
+Wrong.
+
+Authentication policies and Authorization Server access policies solve different problems.
+
+### Mistake 3: Add Trusted Origin for every browser error
+
+Wrong.
+
+Identify the actual cross-origin request and authorization model.
+
+### Mistake 4: Treat Postman success as proof browser config is correct
+
+Wrong.
+
+Postman does not reproduce browser runtime enforcement.
+
+### Mistake 5: Treat successful Okta authentication as proof app session exists
+
+Wrong.
+
+The application still creates and retains its own authenticated state.
+
+### Mistake 6: Clear cookies before collecting evidence
+
+You can destroy the state that explains the incident.
+
+Capture first.
+
+### Mistake 7: Copy live credentials into a ticket
+
+Never.
+
+Use safe metadata.
+
+### Mistake 8: Change Global Session Policy casually
+
+It can affect many applications and users.
+
+Use a narrow test policy/group where possible.
+
+### Mistake 9: Unassign your only admin/test identity carelessly
+
+Use a disposable test user or group.
+
+Do not lock yourself out of the lab.
+
+### Mistake 10: Call a nonce failure a state failure
+
+They protect different transaction stages.
+
+### Mistake 11: Diagnose a login loop without drawing one cycle
+
+You need to know which step repeats.
+
+### Mistake 12: Ignore environment differences
+
+A correct dev flow does not prove production values match.
+
+## What you should be able to explain
+
+1. What is the last-successful-step method?
+2. What evidence belongs in Browser Network?
+3. What does System Log prove well?
+4. What does System Log not prove about your application?
+5. How do you prove a redirect URI mismatch?
+6. What is the difference between missing transaction state and state mismatch?
+7. Where does nonce validation occur?
+8. How do you troubleshoot an issuer problem?
+9. When does app assignment matter?
+10. What does Controlled Access change?
+11. Which policy layers should you inspect for unexpected MFA?
+12. Why should you not begin with Authorization Server access policies for an MFA prompt?
+13. Why can local logout be followed by immediate SSO?
+14. How do you break a login loop into checkpoints?
+15. How do you distinguish browser cookie failure from server session-store failure?
+16. Why does Postman success not prove the SPA is correct?
+17. What is CORS?
+18. Who configures CORS when the SPA calls your own API?
+19. When are Okta Trusted Origins relevant?
+20. Why do bearer-token calls to supported Okta APIs not necessarily need Trusted Origins?
+21. Why does endpoint CORS support matter?
+22. What does a preflight prove?
+23. Why can OAuth succeed while the UI still shows signed out?
+24. How do you compare dev and prod systematically?
+25. What makes a troubleshooting note evidence-based?
+
+## Day 13 lab
+
+[Day 13 Lab - Browser and Authentication Troubleshooting](../labs/day-13-browser-auth-troubleshooting.md)
+
+The lab reuses:
+
+~~~text
+Day 7 server-side Web Application
+Day 7 browser SPA
+Day 10 session lifecycle app
+Okta System Log
+Browser DevTools
+~~~
+
+and adds one small local CORS evidence helper.
+
+You will diagnose deliberately broken cases without reading the answer first.
+
+## Day 13 completion standard
+
+Day 13 is complete when you can take:
+
+> Login does not work.
+
+and turn it into:
+
+~~~text
+Browser left app?
+        |
+Reached Okta?
+        |
+/authorize accepted?
+        |
+User authenticated?
+        |
+App access/policy allowed?
+        |
+Callback returned?
+        |
+State/transaction valid?
+        |
+/token succeeded?
+        |
+OIDC response validated?
+        |
+Local application auth state created?
+        |
+Browser stored/sent required app state?
+~~~
+
+You should be able to investigate:
+
+~~~text
+redirect mismatch
+wrong issuer
+assignment
+unexpected MFA
+state/transaction loss
+nonce failure
+cookie/session failure
+login loop
+CORS
+Trusted Origins
+Postman-vs-browser differences
+dev-vs-prod differences
+~~~
+
+without changing unrelated configuration.
+
+## Official references
+
+- [Okta: Configure a global session policy and app sign-in policies](https://developer.okta.com/docs/guides/configure-signon-policy/main/)
+- [Okta: Policies](https://developer.okta.com/docs/concepts/policies/)
+- [Okta: Sign users in using the redirect model](https://developer.okta.com/docs/guides/auth-js-redirect/main/)
+- [Okta: Enable CORS](https://developer.okta.com/docs/guides/enable-cors/main/)
+- [Okta: System Log query and event correlation](https://developer.okta.com/docs/reference/system-log-query/)
+- [Okta: Create an app integration](https://developer.okta.com/docs/guides/create-an-app-integration/-/main/)
