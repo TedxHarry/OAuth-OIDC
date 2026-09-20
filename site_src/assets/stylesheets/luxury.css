@@ -955,9 +955,10 @@ input {
 /* Collapsible left course navigation button */
 .course-nav-toggle {
   position: fixed;
-  z-index: 20;
-  top: 5.15rem;
-  left: 16.15rem;
+  z-index: 50;
+  top: auto;
+  bottom: 1.15rem;
+  left: 1.15rem;
   min-width: 96px;
   height: 36px;
   padding: 0 .75rem;
@@ -985,7 +986,7 @@ input {
 }
 
 body.course-nav-collapsed .course-nav-toggle {
-  left: .85rem;
+  left: 1.15rem;
 }
 
 [data-md-color-scheme="luxury-dark"] .course-nav-toggle {
@@ -1142,4 +1143,121 @@ body.course-nav-collapsed .course-nav-toggle {
 
 [data-md-color-scheme="luxury-dark"] .md-content .md-typeset > h1:first-child {
   color: #fff8ea;
+}
+
+
+/* Mermaid rendered-SVG contrast lock
+   Mermaid injects styles inside each SVG. These rules plus the JS post-render
+   pass keep node and edge labels readable regardless of Mermaid defaults. */
+.mermaid,
+[data-md-color-scheme="luxury-dark"] .mermaid {
+  background: #fcfaf5 !important;
+  border: 1px solid #d7c39a !important;
+  box-shadow:
+    0 16px 44px rgba(17, 24, 39, .08),
+    inset 0 0 0 1px rgba(255,255,255,.72);
+}
+
+.mermaid svg {
+  background: transparent !important;
+}
+
+.mermaid svg .node rect,
+.mermaid svg .node polygon,
+.mermaid svg .node circle,
+.mermaid svg .node ellipse,
+.mermaid svg rect.actor,
+.mermaid svg .actor rect {
+  fill: #17263d !important;
+  stroke: #b78d49 !important;
+  stroke-width: 1.7px !important;
+}
+
+.mermaid svg .nodeLabel,
+.mermaid svg .nodeLabel p,
+.mermaid svg .nodeLabel span,
+.mermaid svg .node foreignObject div,
+.mermaid svg .actor text,
+.mermaid svg .actor tspan,
+.mermaid svg text.actor,
+.mermaid svg text.actor tspan {
+  color: #fffaf0 !important;
+  fill: #fffaf0 !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg .edgeLabel,
+.mermaid svg .edgeLabel p,
+.mermaid svg .edgeLabel span,
+.mermaid svg .edgeLabel foreignObject div,
+.mermaid svg .messageText,
+.mermaid svg .messageText tspan,
+.mermaid svg .labelText,
+.mermaid svg .labelText tspan,
+.mermaid svg .loopText,
+.mermaid svg .loopText tspan {
+  color: #172033 !important;
+  fill: #172033 !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg .edgeLabel rect,
+.mermaid svg .labelBox,
+.mermaid svg .labelBkg {
+  fill: #fffdf8 !important;
+  stroke: #d1b67e !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg .messageLine0,
+.mermaid svg .messageLine1,
+.mermaid svg .actor-line,
+.mermaid svg .flowchart-link,
+.mermaid svg path.path {
+  stroke: #4b5b70 !important;
+  stroke-width: 1.8px !important;
+}
+
+.mermaid svg marker path {
+  fill: #4b5b70 !important;
+  stroke: #4b5b70 !important;
+}
+
+.mermaid svg .note {
+  fill: #fff1c9 !important;
+  stroke: #b78d49 !important;
+}
+
+.mermaid svg .noteText,
+.mermaid svg .noteText tspan,
+.mermaid svg .note text,
+.mermaid svg .note tspan {
+  color: #172033 !important;
+  fill: #172033 !important;
+}
+
+.mermaid svg .cluster rect {
+  fill: #f2ede2 !important;
+  stroke: #a98a55 !important;
+}
+
+.mermaid svg .cluster-label,
+.mermaid svg .cluster-label p,
+.mermaid svg .cluster-label span,
+.mermaid svg .cluster-label text {
+  color: #172033 !important;
+  fill: #172033 !important;
+}
+
+/* Compact bottom-left navigation control. */
+.course-nav-toggle {
+  min-width: 92px;
+  height: 38px;
+  padding: 0 .72rem;
+  background: rgba(255, 253, 248, .96);
+  backdrop-filter: blur(10px);
+}
+
+[data-md-color-scheme="luxury-dark"] .course-nav-toggle {
+  background: rgba(21, 31, 51, .96);
 }
