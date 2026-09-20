@@ -80,4 +80,10 @@ Day 12 uses the Org Authorization Server and `private_key_jwt`. The private key 
 
 The Day 13 Web harness hides five fault causes behind Case A-E so the learner must diagnose from Browser Network, application stage logs, and Okta evidence before opening the answer key. The CORS helper demonstrates that a browser can fail at preflight while the same API succeeds from curl or Postman.
 
+### Day 14 token, API, refresh, and automation troubleshooting
+
+- [Python - safe Custom-AS JWT token probe](python/day14_token_probe.py)
+
+The Day 14 probe accepts a Custom Authorization Server JWT through a hidden prompt, never prints the raw credential, shows only selected troubleshooting metadata, checks the token kid against the current JWKS from the configured trusted issuer, performs local signature/issuer/audience/time validation, and can call the course API with controlled malformed, unknown-kid, or invalid-signature faults. Do not use it to derive authorization decisions from Org Authorization Server tokens intended for Okta.
+
 Production integrations should normally use maintained OAuth/OIDC libraries and proper secret/key storage rather than hand-built protocol code.
