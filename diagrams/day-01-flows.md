@@ -4,6 +4,8 @@ These diagrams support the Day 1 lesson. They are intentionally simple. Day 2 an
 
 ## 1. Authentication and API authorization are separate problems
 
+**Question answered:** Which part of the requirement is user authentication, and which part is API authorization?
+
 ```mermaid
 flowchart LR
     U[Employee] --> C[Employee Portal]
@@ -24,6 +26,8 @@ API authorization
 ```
 
 ## 2. Who consumes which token
+
+**Question answered:** Which component is supposed to consume the ID token, and which component receives the access token?
 
 ```mermaid
 flowchart TB
@@ -47,6 +51,8 @@ Access token
 
 ## 3. Public client and confidential client
 
+**Question answered:** Can the application component protect a client credential from the end user?
+
 ```mermaid
 flowchart LR
     subgraph Public_Client
@@ -69,6 +75,8 @@ The deciding question is:
 
 ## 4. User-facing application path
 
+**Question answered:** What is the high-level path when a human user signs in and the application later calls an API?
+
 ```mermaid
 sequenceDiagram
     participant U as Employee
@@ -88,6 +96,8 @@ sequenceDiagram
 Day 3 expands the sign-in portion into the actual Authorization Code + PKCE transaction.
 
 ## 5. Scheduled service path
+
+**Question answered:** What changes when a service calls the API without a human user?
 
 ```mermaid
 sequenceDiagram
@@ -113,6 +123,8 @@ Access token used for API access
 Day 11 implements this using Client Credentials.
 
 ## 6. Know where OAuth/OIDC stops
+
+**Question answered:** Which requirement belongs to OAuth/OIDC, and which requirement belongs to account provisioning/lifecycle?
 
 ```mermaid
 flowchart TB
