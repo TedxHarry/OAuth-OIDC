@@ -28,8 +28,9 @@ Hands-on work is used when it helps the learner understand the concept more clea
 - [Day 12 - Automate Okta Management APIs](day-12-okta-api-automation.md)
 - [Day 13 - Browser and authentication troubleshooting](day-13-browser-auth-troubleshooting.md)
 - [Day 14 - Token, API, refresh, and automation troubleshooting](day-14-token-api-automation-troubleshooting.md)
+- [Day 15 - End-to-end implementation capstone](day-15-capstone.md)
 
-More lab files will be added as we execute each day.
+All 15 core-course labs are now available.
 
 ## Working method
 
