@@ -69,7 +69,6 @@ extra_css:
   - assets/stylesheets/luxury.css
 
 extra_javascript:
-  - https://unpkg.com/mermaid@11/dist/mermaid.min.js
   - assets/javascripts/course.js
 
 extra:
