@@ -37,14 +37,17 @@
     const collapsed =
       document.body.classList.contains("course-nav-collapsed");
 
-    button.textContent = collapsed ? "☰ Course" : "‹ Hide course";
+    button.textContent = collapsed ? "Course" : "Hide";
     button.setAttribute(
       "aria-label",
       collapsed
         ? "Show course navigation"
         : "Hide course navigation"
     );
-    button.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    button.setAttribute(
+      "aria-expanded",
+      collapsed ? "false" : "true"
+    );
   };
 
   const initializeCourseNavToggle = () => {
@@ -71,7 +74,8 @@
     }
 
     if (window.innerWidth >= 1220) {
-      const saved = localStorage.getItem("course-nav-collapsed");
+      const saved =
+        localStorage.getItem("course-nav-collapsed");
 
       document.body.classList.toggle(
         "course-nav-collapsed",
@@ -86,153 +90,211 @@
     }
   };
 
-  const mermaidSvgs = () => {
-    return Array.from(
-      document.querySelectorAll(
-        ".mermaid svg, svg[id^='mermaid-'], svg[aria-roledescription*='flowchart'], svg[aria-roledescription*='sequence']"
-      )
-    );
-  };
+  let mermaidModulePromise;
 
-  const styleRenderedMermaid = () => {
-    mermaidSvgs().forEach((svg) => {
-      svg.style.setProperty("background", "#fffdf8", "important");
-
-      svg.querySelectorAll(
-        "text, tspan, foreignObject, foreignObject *, .nodeLabel, .nodeLabel *, .edgeLabel, .edgeLabel *, .messageText, .messageText *, .labelText, .labelText *, .loopText, .loopText *, .noteText, .noteText *, .cluster-label, .cluster-label *"
-      ).forEach((label) => {
-        label.style.setProperty("color", "#172033", "important");
-        label.style.setProperty("fill", "#172033", "important");
-        label.style.setProperty("opacity", "1", "important");
-      });
-
-      svg.querySelectorAll(
-        ".node rect, .node polygon, .node circle, .node ellipse, rect.actor, .actor rect"
-      ).forEach((shape) => {
-        shape.setAttribute("fill", "#f3e7cf");
-        shape.setAttribute("stroke", "#8c672b");
-        shape.style.setProperty("fill", "#f3e7cf", "important");
-        shape.style.setProperty("stroke", "#8c672b", "important");
-        shape.style.setProperty("stroke-width", "1.8px", "important");
-        shape.style.setProperty("opacity", "1", "important");
-      });
-
-      svg.querySelectorAll(".edgeLabel rect, .labelBox, .labelBkg")
-        .forEach((box) => {
-          box.setAttribute("fill", "#fffdf8");
-          box.style.setProperty("fill", "#fffdf8", "important");
-          box.style.setProperty("stroke", "#c6a564", "important");
-          box.style.setProperty("opacity", "1", "important");
-        });
-
-      svg.querySelectorAll(
-        ".messageLine0, .messageLine1, .actor-line, .flowchart-link, path.path, line"
-      ).forEach((line) => {
-        line.setAttribute("stroke", "#34445a");
-        line.style.setProperty("stroke", "#34445a", "important");
-        line.style.setProperty("stroke-width", "1.9px", "important");
-        line.style.setProperty("opacity", "1", "important");
-      });
-
-      svg.querySelectorAll("marker path").forEach((marker) => {
-        marker.setAttribute("fill", "#34445a");
-        marker.setAttribute("stroke", "#34445a");
-        marker.style.setProperty("fill", "#34445a", "important");
-        marker.style.setProperty("stroke", "#34445a", "important");
-      });
-    });
-  };
-
-  let mermaidObserver;
-
-  const observeMermaidRendering = () => {
-    if (mermaidObserver) {
-      mermaidObserver.disconnect();
+  const getMermaid = async () => {
+    if (!mermaidModulePromise) {
+      mermaidModulePromise = import(
+        "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+      );
     }
 
-    mermaidObserver = new MutationObserver(() => {
-      styleRenderedMermaid();
-    });
+    const module = await mermaidModulePromise;
+    return module.default;
+  };
 
-    mermaidObserver.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
+  const mermaidThemeCss = `
+    .node rect,
+    .node polygon,
+    .node circle,
+    .node ellipse,
+    rect.actor {
+      fill: #f3e7cf !important;
+      stroke: #8c672b !important;
+      stroke-width: 1.8px !important;
+    }
 
-    window.setTimeout(styleRenderedMermaid, 50);
-    window.setTimeout(styleRenderedMermaid, 250);
-    window.setTimeout(styleRenderedMermaid, 750);
+    text,
+    tspan,
+    .nodeLabel,
+    .nodeLabel *,
+    .edgeLabel,
+    .edgeLabel *,
+    .messageText,
+    .labelText,
+    .loopText,
+    .noteText,
+    .actor,
+    .cluster-label {
+      fill: #172033 !important;
+      color: #172033 !important;
+      opacity: 1 !important;
+      font-weight: 600 !important;
+    }
+
+    .edgeLabel rect,
+    .labelBox,
+    .labelBkg {
+      fill: #fffdf8 !important;
+      stroke: #c6a564 !important;
+      opacity: 1 !important;
+    }
+
+    .flowchart-link,
+    .messageLine0,
+    .messageLine1,
+    .actor-line,
+    path.path,
+    line {
+      stroke: #34445a !important;
+      stroke-width: 1.9px !important;
+      opacity: 1 !important;
+    }
+
+    marker path {
+      fill: #34445a !important;
+      stroke: #34445a !important;
+    }
+
+    .note {
+      fill: #fff0c7 !important;
+      stroke: #9a7130 !important;
+    }
+
+    .cluster rect {
+      fill: #edf3f1 !important;
+      stroke: #497f79 !important;
+    }
+  `;
+
+  const reinforceMermaidContrast = () => {
+    document
+      .querySelectorAll(".mermaid svg")
+      .forEach((svg) => {
+        svg.style.background = "#fffdf8";
+
+        svg
+          .querySelectorAll(
+            "text, tspan, .nodeLabel, .edgeLabel, .messageText, .labelText, .loopText, .noteText, .cluster-label"
+          )
+          .forEach((label) => {
+            label.style.setProperty(
+              "fill",
+              "#172033",
+              "important"
+            );
+            label.style.setProperty(
+              "color",
+              "#172033",
+              "important"
+            );
+            label.style.setProperty(
+              "opacity",
+              "1",
+              "important"
+            );
+          });
+
+        svg
+          .querySelectorAll(
+            ".node rect, .node polygon, .node circle, .node ellipse, rect.actor"
+          )
+          .forEach((shape) => {
+            shape.style.setProperty(
+              "fill",
+              "#f3e7cf",
+              "important"
+            );
+            shape.style.setProperty(
+              "stroke",
+              "#8c672b",
+              "important"
+            );
+          });
+      });
   };
 
   const initializeMermaid = async () => {
-    if (!window.mermaid) {
+    const nodes = Array.from(
+      document.querySelectorAll(".mermaid")
+    );
+
+    if (!nodes.length) {
       return;
     }
 
-    window.mermaid.initialize({
-      startOnLoad: false,
-      securityLevel: "strict",
-      theme: "base",
-      themeVariables: {
-        background: "#fcfaf5",
-        primaryColor: "#f3e7cf",
-        primaryTextColor: "#172033",
-        primaryBorderColor: "#8c672b",
-        secondaryColor: "#dcebe8",
-        secondaryTextColor: "#172033",
-        secondaryBorderColor: "#497f79",
-        tertiaryColor: "#f2ede2",
-        tertiaryTextColor: "#172033",
-        tertiaryBorderColor: "#a98a55",
-        lineColor: "#4b5b70",
-        textColor: "#172033",
-        mainBkg: "#f3e7cf",
-        nodeBorder: "#8c672b",
-        clusterBkg: "#f2ede2",
-        clusterBorder: "#a98a55",
-        edgeLabelBackground: "#fffdf8",
-        actorBkg: "#f3e7cf",
-        actorBorder: "#8c672b",
-        actorTextColor: "#172033",
-        actorLineColor: "#647086",
-        signalColor: "#4b5b70",
-        signalTextColor: "#172033",
-        labelBoxBkgColor: "#fffdf8",
-        labelBoxBorderColor: "#d1b67e",
-        labelTextColor: "#172033",
-        loopTextColor: "#172033",
-        noteBkgColor: "#fff1c9",
-        noteBorderColor: "#b78d49",
-        noteTextColor: "#172033",
-        activationBkgColor: "#dcebea",
-        activationBorderColor: "#2f6f6a",
-        fontFamily: "Inter, system-ui, sans-serif",
-        fontSize: "16px"
-      }
-    });
+    try {
+      const mermaid = await getMermaid();
 
-    document.querySelectorAll(".mermaid").forEach((node) => {
-      node.removeAttribute("data-processed");
-    });
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        theme: "base",
+        htmlLabels: false,
+        flowchart: {
+          htmlLabels: false,
+          useMaxWidth: true
+        },
+        themeCSS: mermaidThemeCss,
+        themeVariables: {
+          background: "#fffdf8",
+          primaryColor: "#f3e7cf",
+          primaryTextColor: "#172033",
+          primaryBorderColor: "#8c672b",
+          secondaryColor: "#dcebe8",
+          secondaryTextColor: "#172033",
+          secondaryBorderColor: "#497f79",
+          tertiaryColor: "#edf3f1",
+          tertiaryTextColor: "#172033",
+          tertiaryBorderColor: "#497f79",
+          lineColor: "#34445a",
+          textColor: "#172033",
+          mainBkg: "#f3e7cf",
+          nodeBorder: "#8c672b",
+          edgeLabelBackground: "#fffdf8",
+          actorBkg: "#f3e7cf",
+          actorBorder: "#8c672b",
+          actorTextColor: "#172033",
+          actorLineColor: "#34445a",
+          signalColor: "#34445a",
+          signalTextColor: "#172033",
+          labelBoxBkgColor: "#fffdf8",
+          labelBoxBorderColor: "#c6a564",
+          labelTextColor: "#172033",
+          loopTextColor: "#172033",
+          noteBkgColor: "#fff0c7",
+          noteBorderColor: "#9a7130",
+          noteTextColor: "#172033",
+          activationBkgColor: "#dcebe8",
+          activationBorderColor: "#497f79",
+          fontFamily:
+            "Inter, system-ui, -apple-system, Segoe UI, sans-serif",
+          fontSize: "16px"
+        }
+      });
 
-    const nodes = document.querySelectorAll(".mermaid");
+      nodes.forEach((node) => {
+        node.removeAttribute("data-processed");
+      });
 
-    if (nodes.length) {
-      await window.mermaid.run({ nodes });
-      styleRenderedMermaid();
-      observeMermaidRendering();
+      await mermaid.run({ nodes });
+      reinforceMermaidContrast();
+    } catch (error) {
+      console.error("Course diagram render failed", error);
     }
   };
 
   const initializePage = () => {
     initializeCourseNavToggle();
     updateProgress();
-    initializeMermaid();
-    observeMermaidRendering();
 
     window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(collapseCourseSections);
+      window.requestAnimationFrame(
+        collapseCourseSections
+      );
     });
+
+    initializeMermaid();
   };
 
   document.addEventListener(
@@ -241,14 +303,20 @@
     { passive: true }
   );
 
-  window.addEventListener("resize", initializeCourseNavToggle);
+  window.addEventListener(
+    "resize",
+    initializeCourseNavToggle
+  );
 
   if (typeof document$ !== "undefined") {
     document$.subscribe(() => {
       window.requestAnimationFrame(initializePage);
     });
   } else if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializePage);
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializePage
+    );
   } else {
     initializePage();
   }
