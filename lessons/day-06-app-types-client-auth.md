@@ -800,8 +800,8 @@ Enable only the grants the application needs.
 2. Why is a SPA public?
 3. Why is a server-side Web Application confidential?
 4. Why is a native app public?
-5. What is an API Service integration for?
-6. Why is a resource-server API not automatically an API Service client?
+5. What is an API Services app integration for?
+6. Why is a resource-server API not automatically an API Services client?
 7. What does client ID do?
 8. What is client authentication?
 9. What does none mean?
@@ -837,7 +837,7 @@ Web Application
 
 resource server
 vs
-API Service client
+API Services client
 ~~~
 
 ## Official references
