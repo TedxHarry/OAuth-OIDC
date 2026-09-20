@@ -110,6 +110,15 @@ https://YOUR-OKTA-DOMAIN
 
 This part of the lab is about browser and application sessions, not our Employee API access token.
 
+Training security note:
+
+~~~text
+The sample uses localhost HTTP, in-memory sessions, and simple POST logout forms.
+It intentionally omits production CSRF middleware so the lifecycle is easy to inspect.
+~~~
+
+A production Web Application must use HTTPS, secure production cookies/session storage, and framework-supported CSRF protection.
+
 ## Part 2 - Start the session lifecycle app
 
 Install dependencies if needed:
