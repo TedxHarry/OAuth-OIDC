@@ -24,6 +24,7 @@ GitHub renders the Mermaid diagrams directly in Markdown.
 - [Day 8 protected API](day-08-protect-api.md)
 - [Day 9 authorization-server design](day-09-authorization-design.md)
 - [Day 10 session and token lifecycle](day-10-session-token-lifecycle.md)
+- [Day 11 Client Credentials and machine-to-machine](day-11-client-credentials.md)
 
 ## Diagram plan
 
