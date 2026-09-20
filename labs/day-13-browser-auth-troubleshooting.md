@@ -113,19 +113,13 @@ Do not clear browser state before capturing the failure.
 
 Reuse the confidential Web Application client from Day 7.
 
-Add this Sign-in redirect URI:
+Add only this Day 13 Sign-in redirect URI:
 
 ~~~text
 http://localhost:5300/callback
 ~~~
 
-Do not register:
-
-~~~text
-http://localhost:5300/wrong-callback
-~~~
-
-The wrong URI is intentionally used by one hidden case.
+Do not add any other Day 13 callback URI while running the blind cases.
 
 Confirm:
 
