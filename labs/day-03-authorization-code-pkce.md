@@ -263,11 +263,13 @@ openid
 -> request OIDC authentication and an ID token
 
 profile
--> request standard profile claims
+-> request access to standard profile claims
 
 email
--> request standard email claims
+-> request access to standard email claims
 ```
+
+Do not assume `profile` and `email` mean those claims must be inside the ID token. Claim placement is covered later.
 
 Do not continue until you can explain why the verifier is not present in the authorization URL.
 
