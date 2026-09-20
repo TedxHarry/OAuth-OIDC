@@ -9,8 +9,8 @@ Use this only as a starting point. Always confirm the failed step from the actua
 | `invalid_grant` | Authorization code expiry/reuse, redirect URI equality, PKCE verifier, refresh-token state |
 | `invalid_scope` | Requested scope, authorization server, access policy/rule, allowed scope |
 | No refresh token returned | `offline_access`, Refresh Token grant enabled, authorization-server policy |
-| API returns 401 | Token present? correct token type? signature, issuer, audience, expiry, JWKS |
-| API returns 403 | Token accepted but required scope/claim/permission missing |
+| API returns 401 | Bearer token present? access token vs ID token? Org AS vs Custom AS? signature, issuer, audience, `cid`, expiry, JWKS |
+| API returns 403 | Token accepted but required scope/claim/permission missing; inspect granted `scp` before changing token-validation settings |
 | Unknown `kid` | Wrong issuer/JWKS, stale key cache, signing-key rotation |
 | Audience mismatch | Wrong authorization server, wrong configured audience, wrong token sent to API |
 | Unexpected MFA | Global Session Policy, App Sign-In/Authentication Policy, existing session state |
