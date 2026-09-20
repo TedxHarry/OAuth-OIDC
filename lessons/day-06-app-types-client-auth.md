@@ -245,15 +245,11 @@ You do not need to build a native app in this course.
 
 You do need to classify it correctly.
 
-## API Service integration
+## API Services app integration
 
-Okta also has API Service integrations for service access to Okta APIs.
+Okta's **API Services** app type represents a machine-to-machine OAuth client.
 
-The name can confuse beginners.
-
-An API Service integration represents an OAuth service client.
-
-It is not automatically the same thing as your custom Employee API resource server.
+The name can confuse beginners because the app integration is the **client**, not the API resource server.
 
 Keep these roles separate:
 
@@ -262,15 +258,56 @@ Employee API
 -> resource server
 -> receives access tokens
 
-API Service integration
--> OAuth client/service
--> requests tokens
--> can be used for service access to Okta APIs
+API Services app integration
+-> service client
+-> requests access tokens
 ~~~
 
-We use an OAuth service app in Day 12.
+There are two important service scenarios that we deliberately separate later.
 
-Do not create one merely because your architecture contains an API.
+### Service calling your own API
+
+~~~text
+Service client
+        |
+        | Client Credentials
+        v
+Custom Authorization Server
+        |
+        | access token intended for your API
+        v
+Service client
+        |
+        | Bearer token
+        v
+Your API
+~~~
+
+This is the machine-to-machine pattern taught on Day 11.
+
+### Service calling Okta Management APIs
+
+~~~text
+OAuth service app
+        |
+        | Client Credentials
+        | private_key_jwt
+        v
+Okta Org Authorization Server
+        |
+        | token with granted okta.* scopes
+        v
+Service app
+        |
+        v
+Okta Management API
+~~~
+
+For Okta-scoped service access, Okta currently requires `private_key_jwt` client authentication. Scope grants and admin-role/resource assignments also matter.
+
+That implementation is taught on Day 12.
+
+Do not create an API Services app merely because your architecture contains an API. First identify whether the component is **requesting tokens as a service client** or **receiving tokens as a resource server**.
 
 ## Client ID is not a secret
 
@@ -723,11 +760,13 @@ Wrong.
 
 The secret belongs only on confidential backend infrastructure.
 
-### Mistake 3: Calling the Employee API an API Service client
+### Mistake 3: Calling the Employee API an API Services client
 
 Wrong.
 
-The Employee API can be only a resource server.
+If the Employee API only receives and validates bearer tokens, it is a resource server in that role.
+
+An API Services integration represents the machine-to-machine client that requests tokens.
 
 ### Mistake 4: Treating client_id as client authentication
 
