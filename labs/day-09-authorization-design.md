@@ -398,14 +398,19 @@ Grant type:
 Authorization Code
 
 User:
-the condition that limits the rule to Employee-API-HR
+Assigned the app and a member of one of the following
+
+Group:
+Employee-API-HR
 
 Scopes requested:
-the following custom scopes
+The following scopes
 
 employee.read
 salary.read
 ~~~
+
+You do not need to create or recreate openid as a custom scope. It is a reserved OIDC scope. The purpose of this rule is to allowlist the custom Employee API permissions for the HR condition.
 
 Okta Admin Console labels can vary slightly by org version.
 
