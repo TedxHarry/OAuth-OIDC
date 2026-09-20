@@ -687,13 +687,15 @@ openid
 -> allows the token response to include an ID token
 
 profile
--> requests standard profile claims
+-> requests access to standard profile claims
 
 email
--> requests standard email claims
+-> requests access to standard email claims
 ```
 
-Without `openid`, you are no longer asking for an OIDC ID token.
+Without `openid`, you are no longer making an OpenID Connect request.
+
+Do not assume that every claim associated with `profile` or `email` must appear inside the ID token. In Authorization Code flows, scope-dependent user claims can be obtained from `/userinfo`, and exact claim placement depends on the flow and configuration. We study `/userinfo` on Day 10.
 
 Later, when we protect our own API, scopes will also represent API permissions. Do not mix that later custom-API use with today's basic OIDC scopes.
 
