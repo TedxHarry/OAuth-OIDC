@@ -83,9 +83,12 @@ The **split files are the authoritative working course**:
 3. [Keep the project intake checklist for real integrations](reference/project-intake-checklist.md)
 4. [Use the engineer confidence checklist to measure progress](reference/engineer-confidence-checklist.md)
 5. [Use the Day 15 React + Spring Boot reference only after attempting the capstone](reference/day15-react-java-reference.md)
-6. [Use the consolidated master snapshot only as a reference copy](reference/master-course.md)
 
 The `advanced/` material is a second pass. Do not study it during the core 15 days.
+
+## Archived snapshot
+
+`reference/master-course.md` is retained only as a historical consolidated snapshot from earlier course development. It is not part of the learning path and may contain stale exercises or wording. Do not use it instead of the current split lessons, labs, diagrams, and checklists.
 
 ## Course structure
 
