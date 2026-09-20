@@ -75,6 +75,69 @@ def ribbon(day: str, kind: str, lesson: Path, lab: Path, diagram: Path) -> str:
     )
 
 
+def embed_diagrams_in_lesson(text: str, diagram: Path) -> str:
+    """Replace the lesson's diagram link with an inline visual walkthrough.
+
+    The diagram Markdown remains authoritative. The website embeds a generated
+    copy into the lesson so learners do not need to leave the teaching flow.
+    The dedicated diagram page is still generated for quick review.
+    """
+
+    diagram_text = diagram.read_text(encoding="utf-8")
+    first_section = re.search(r"^##\s", diagram_text, flags=re.MULTILINE)
+
+    if not first_section:
+        return text
+
+    diagram_body = diagram_text[first_section.start():].strip()
+    sections = re.split(r"(?=^##\s)", diagram_body, flags=re.MULTILINE)
+    cards: list[str] = []
+
+    for section in sections:
+        section = section.strip()
+        if not section:
+            continue
+
+        shifted = re.sub(
+            r"^(#{2,5})(\s)",
+            lambda match: "#" + match.group(1) + match.group(2),
+            section,
+            flags=re.MULTILINE,
+        )
+
+        cards.append(
+            '<div class="lesson-diagram-card" markdown="1">\n\n'
+            + shifted
+            + '\n\n</div>'
+        )
+
+    inline = (
+        "## Visual walkthrough\n\n"
+        '<div class="lesson-visual-intro" markdown="1">\n\n'
+        "**Read the flow while you learn the concept.** "
+        "The diagrams are embedded directly in the lesson so you do not need "
+        "to switch pages. Use the **Diagrams** button above when you want a "
+        "diagram-only review.\n\n"
+        "</div>\n\n"
+        + "\n\n".join(cards)
+    )
+
+    link_pattern = re.compile(
+        r"^\[Open the Day [^\]]+ diagrams\]"
+        r"\(\.\./diagrams/[^)]+\.md\)\s*$",
+        flags=re.MULTILINE,
+    )
+
+    updated, count = link_pattern.subn(inline, text, count=1)
+
+    if count != 1:
+        raise SystemExit(
+            f"Could not locate exactly one diagram link in lesson for {diagram.name}"
+        )
+
+    return updated
+
+
 def decorate_markdown(
     text: str,
     day: str,
@@ -131,6 +194,10 @@ def copy_course_pages() -> None:
 
         for kind, source in trio.items():
             text = source.read_text(encoding="utf-8")
+
+            if kind == "lesson":
+                text = embed_diagrams_in_lesson(text, diagrams[day])
+
             text = decorate_markdown(
                 text,
                 day,
