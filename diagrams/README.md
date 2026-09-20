@@ -28,6 +28,7 @@ GitHub renders the Mermaid diagrams directly in Markdown.
 - [Day 12 Okta Management API automation](day-12-okta-api-automation.md)
 - [Day 13 browser and authentication troubleshooting](day-13-browser-auth-troubleshooting.md)
 - [Day 14 token, API, refresh, and automation troubleshooting](day-14-token-api-automation-troubleshooting.md)
+- [Day 15 end-to-end capstone](day-15-capstone.md)
 
 ## Diagram plan
 
