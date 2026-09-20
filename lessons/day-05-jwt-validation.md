@@ -519,7 +519,7 @@ Day 5 validates the ID token from the org authorization server.
 
 Do not turn today's exercise into local validation of the org authorization server access token.
 
-Okta states that org authorization server access tokens are intended for Okta and should be considered opaque by your applications.
+Okta states that Org Authorization Server access tokens are intended for Okta. Your applications should treat them as opaque and should not depend on their internal contents.
 
 ~~~text
 Day 5:
