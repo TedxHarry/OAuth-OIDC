@@ -4,6 +4,8 @@ These diagrams support the Day 2 lesson.
 
 ## 1. HTTP request and response
 
+**Question answered:** What are the two halves of every HTTP exchange?
+
 ```mermaid
 sequenceDiagram
     participant C as Client
@@ -16,6 +18,8 @@ sequenceDiagram
 The client can be a browser, Postman, Python application, backend service, or another application component.
 
 ## 2. Redirect
+
+**Question answered:** How does a 302 response cause the browser to make the callback request?
 
 ```mermaid
 sequenceDiagram
@@ -33,6 +37,8 @@ The browser follows the location supplied by the server.
 
 ## 3. Front-channel communication
 
+**Question answered:** What does it mean when the browser carries messages between the application and authorization server?
+
 ```mermaid
 sequenceDiagram
     participant A as Application
@@ -48,6 +54,8 @@ sequenceDiagram
 The browser carries the transaction between the application and authorization server.
 
 ## 4. Back-channel communication
+
+**Question answered:** What does a direct backend-to-server HTTP exchange look like when the browser is not carrying that request?
 
 ```mermaid
 sequenceDiagram
@@ -65,6 +73,8 @@ The browser does not carry the direct backend-to-server request.
 
 ## 5. Cookie behavior
 
+**Question answered:** How does a server ask the browser to store a cookie, and when does the browser send it back?
+
 ```mermaid
 sequenceDiagram
     participant B as Browser
@@ -79,6 +89,8 @@ sequenceDiagram
 The browser can return cookies automatically for the appropriate site.
 
 ## 6. Bearer token API request
+
+**Question answered:** What changes between an API request with no acceptable bearer credential and one with the expected bearer token?
 
 ```mermaid
 sequenceDiagram
