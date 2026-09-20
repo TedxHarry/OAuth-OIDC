@@ -753,3 +753,743 @@ Include what the consumer actually needs.
 
 A token is not a copy of the whole user profile.
 
+
+
+## ID-token claim vs access-token claim
+
+Our Day 9 claims are configured for:
+
+~~~text
+Access Token
+~~~
+
+Therefore you should not automatically expect them in:
+
+~~~text
+ID Token
+~~~
+
+Token Preview makes this visible.
+
+This matters because:
+
+~~~text
+ID token
+-> client authentication result
+
+Access token
+-> API authorization credential
+~~~
+
+Choose claim placement based on the intended consumer.
+
+## Token Preview
+
+The Custom Authorization Server page includes Token Preview.
+
+It lets you vary request properties such as:
+
+~~~text
+OAuth/OIDC client
+grant type
+user
+scopes
+~~~
+
+and inspect the resulting token content or errors.
+
+This is useful for debugging:
+
+~~~text
+claim expression
+group filter
+scope inclusion
+policy and rule matching
+token lifetime
+claim placement
+~~~
+
+Before running a full browser flow, Token Preview can answer:
+
+> Given this client, user, grant type, and scope request, what does the authorization server think it should produce?
+
+## Token Preview is not the whole integration
+
+Token Preview does not prove:
+
+~~~text
+browser redirect works
+registered redirect URI is correct
+PKCE transaction state survives
+application callback works
+application token storage works
+resource server accepts the token
+~~~
+
+Use:
+
+~~~text
+Token Preview
+-> authorization-server configuration evidence
+
+Real Authorization Code flow
+-> client and token issuance evidence
+
+Employee API request
+-> resource-server enforcement evidence
+~~~
+
+Do not stop at Preview.
+
+## Preview test 1: HR salary token
+
+Use:
+
+~~~text
+Client:
+Employee Portal SPA
+
+Grant type:
+Authorization Code
+
+User:
+test user in Employee-API-HR
+
+Scopes:
+openid
+employee.read
+salary.read
+~~~
+
+Expected access-token properties include:
+
+~~~text
+aud = api://employee-service
+scp includes employee.read
+scp includes salary.read
+department = HR
+groups includes Employee-API-HR
+token lifetime approximately 15 minutes
+~~~
+
+That tells us the HR rule matched.
+
+## Preview test 2: HR user requests employee.read only
+
+Use the same HR user.
+
+Scopes:
+
+~~~text
+openid
+employee.read
+~~~
+
+Expected:
+
+~~~text
+employee.read present
+salary.read absent
+groups claim present
+department claim absent
+~~~
+
+This proves:
+
+~~~text
+HR membership
+does not automatically insert salary.read
+~~~
+
+The client did not request salary.read.
+
+## Preview test 3: claim placement
+
+Preview the ID token for the same transaction.
+
+Our custom Day 9 claims were configured for:
+
+~~~text
+Access Token
+~~~
+
+Therefore do not expect:
+
+~~~text
+department
+groups
+~~~
+
+to automatically appear in the ID token.
+
+Token-type placement is configuration.
+
+## Preview test 4: non-HR salary request
+
+Temporarily remove the test user from:
+
+~~~text
+Employee-API-HR
+~~~
+
+Use a fresh Token Preview or authorization request for:
+
+~~~text
+salary.read
+~~~
+
+Expected:
+
+~~~text
+no matching rule permits salary.read
+~~~
+
+The request should fail rather than mint a salary token.
+
+Record the actual error shown by your tenant.
+
+Do not replace evidence with a memorized error string.
+
+## Groups do not become scopes
+
+This is worth repeating.
+
+~~~text
+Employee-API-HR membership
+        |
+        v
+can make HR policy rule match
+        |
+        v
+rule can permit requested salary.read
+        |
+        v
+token scp contains salary.read
+~~~
+
+Not:
+
+~~~text
+Employee-API-HR
+        |
+        v
+salary.read automatically inserted
+~~~
+
+That distinction prevents a large class of authorization misunderstandings.
+
+## Claims do not become scopes either
+
+Likewise:
+
+~~~text
+department = HR
+~~~
+
+does not automatically mean:
+
+~~~text
+salary.read
+~~~
+
+The department claim is contextual information.
+
+The authorization-server policy and the requested scope determine whether salary.read can be issued in our design.
+
+## Authentication policy is a different layer
+
+Do not troubleshoot every Okta policy from the same place.
+
+### Authentication and session layer
+
+Examples:
+
+~~~text
+Global Session Policy
+App Sign-In or Authentication Policy
+MFA requirements
+reauthentication
+assurance
+Okta browser session
+~~~
+
+These answer:
+
+> How must the user authenticate?
+
+### Custom Authorization Server layer
+
+Examples:
+
+~~~text
+client covered by policy
+grant type
+user or group rule
+requested custom scopes
+token lifetime
+rule priority
+~~~
+
+These answer:
+
+> May this token request be issued, with which permissions and lifetime?
+
+## Example: unexpected MFA
+
+Suppose:
+
+~~~text
+salary.read request
+        |
+        v
+unexpected MFA prompt
+~~~
+
+Do not begin by changing the Custom Authorization Server access policy.
+
+Start with:
+
+~~~text
+Global Session Policy
+App Authentication Policy
+existing Okta session state
+authenticator requirements
+~~~
+
+The Custom Authorization Server access policy is not an MFA policy.
+
+## Example: missing salary.read
+
+Suppose:
+
+~~~text
+user authenticates successfully
+but
+salary.read is missing or the request is rejected
+~~~
+
+Investigate:
+
+~~~text
+Was salary.read requested?
+Is salary.read defined on this authorization server?
+Which authorization server is the client using?
+Which policy covers the client?
+Which rule matched first?
+Is the user in Employee-API-HR?
+Does the matching rule permit salary.read?
+Is there an earlier broad rule?
+~~~
+
+That is authorization-server troubleshooting.
+
+## Example: department claim missing
+
+Suppose salary.read is present but:
+
+~~~text
+department claim missing
+~~~
+
+Do not immediately change the access-policy rule.
+
+Check:
+
+~~~text
+claim enabled?
+token type = Access Token?
+expression = user.department?
+user.department populated?
+Include in = salary.read?
+salary.read actually granted?
+Token Preview result?
+~~~
+
+Token authorization can be correct while a custom claim is configured incorrectly.
+
+## Example: groups claim missing
+
+Check:
+
+~~~text
+claim token type
+Value type = Groups
+filter expression
+actual group name
+actual user membership
+claim enabled
+Token Preview
+~~~
+
+Do not change salary.read policy until you know the policy caused the problem.
+
+## Complete HR salary issuance chain
+
+~~~text
+SPA requests:
+openid employee.read salary.read
+        |
+        v
+Employee API Authorization Server
+        |
+        v
+Policy assigned to SPA?
+        |
+        v
+First matching rule?
+        |
+        v
+HR Salary Access
+        |
+        | user in Employee-API-HR
+        | grant type = Authorization Code
+        | requested custom scopes allowed
+        v
+Access token issued
+        |
+        | aud = api://employee-service
+        | scp includes salary.read
+        | department included
+        | filtered groups included
+        | lifetime about 15 minutes
+        v
+Employee API
+        |
+        v
+validate token
+        |
+        v
+/api/salary requires salary.read
+        |
+        v
+200
+~~~
+
+Every step has a different responsibility.
+
+## Non-HR salary request
+
+~~~text
+SPA requests salary.read
+        |
+        v
+Policy covers SPA
+        |
+        v
+HR Salary Access rule
+user condition fails
+        |
+        v
+Employee Read Access rule
+salary.read not permitted
+        |
+        v
+No matching allow rule
+        |
+        v
+Authorization fails
+~~~
+
+The API never receives a valid salary token because the authorization server did not mint one.
+
+The API still enforces salary.read if a caller presents a token.
+
+## HR user does not request salary.read
+
+~~~text
+User is in Employee-API-HR
+        |
+        v
+SPA requests only employee.read
+        |
+        v
+matching rule permits employee.read
+        |
+        v
+token scp contains employee.read
+        |
+        v
+salary.read absent
+~~~
+
+This is the clean proof that membership does not inject the permission.
+
+## Two authorization layers
+
+Our design has:
+
+~~~text
+Layer 1
+Custom Authorization Server
+decides whether salary.read can be issued
+
+Layer 2
+Employee API
+requires salary.read on /api/salary
+~~~
+
+Both are useful.
+
+The authorization server prevents ineligible clients or users from receiving the scope.
+
+The API prevents the operation unless the presented trusted token contains the scope.
+
+## Avoid accidental redundant authorization
+
+A poor first design might say:
+
+~~~text
+/salary requires:
+salary.read
+AND department == HR
+AND groups contains Employee-API-HR
+~~~
+
+while Okta already grants salary.read only to the intended HR group.
+
+That creates unnecessary coupling and more failure points.
+
+Our first design is:
+
+~~~text
+Authorization Server:
+HR group controls eligibility for salary.read
+
+Access token:
+salary.read records granted permission
+
+Employee API:
+salary.read controls /salary access
+
+department and groups:
+context for inspection and future design choices
+~~~
+
+Keep the first implementation understandable.
+
+## One authorization server per API product is a design guideline, not an endpoint rule
+
+Do not create one authorization server for every API endpoint.
+
+Think at the API product or security-domain level.
+
+Our Employee API contains:
+
+~~~text
+/api/employees
+/api/salary
+~~~
+
+Both belong to:
+
+~~~text
+Employee API Authorization Server
+audience = api://employee-service
+~~~
+
+Scopes distinguish the operations.
+
+The authorization-server boundary identifies the protected API product.
+
+## Do not overstuff the token
+
+The groups claim is useful for learning, but production claims should be intentional.
+
+Ask:
+
+~~~text
+Does the consumer need this claim?
+Will it change frequently?
+Is the information sensitive?
+How large can the token become?
+Can the application query the information elsewhere?
+~~~
+
+Token convenience should not become uncontrolled data duplication.
+
+## Common mistakes
+
+### Mistake 1: Use the Org Authorization Server for the Employee API
+
+Wrong security boundary.
+
+Use a Custom Authorization Server for tokens your own API validates.
+
+### Mistake 2: Keep a generic audience forever
+
+A generic test audience can be useful while learning.
+
+A real API design should use a deliberate audience.
+
+### Mistake 3: Create salary.read and assume it is granted
+
+Scope existence is not authorization.
+
+A matching policy and rule must allow the request.
+
+### Mistake 4: Assume HR membership adds salary.read
+
+Wrong.
+
+In our design, membership makes the HR rule eligible to match.
+
+The client still requests salary.read.
+
+### Mistake 5: Put a broad Any scopes rule above specific rules
+
+Dangerous.
+
+The first matching rule wins.
+
+### Mistake 6: Change a rule after receiving a code and use the old code to test the new rule
+
+Bad test.
+
+Start a fresh authorization transaction.
+
+### Mistake 7: Treat department as the salary permission
+
+Wrong layer.
+
+The API permission is salary.read.
+
+### Mistake 8: Configure a claim for Access Token and expect it in the ID token
+
+Wrong assumption.
+
+Token-type inclusion is explicit.
+
+### Mistake 9: Put every group in the token
+
+Poor design.
+
+Filter to the groups the consumer actually needs.
+
+### Mistake 10: Treat Token Preview as end-to-end proof
+
+Incomplete.
+
+Preview validates authorization-server behavior, not browser, callback, PKCE, application, or API behavior.
+
+### Mistake 11: Troubleshoot MFA inside access-policy rules
+
+Wrong layer.
+
+Authentication policy controls MFA and assurance.
+
+### Mistake 12: Make salary.read a default scope
+
+Sensitive API permissions should remain deliberate in this course.
+
+Keep salary.read explicitly requested.
+
+## What you should be able to explain
+
+1. Why did we create a dedicated Employee API Authorization Server?
+2. What does api://employee-service represent?
+3. What is the difference between audience and scope?
+4. What is the difference between scope and claim?
+5. What is the difference between a group and a scope?
+6. What does an access policy cover?
+7. What does an access-policy rule decide?
+8. Why does rule priority matter?
+9. What happens if no policy and rule match?
+10. Why must the client still request salary.read?
+11. What is a default scope?
+12. Why are employee.read and salary.read not default scopes?
+13. Why is department included only with salary.read in the lab?
+14. Why does the groups claim use a filter?
+15. Why does Token Preview help?
+16. Why does Token Preview not replace a real flow?
+17. Why should policy changes be tested with a fresh authorization transaction?
+18. Why is unexpected MFA normally not a Custom Authorization Server policy issue?
+19. Why does the API still enforce salary.read after Okta already evaluated the issuance policy?
+
+## Day 9 lab
+
+[Day 9 Lab - Design Employee API Authorization](../labs/day-09-authorization-design.md)
+
+You will:
+
+- create a dedicated Employee API Authorization Server
+- set audience to api://employee-service
+- create employee.read and salary.read
+- create Employee-API-HR
+- populate the test user's department
+- create a department access-token claim
+- create a filtered groups access-token claim
+- build an HR-specific salary rule
+- build a normal employee-read rule
+- use different token lifetimes so rule matching is visible
+- use Token Preview before the real flow
+- prove HR membership does not automatically insert salary.read
+- prove a non-HR salary request is denied
+- deliberately create a broad earlier rule and prove rule-order impact
+- remove the unsafe broad rule
+- obtain real access tokens
+- call /api/employees and /api/salary
+- verify custom claim placement
+- correlate evidence across Okta, token contents, and the Employee API
+
+## Day 9 completion standard
+
+Day 9 is complete when you can explain:
+
+~~~text
+Client requests salary.read
+        |
+        v
+Dedicated Custom Authorization Server
+audience = api://employee-service
+        |
+        v
+Access policy for client
+        |
+        v
+First matching rule
+        |
+        | HR group condition
+        | Authorization Code
+        | salary.read permitted
+        v
+Access token
+        |
+        | scp contains salary.read
+        | custom claims added as configured
+        v
+Employee API
+        |
+        | validates token
+        | requires salary.read
+        v
+salary response
+~~~
+
+You should also be able to diagnose separately:
+
+~~~text
+scope not requested
+scope not defined
+policy not assigned to client
+no rule matched
+wrong rule matched first
+user not in group
+claim expression wrong
+claim filtered by scope
+group filter wrong
+wrong token type
+wrong audience
+unexpected MFA
+~~~
+
+without calling all of them one generic OAuth problem.
+
+## Official references
+
+- [Okta: Authorization servers](https://developer.okta.com/docs/concepts/auth-servers/)
+- [Okta: API Access Management](https://developer.okta.com/docs/concepts/api-access-management/)
+- [Okta: Create an authorization server](https://developer.okta.com/docs/guides/customize-authz-server/main/)
+- [Okta: Configure an access policy](https://developer.okta.com/docs/guides/configure-access-policy/main/)
+- [Okta: Customize tokens with custom claims](https://developer.okta.com/docs/guides/customize-tokens-returned-from-okta/main/)
+- [Okta: Customize tokens with a groups claim](https://developer.okta.com/docs/guides/customize-tokens-groups-claim/main/)
+- [Okta Help: Test your authorization server configuration](https://help.okta.com/oie/en-us/content/topics/security/api-config-test.htm)
