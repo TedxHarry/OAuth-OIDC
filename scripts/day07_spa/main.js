@@ -126,7 +126,7 @@ async function initializeApp(config) {
 
   resetButton.addEventListener('click', async () => {
     if (oktaAuth) {
-      oktaAuth.stop();
+      await oktaAuth.stop();
     }
 
     sessionStorage.clear();
