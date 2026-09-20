@@ -174,25 +174,45 @@ flowchart TB
 
 One successful check does not cancel a failed required check.
 
-## 8. Resource server vs API Service client
+## 8. Resource server vs API Services client
 
 **Question answered:** Why does the word API appear in two different roles?
 
 ~~~mermaid
 flowchart LR
-    CLIENT["OAuth Client<br/>requests token"]
-    OKTA["Okta<br/>Authorization Server"]
-    RESOURCE["Employee API<br/>RESOURCE SERVER<br/>receives token"]
+    SVC["API Services app<br/>SERVICE CLIENT<br/>requests tokens"]
+    AS["Authorization Server"]
+    RESOURCE["Custom API<br/>RESOURCE SERVER<br/>receives access token"]
 
-    CLIENT -->|Token request| OKTA
-    OKTA -->|Access token| CLIENT
-    CLIENT -->|Bearer access token| RESOURCE
-
-    APISVC["Okta API Service integration<br/>SERVICE CLIENT registration"]
-
-    APISVC -. is a type of client role .-> CLIENT
+    SVC -->|Token request| AS
+    AS -->|Access token returned to service client| SVC
+    SVC -->|Authorization: Bearer access_token| RESOURCE
 ~~~
 
 A resource server receives tokens.
 
 A service client requests tokens.
+
+The authorization server must issue a token intended for the resource being called.
+
+## 9. Two machine-to-machine service paths
+
+**Question answered:** Why do Day 11 and Day 12 use different authorization-server and client-authentication details?
+
+~~~mermaid
+flowchart TB
+    OWN["DAY 11<br/>Service calls YOUR API"]
+    OWNCLIENT["API Services service client"]
+    CUSTOM["Custom Authorization Server"]
+    OWNAPI["Your Resource Server"]
+
+    OKTAAPI["DAY 12<br/>Service calls OKTA API"]
+    OKTACLIENT["OAuth service app<br/>API Services type"]
+    ORG["Org Authorization Server<br/>private_key_jwt<br/>okta.* scopes"]
+    MGMT["Okta Management API"]
+
+    OWN --> OWNCLIENT --> CUSTOM --> OWNAPI
+    OKTAAPI --> OKTACLIENT --> ORG --> MGMT
+~~~
+
+Do not interchange these two token paths.
