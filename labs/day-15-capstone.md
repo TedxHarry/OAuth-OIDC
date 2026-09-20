@@ -424,3 +424,413 @@ different by design
 ~~~
 
 Explain why a dev token must not be accepted by the prod API.
+
+
+## Part 19 - Define your evidence plan before implementation
+
+For each transaction decide what proves success.
+
+### User browser path
+
+Record:
+
+~~~text
+Browser Network evidence:
+Callback evidence:
+Safe token metadata:
+Java API evidence:
+Okta System Log evidence:
+~~~
+
+### Reporting-service path
+
+Record:
+
+~~~text
+/token evidence:
+safe token metadata:
+Java API evidence:
+correlation ID:
+~~~
+
+### Lifecycle path
+
+Record:
+
+~~~text
+refresh evidence:
+revocation/introspection evidence:
+logout evidence:
+~~~
+
+Do not start testing without knowing what evidence you need.
+
+## Part 20 - Implement the Okta user-side configuration
+
+Using your design, configure the required lab objects.
+
+Your finished user-side configuration should include equivalents of:
+
+~~~text
+SPA OIDC application
+Employee API Custom Authorization Server
+employee.read
+salary.read
+HR eligibility source
+client-specific access policy
+ordered policy rules
+redirect URI
+sign-out URI
+Refresh Token grant where required
+Controlled Access or assignment appropriate to the lab
+~~~
+
+Do not copy values from an earlier environment blindly.
+
+Record only safe identifiers and configuration.
+
+## Part 21 - Implement the Java API resource-server contract
+
+Your Java implementation must enforce the contract you designed.
+
+Minimum required behavior:
+
+~~~text
+GET /employees
+GET /salary
+GET /reports or equivalent machine endpoint
+
+validate access token
+validate issuer
+validate audience
+validate lifetime
+use trusted signing keys
+enforce endpoint scopes
+distinguish 401 and 403
+emit a correlation ID
+never log the raw bearer token
+~~~
+
+If your Java framework performs some checks automatically, document which component performs each check.
+
+Do not claim the API is protected merely because a framework dependency is installed.
+
+## Part 22 - Implement the React SPA contract
+
+The SPA must demonstrate:
+
+~~~text
+Authorization Code + PKCE
+state handling
+OIDC response handling
+access token used for Java API
+ID token not used as Java API bearer credential
+refresh support
+local logout behavior
+full sign-out behavior when included in your design
+no client secret embedded in browser code
+~~~
+
+Use a maintained OIDC/OAuth library for the implementation.
+
+The capstone is not testing whether you can hand-write a production protocol client.
+
+## Part 23 - Implement the reporting service
+
+The reporting process must:
+
+~~~text
+authenticate as a confidential OAuth client
+use Client Credentials
+request only its service scope
+cache or reuse access token until near expiry
+request a new token when needed
+call only the permitted Java API operation
+avoid logging the client secret or bearer token
+~~~
+
+Record:
+
+~~~text
+client ID:
+scope:
+token endpoint:
+expires_in:
+API status:
+correlation ID:
+~~~
+
+## Part 24 - Prove ordinary employee access
+
+Use an assigned non-HR test user.
+
+Prove:
+
+~~~text
+sign-in succeeds
+employee.read is issued when requested
+GET /employees returns 200
+GET /salary does not succeed with employee.read-only token
+~~~
+
+Collect:
+
+~~~text
+safe token claims
+API correlation ID
+API authorization result
+relevant Okta evidence
+~~~
+
+Do not add the user to HR just to make the test easier.
+
+## Part 25 - Prove HR salary access
+
+Use an HR test user.
+
+Request:
+
+~~~text
+employee.read
+salary.read
+~~~
+
+Prove:
+
+~~~text
+HR eligibility condition is satisfied
+salary.read is actually requested
+salary.read is issued
+Java API validates token
+GET /salary returns 200
+~~~
+
+Record which policy or rule allowed the request.
+
+## Part 26 - Prove HR membership does not inject salary.read
+
+Keep the user in HR.
+
+Start a fresh authorization transaction requesting only:
+
+~~~text
+employee.read
+~~~
+
+Prove:
+
+~~~text
+HR eligibility still exists
+salary.read is not present because it was not requested
+~~~
+
+This is a required capstone proof.
+
+## Part 27 - Prove non-HR salary denial
+
+Use a non-HR user.
+
+Request salary.read in a fresh transaction.
+
+Expected design:
+
+~~~text
+authorization boundary denies salary.read
+~~~
+
+Record the actual tenant behavior:
+
+~~~text
+authorization outcome:
+code issued?:
+token issued?:
+OAuth error if any:
+System Log evidence:
+~~~
+
+Do not force a memorized error string.
+
+## Part 28 - Prove 401 and 403 separately
+
+You need at least one real example of each.
+
+### 401 example
+
+Use one of:
+
+~~~text
+ID token sent to Java API
+wrong audience token
+malformed bearer token
+expired token
+wrong issuer token
+~~~
+
+Prove:
+
+~~~text
+resource did not accept the bearer credential
+~~~
+
+### 403 example
+
+Use:
+
+~~~text
+valid employee.read token
+to
+GET /salary
+~~~
+
+Prove:
+
+~~~text
+token was trusted
+salary.read was missing
+operation was denied
+~~~
+
+Record the relevant WWW-Authenticate and correlation ID when available.
+
+## Part 29 - Prove refresh behavior
+
+Obtain a refresh token through the normal SPA authorization design.
+
+Record only:
+
+~~~text
+refresh token present?:
+rotation behavior observed?:
+access token expiry:
+refresh HTTP:
+new access token returned?:
+new refresh token returned when applicable?:
+~~~
+
+Then prove the SPA uses the current refresh-token state correctly.
+
+Do not deliberately replay an old rotating token unless using a disposable authorization family.
+
+## Part 30 - Prove logout behavior against your written design
+
+Run local logout and compare the result with the Part 13 expectation.
+
+Then run your full sign-out path if implemented.
+
+Record:
+
+~~~text
+SPA local state:
+Okta browser session:
+next protected-route behavior:
+refresh capability:
+~~~
+
+If actual behavior differs from the design, decide whether the implementation is wrong or the requirement/design must be revised.
+
+Do not change the expected behavior after the test merely to make the test pass.
+
+## Part 31 - Prove scheduled reporting access
+
+Run the reporting process.
+
+Prove:
+
+~~~text
+Client Credentials token issued
+no human user involved
+machine scope present
+Java API trusts token
+report operation succeeds
+~~~
+
+Then request a scope the reporting client should not receive.
+
+Prove token issuance is denied or the operation is denied at the intended boundary.
+
+## Part 32 - Prove environment isolation
+
+Perform at least one safe cross-environment simulation.
+
+Examples:
+
+~~~text
+API configured for prod audience
++
+dev token
+~~~
+
+or:
+
+~~~text
+prod-like client configuration
++
+dev secret or key
+~~~
+
+or:
+
+~~~text
+prod API trust
++
+dev issuer token
+~~~
+
+Prove the system rejects the inconsistent pairing.
+
+Do not weaken prod trust merely to make a dev token work.
+
+## Part 33 - Design future Okta Management automation
+
+Do not implement a broad administrator.
+
+Choose one plausible future operation.
+
+Examples:
+
+~~~text
+read selected users
+read selected groups
+manage membership of one test group
+~~~
+
+Design:
+
+~~~text
+service app
+Org Authorization Server
+private_key_jwt
+minimum okta.* scope
+minimum standard or custom admin role
+resource target or resource set where applicable
+private key store
+key rotation
+request or correlation evidence
+~~~
+
+Explain why the reporting service credentials cannot simply be reused.
+
+## Part 34 - Create the capstone acceptance matrix
+
+Complete from actual evidence.
+
+| Requirement | Evidence | Pass/Fail |
+|---|---|---|
+| Employee sign-in |  |  |
+| employee.read access |  |  |
+| non-HR salary denial |  |  |
+| HR salary access |  |  |
+| HR membership does not inject unrequested salary.read |  |  |
+| Java API token validation |  |  |
+| 401 behavior |  |  |
+| 403 behavior |  |  |
+| refresh |  |  |
+| local logout |  |  |
+| full sign-out if designed |  |  |
+| reporting Client Credentials |  |  |
+| reporting least privilege |  |  |
+| environment isolation |  |  |
+| safe logging |  |  |
+| future Okta automation design |  |  |
+
+A row without evidence is not complete.
