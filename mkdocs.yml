@@ -1,0 +1,157 @@
+site_name: OAuth & OIDC with Okta
+site_description: A 15-day implementation engineering course for OAuth, OIDC, APIs, automation, and troubleshooting with Okta.
+site_url: https://tedxharry.github.io/OAuth-OIDC/
+repo_url: https://github.com/TedxHarry/OAuth-OIDC
+repo_name: TedxHarry/OAuth-OIDC
+edit_uri: edit/main/
+
+docs_dir: .site_docs
+site_dir: .site_output
+
+theme:
+  name: material
+  language: en
+  icon:
+    logo: material/shield-key-outline
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.tracking
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: luxury-light
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: luxury-dark
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  font: false
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+extra_css:
+  - assets/stylesheets/luxury.css
+
+extra_javascript:
+  - https://unpkg.com/mermaid@11/dist/mermaid.min.js
+  - assets/javascripts/course.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/TedxHarry/OAuth-OIDC
+      name: Course repository
+  generator: false
+
+copyright: Built for practical OAuth/OIDC implementation engineering.
+
+nav:
+  - Home: index.md
+  - Course Map: reference/15-day-plan.md
+  - Days:
+      - Day 01 · Architecture:
+          - Lesson: lessons/day-01-core-logic-and-architecture.md
+          - Lab: labs/day-01-architecture-and-requirements.md
+          - Diagrams: diagrams/day-01-flows.md
+      - Day 02 · HTTP:
+          - Lesson: lessons/day-02-http-transaction.md
+          - Lab: labs/day-02-http-basics.md
+          - Diagrams: diagrams/day-02-http-flow.md
+      - Day 03 · Authorization Code + PKCE:
+          - Lesson: lessons/day-03-authorization-code-pkce.md
+          - Lab: labs/day-03-authorization-code-pkce.md
+          - Diagrams: diagrams/day-03-authorization-code-pkce.md
+      - Day 04 · Tokens + Refresh:
+          - Lesson: lessons/day-04-tokens-and-refresh.md
+          - Lab: labs/day-04-token-lifecycle.md
+          - Diagrams: diagrams/day-04-token-lifecycle.md
+      - Day 05 · JWT Validation:
+          - Lesson: lessons/day-05-jwt-validation.md
+          - Lab: labs/day-05-jwt-validation.md
+          - Diagrams: diagrams/day-05-jwt-validation.md
+      - Day 06 · App Types + Client Auth:
+          - Lesson: lessons/day-06-app-types-client-auth.md
+          - Lab: labs/day-06-app-types-client-auth.md
+          - Diagrams: diagrams/day-06-app-types-client-auth.md
+      - Day 07 · Web App vs SPA:
+          - Lesson: lessons/day-07-web-app-vs-spa.md
+          - Lab: labs/day-07-web-app-vs-spa.md
+          - Diagrams: diagrams/day-07-web-app-vs-spa.md
+      - Day 08 · Protect an API:
+          - Lesson: lessons/day-08-protect-api.md
+          - Lab: labs/day-08-protect-api.md
+          - Diagrams: diagrams/day-08-protect-api.md
+      - Day 09 · Authorization Design:
+          - Lesson: lessons/day-09-authorization-design.md
+          - Lab: labs/day-09-authorization-design.md
+          - Diagrams: diagrams/day-09-authorization-design.md
+      - Day 10 · Session + Token Lifecycle:
+          - Lesson: lessons/day-10-session-token-lifecycle.md
+          - Lab: labs/day-10-session-token-lifecycle.md
+          - Diagrams: diagrams/day-10-session-token-lifecycle.md
+      - Day 11 · Client Credentials:
+          - Lesson: lessons/day-11-client-credentials.md
+          - Lab: labs/day-11-client-credentials.md
+          - Diagrams: diagrams/day-11-client-credentials.md
+      - Day 12 · Okta API Automation:
+          - Lesson: lessons/day-12-okta-api-automation.md
+          - Lab: labs/day-12-okta-api-automation.md
+          - Diagrams: diagrams/day-12-okta-api-automation.md
+      - Day 13 · Browser Troubleshooting:
+          - Lesson: lessons/day-13-browser-auth-troubleshooting.md
+          - Lab: labs/day-13-browser-auth-troubleshooting.md
+          - Diagrams: diagrams/day-13-browser-auth-troubleshooting.md
+      - Day 14 · Token/API Troubleshooting:
+          - Lesson: lessons/day-14-token-api-automation-troubleshooting.md
+          - Lab: labs/day-14-token-api-automation-troubleshooting.md
+          - Diagrams: diagrams/day-14-token-api-automation-troubleshooting.md
+      - Day 15 · Capstone:
+          - Lesson: lessons/day-15-capstone.md
+          - Lab: labs/day-15-capstone.md
+          - Diagrams: diagrams/day-15-capstone.md
+          - React + Spring Boot Reference: reference/day15-react-java-reference.md
+  - Troubleshooting:
+      - Guide: troubleshooting/README.md
+      - Symptom Map: troubleshooting/symptom-map.md
+  - Reference:
+      - Project Intake: reference/project-intake-checklist.md
+      - Engineer Confidence: reference/engineer-confidence-checklist.md
+      - Scripts: scripts/README.md
+  - Advanced:
+      - Second Pass: advanced/README.md
