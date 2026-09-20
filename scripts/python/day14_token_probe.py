@@ -137,8 +137,14 @@ def apply_fault(token, fault):
         if not signature:
             raise SystemExit("JWT signature segment is empty.")
 
-        replacement = "A" if signature[-1] != "A" else "B"
-        parts[2] = signature[:-1] + replacement
+        padding = "=" * (-len(signature) % 4)
+        raw = bytearray(base64.urlsafe_b64decode(signature + padding))
+
+        if not raw:
+            raise SystemExit("JWT signature decoded to an empty value.")
+
+        raw[0] ^= 0x01
+        parts[2] = base64.urlsafe_b64encode(bytes(raw)).rstrip(b"=").decode("ascii")
         return ".".join(parts)
 
     raise SystemExit("Unsupported fault: %s" % fault)
