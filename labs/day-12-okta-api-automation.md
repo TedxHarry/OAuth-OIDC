@@ -272,6 +272,15 @@ Save.
 
 Confirm the registered key has the same kid as the local public JWK.
 
+For the core Day 12 lab, also confirm:
+
+~~~text
+Require Demonstrating Proof of Possession (DPoP) header in token requests:
+Disabled
+~~~
+
+The helper implements private_key_jwt client authentication, not the separate DPoP proof flow.
+
 The security relationship must remain:
 
 ~~~text
@@ -1014,9 +1023,11 @@ token acquisition with key B
 Management API call with key B
 ~~~
 
-you may remove public key A from the dedicated lab service app if no other process uses it.
+you may retire public key A from the dedicated lab service app if no other process uses it.
 
-Do not delete an old public key while an active deployment still depends on its private key.
+If you manage signing keys through the Okta key-management API, deactivate key A before deleting it.
+
+Do not retire an old public key while an active deployment still depends on its private key.
 
 Remember:
 
