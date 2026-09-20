@@ -25,7 +25,7 @@ The goal is understanding first. Hands-on work is used to make that understandin
 5. [Day 5 - JWT, discovery, JWKS, and validation](day-05-jwt-validation.md)
 6. [Day 6 - Okta application configuration and client authentication](day-06-app-types-client-auth.md)
 7. [Day 7 - Server-side Web App vs Browser SPA](day-07-web-app-vs-spa.md)
-8. [Day 8 - Protect the API](day-08-protect-the-api-validation-first-authorization-second.md)
+8. [Day 8 - Protect the API](day-08-protect-api.md)
 9. [Day 9 - Authorization servers, scopes, claims, audience, and policies](day-09-authorization-servers-scopes-claims-audience-and-policy-laye.md)
 10. [Day 10 - Sessions, logout, UserInfo, refresh, revocation](day-10-sessions-logout-userinfo-revocation-and-the-why-did-it-sign-.md)
 11. [Day 11 - Client Credentials and machine-to-machine](day-11-client-credentials-machine-to-machine-without-pretending-the.md)
