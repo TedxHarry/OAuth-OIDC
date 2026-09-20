@@ -602,3 +602,632 @@ Record:
 Do not assume different prompts prove inconsistent policy.
 
 The session contexts differ.
+
+
+## Part 23 - Optional narrowly scoped MFA experiment
+
+Only perform this in a safe lab tenant with a disposable test user or group.
+
+Do not edit a broad shared default policy.
+
+Prefer:
+
+~~~text
+dedicated test group
++
+dedicated app sign-in policy
++
+temporary stricter rule
+~~~
+
+Reproduce sign-in and record:
+
+~~~text
+Which policy/rule applied?:
+Which factor was required?:
+System Log evidence:
+~~~
+
+Restore the original app-policy assignment after the exercise.
+
+## Part 24 - Prove MFA is not Custom Authorization Server scope policy
+
+For the MFA case, record separately:
+
+~~~text
+Global Session Policy:
+App sign-in policy:
+Authorization Server Access Policy:
+~~~
+
+Explain why changing:
+
+~~~text
+employee.read
+salary.read
+token lifetime
+~~~
+
+does not directly solve an authentication-factor requirement.
+
+## Part 25 - Reuse the Day 10 session app
+
+Start:
+
+~~~powershell
+$env:OKTA_ISSUER="https://YOUR-OKTA-DOMAIN"
+$env:OKTA_CLIENT_ID="YOUR-WEB-CLIENT-ID"
+$env:OKTA_CLIENT_SECRET="YOUR-WEB-CLIENT-SECRET"
+
+python scripts/python/day10_session_app.py
+~~~
+
+Open:
+
+~~~text
+http://localhost:5100
+~~~
+
+Sign in.
+
+## Part 26 - Prove local logout vs Okta session
+
+Click:
+
+~~~text
+Local Logout Only
+~~~
+
+Confirm the local session is gone.
+
+Then click Sign in with Okta again.
+
+Record:
+
+~~~text
+Local session ended?:
+Browser went to Okta?:
+Credentials/factor requested again?:
+New local session created?:
+~~~
+
+Do not require a specific prompt result.
+
+Policy and session context can change the user experience.
+
+## Part 27 - Prove Okta browser-session logout is different
+
+Use:
+
+~~~text
+Local Logout + Okta Browser Logout
+~~~
+
+Record:
+
+~~~text
+Local app session removed?:
+End-session flow reached?:
+Post-logout redirect returned?:
+Logout state matched?:
+~~~
+
+Then compare the next sign-in behavior with Part 26.
+
+Write which state each logout operation changed.
+
+## Part 28 - Inspect application cookie evidence
+
+Use the Day 10 or Day 7 server-side app.
+
+In DevTools inspect the local session cookie.
+
+Record only:
+
+~~~text
+cookie name:
+HttpOnly:
+SameSite:
+Secure:
+Path:
+present after login?:
+present after local logout?:
+~~~
+
+Do not record the cookie value.
+
+## Part 29 - Separate browser-cookie vs server-session evidence
+
+For a healthy server-side request, prove both:
+
+~~~text
+Browser sends local session cookie
+~~~
+
+and:
+
+~~~text
+Server recognizes session
+~~~
+
+Answer:
+
+~~~text
+If browser never sends cookie, which side do you inspect first?:
+
+If browser sends cookie but server says no session, which side do you inspect first?:
+~~~
+
+## Part 30 - Start the local CORS evidence harness
+
+Stop anything using ports 5400 or 5401.
+
+Clear:
+
+~~~powershell
+Remove-Item Env:DAY13_CORS_ALLOW_ORIGIN -ErrorAction SilentlyContinue
+~~~
+
+Run:
+
+~~~powershell
+python scripts/python/day13_cors_lab.py
+~~~
+
+Open:
+
+~~~text
+http://localhost:5400
+~~~
+
+Open Network and Console.
+
+## Part 31 - Reproduce browser CORS failure
+
+Click:
+
+~~~text
+Call API from browser
+~~~
+
+The page origin is:
+
+~~~text
+http://localhost:5400
+~~~
+
+The API origin is:
+
+~~~text
+http://localhost:5401
+~~~
+
+Record:
+
+~~~text
+OPTIONS request present?:
+OPTIONS status:
+Access-Control-Allow-Origin present?:
+Did browser send GET /data?:
+Console message:
+~~~
+
+Do not call this an OAuth failure.
+
+## Part 32 - Prove the API itself works outside browser CORS
+
+With the same CORS harness running, use Postman or curl:
+
+~~~powershell
+curl.exe -H "Authorization: Bearer demo-token" http://localhost:5401/data
+~~~
+
+Expected server response:
+
+~~~text
+200
+server_received_request = true
+~~~
+
+Record:
+
+~~~text
+Postman/curl result:
+Browser result:
+~~~
+
+Explain why both results can be true at the same time.
+
+## Part 33 - Fix only the CORS owner
+
+Stop the CORS harness.
+
+Set:
+
+~~~powershell
+$env:DAY13_CORS_ALLOW_ORIGIN="http://localhost:5400"
+~~~
+
+Restart:
+
+~~~powershell
+python scripts/python/day13_cors_lab.py
+~~~
+
+Repeat the browser call.
+
+Record:
+
+~~~text
+OPTIONS allowed?:
+GET sent?:
+GET HTTP:
+Browser fetch succeeded?:
+~~~
+
+The fix was made on the API at localhost:5401, not in Okta Trusted Origins.
+
+## Part 34 - Explain Okta Trusted Origins correctly
+
+Complete:
+
+~~~text
+SPA calls my own API cross-origin:
+CORS configured on __________________
+
+Browser JavaScript calls supported Okta API using Okta session cookie:
+Trusted Origin may be __________________
+
+Browser calls supported Okta API using OAuth bearer token:
+Trusted Origin is not required merely for __________________
+~~~
+
+Do not reduce the answer to:
+
+> Add Trusted Origin when browser fails.
+
+## Part 35 - Preflight proof
+
+From the successful CORS test, inspect:
+
+~~~text
+OPTIONS /data
+~~~
+
+and:
+
+~~~text
+GET /data
+~~~
+
+Record:
+
+~~~text
+Which came first?:
+Which response headers allowed the browser to proceed?:
+~~~
+
+Then compare with the failed test.
+
+Write:
+
+> In the failed case, did the real GET leave the browser?
+
+## Part 36 - Wrong client ID in SPA
+
+Reset the Day 7 SPA configuration.
+
+Use:
+
+~~~text
+Correct issuer
+Wrong client ID
+~~~
+
+Try Sign in.
+
+Record:
+
+~~~text
+Browser reached Okta?:
+Authorization request accepted?:
+Callback reached SPA?:
+Tokens stored?:
+Error evidence:
+~~~
+
+Restore the real client ID.
+
+## Part 37 - Compare wrong issuer vs wrong client ID
+
+Fill:
+
+| Evidence | Wrong issuer | Wrong client ID |
+|---|---|---|
+| Discovery succeeds? |  |  |
+| /authorize reached? |  |  |
+| Okta can identify client? |  |  |
+| Callback reached? |  |  |
+
+Do not use the same root-cause sentence for both.
+
+## Part 38 - Build a dev-vs-prod comparison without guessing
+
+Create a table for your intended dev/prod design.
+
+| Setting | Dev | Prod | Same intentionally? |
+|---|---|---|---|
+| Issuer |  |  |  |
+| Client ID |  |  |  |
+| App type |  |  |  |
+| Redirect URI |  |  |  |
+| Sign-out URI |  |  |  |
+| Browser origin |  |  |  |
+| HTTPS |  |  |  |
+| Cookie settings |  |  |  |
+| App sign-in policy |  |  |  |
+| Controlled Access |  |  |  |
+| Assignment |  |  |  |
+
+For every difference write:
+
+~~~text
+intentional
+or
+possible defect
+~~~
+
+## Part 39 - System Log correlation exercise
+
+Run one healthy sign-in and one failing hidden case.
+
+In System Log, correlate by:
+
+~~~text
+time
+user
+application
+transaction.id
+externalSessionId
+rootSessionId when available
+~~~
+
+Answer:
+
+~~~text
+Which events belong to Okta?:
+
+Which failed application step is invisible to Okta?:
+~~~
+
+Example:
+
+~~~text
+Okta can show successful SSO
+while
+your application can still fail local session creation
+~~~
+
+## Part 40 - Write three production-quality incident notes
+
+Choose any three failures from:
+
+~~~text
+Case A-E
+wrong issuer
+assignment
+MFA policy
+local logout / SSO
+CORS
+wrong SPA client ID
+~~~
+
+Each note must contain:
+
+~~~text
+Observed symptom
+Last confirmed successful step
+First failed step
+Evidence
+Root cause
+Single change
+Proof after change
+~~~
+
+Do not write:
+
+> Changed a few settings and it worked.
+
+## Part 41 - Diagnose from symptoms only
+
+Without looking at previous answers, classify the first area to inspect.
+
+### Symptom A
+
+~~~text
+Browser never makes a request to Okta.
+Console shows SDK initialization error.
+~~~
+
+### Symptom B
+
+~~~text
+/authorize appears in Network.
+No callback ever reaches the app.
+~~~
+
+### Symptom C
+
+~~~text
+Callback reaches app.
+Backend says state validation failed.
+No /token request is made.
+~~~
+
+### Symptom D
+
+~~~text
+/token succeeds.
+ID token validation succeeds.
+Browser never retains local app session.
+~~~
+
+### Symptom E
+
+~~~text
+Postman API call succeeds.
+Browser sends OPTIONS.
+Protected GET never follows.
+~~~
+
+### Symptom F
+
+~~~text
+User signs in.
+System Log shows SSO success.
+Application immediately starts sign-in again.
+~~~
+
+Write the first investigation layer for each.
+
+## Part 42 - Complete the browser troubleshooting matrix
+
+| Failure | Browser reached Okta? | Callback reached app? | Token request? | Local app state? | First layer |
+|---|---:|---:|---:|---:|---|
+| Redirect mismatch |  |  |  |  |  |
+| Lost transaction |  |  |  |  |  |
+| State mismatch |  |  |  |  |  |
+| Nonce mismatch |  |  |  |  |  |
+| Local session skipped |  |  |  |  |  |
+| Wrong nonexistent issuer |  |  |  |  |  |
+| CORS preflight denied | N/A | N/A | N/A | N/A |  |
+
+Fill from actual evidence.
+
+## Part 43 - Blind-case self-check
+
+Only open this after you have completed incident notes for A through E.
+
+<details>
+<summary>Case mapping and expected failed layer</summary>
+
+### Case A
+
+~~~text
+Unregistered redirect URI
+~~~
+
+Expected evidence:
+
+~~~text
+Browser reaches Okta authorization endpoint.
+Requested redirect URI is not the registered normal callback.
+Normal callback does not receive an authorization code.
+~~~
+
+### Case B
+
+~~~text
+Pending transaction missing
+~~~
+
+Expected evidence:
+
+~~~text
+Callback reaches the app.
+Transaction cookie can exist.
+Server-side pending transaction record is absent.
+Token request is not attempted.
+~~~
+
+### Case C
+
+~~~text
+State mismatch
+~~~
+
+Expected evidence:
+
+~~~text
+Pending transaction exists.
+Returned state does not match expected state.
+Token request is not attempted.
+~~~
+
+### Case D
+
+~~~text
+Nonce mismatch
+~~~
+
+Expected evidence:
+
+~~~text
+State passes.
+Token exchange succeeds.
+ID-token/OIDC validation fails on nonce.
+~~~
+
+### Case E
+
+~~~text
+Local application session intentionally not created
+~~~
+
+Expected evidence:
+
+~~~text
+State passes.
+Token exchange succeeds.
+OIDC validation succeeds.
+Local session creation is skipped.
+~~~
+
+</details>
+
+## Part 44 - Final explain-back
+
+Explain this without looking:
+
+~~~text
+I do not troubleshoot login failed as one event.
+
+I follow the redirect transaction and identify the last step I can prove succeeded.
+
+Browser Network tells me what the browser actually requested and received.
+
+Application logs tell me what the app did with the callback, token exchange, and local session.
+
+Okta System Log tells me what Okta evaluated for authentication, app access, policy, and session events.
+
+A redirect mismatch occurs before the callback.
+
+State failure occurs after the callback but before token exchange.
+
+Nonce failure occurs after token exchange during OIDC validation.
+
+Successful Okta authentication does not prove my application created its own session.
+
+Postman success does not prove a browser path because browsers add origin, CORS, cookie, storage, and JavaScript behavior.
+
+Trusted Origins are not a universal CORS fix.
+
+For unexpected MFA I inspect Global Session Policy and the app sign-in policy before changing API access policy.
+
+I change one relevant control, repeat the same transaction, and prove the result changed for the reason I expected.
+~~~
+
+## Day 13 completion check
+
+You are ready for Day 14 when you can diagnose browser and authentication failures without being told the category and can produce an incident note containing:
+
+~~~text
+last successful step
+first failed step
+evidence
+root cause
+one change
+proof
+~~~
+
+Do not move on if your troubleshooting still begins with random configuration changes.
