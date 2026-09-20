@@ -242,7 +242,19 @@ revoke refresh-token capability
 
 Your project may combine some of these into one user-facing full sign-out action.
 
+For Okta's current React redirect guidance, the SPA origin must be configured as an Okta Trusted Origin for the documented sign-out action.
+
+That Trusted Origin is an Okta-side browser trust setting. It does not configure CORS on the Java API.
+
 Document exactly what the action does.
+
+## Production Custom Authorization Server check
+
+The Employee API design depends on a Custom Authorization Server.
+
+Okta Integrator Free Plan orgs make developer capabilities available for testing, but API Access Management is a production licensing consideration.
+
+Confirm production availability during project intake instead of discovering it during deployment.
 
 ## Java API dependencies
 
