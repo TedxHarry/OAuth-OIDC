@@ -520,9 +520,9 @@ Authorization transaction
             the registered client identity
 ~~~
 
-Okta's current OAuth overview recommends Authorization Code with PKCE for server-side, SPA, and Native application use cases when possible. A confidential Web Application can also authenticate itself with a client secret or private key.
+Okta's basic Web Application Authorization Code guide demonstrates the confidential-client flow with client authentication. Separately, the current OAuth Security Best Current Practice, RFC 9700, recommends PKCE for confidential clients as protection against authorization-code misuse and injection.
 
-Our Day 6 lab intentionally combines PKCE with confidential-client authentication so you can see that the two checks are independent.
+Our Day 6 lab intentionally adds PKCE to the confidential Web Application flow so you can see that PKCE and client authentication are independent checks.
 
 A strong modern baseline is:
 
@@ -808,3 +808,4 @@ API Service client
 - [Okta: Authorization Code grant](https://developer.okta.com/docs/guides/implement-grant-type/main/)
 - [Okta: Authorization Code with PKCE](https://developer.okta.com/docs/guides/implement-grant-type/authcodepkce/main/)
 - [Okta: OAuth 2.0 and OpenID Connect overview](https://developer.okta.com/docs/concepts/oauth-openid/)
+- [RFC 9700: Best Current Practice for OAuth 2.0 Security](https://www.rfc-editor.org/rfc/rfc9700.html)
