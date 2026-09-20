@@ -29,7 +29,7 @@ Then investigate the next step.
 Use these three sources whenever available:
 
 - Network tab, curl, or Postman
-- token contents and validation evidence
+- safe token metadata and validation evidence when the token contract is intended for your application/resource server; do not derive application authorization from Okta Org Authorization Server access-token contents
 - Okta System Log
 
 Avoid fixes based only on trial and error. The goal is to identify the failed layer and prove the cause.
