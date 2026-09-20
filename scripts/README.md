@@ -30,12 +30,18 @@ The Day 4 decoder does not validate the token. Day 5 adds validation.
 
 Dependency for the validator: `PyJWT[crypto]`.
 
+### Day 7 application architecture
+
+- [Python - server-side Web Application](python/day07_web_app.py)
+- [Browser SPA - Okta Auth JS + Vite](day07_spa/)
+
+The Web Application keeps OAuth transaction data and tokens server-side and gives the browser an opaque HttpOnly application-session cookie. The SPA uses Okta Auth JS and stores tokens in browser `sessionStorage` for the lab so the trust-boundary difference is visible.
+
 ## Added later as the course reaches them
 
 - Client Credentials
 - `private_key_jwt`
 - Okta OAuth token acquisition
 - Okta Management API calls
-- JWT inspection/validation exercises
 
 Production integrations should normally use maintained OAuth/OIDC libraries and proper secret/key storage rather than hand-built protocol code.
