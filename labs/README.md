@@ -21,6 +21,7 @@ Hands-on work is used when it helps the learner understand the concept more clea
 - [Day 5 - Validate a real Okta ID token](day-05-jwt-validation.md)
 - [Day 6 - Compare SPA and Web client authentication](day-06-app-types-client-auth.md)
 - [Day 7 - Run a server-side Web Application and browser SPA](day-07-web-app-vs-spa.md)
+- [Day 8 - Protect the Employee API](day-08-protect-api.md)
 
 More lab files will be added as we execute each day.
 
