@@ -745,3 +745,120 @@ input {
     color: #fffdf8;
   }
 }
+
+
+/* Dark-theme readability correction */
+[data-md-color-scheme="luxury-dark"] {
+  --md-default-bg-color: #0b1220;
+  --md-default-fg-color: #ece8df;
+  --md-default-fg-color--light: #c6ccd6;
+  --md-default-fg-color--lighter: #9fa8b7;
+  --md-default-fg-color--lightest: rgba(236, 232, 223, 0.10);
+  --md-typeset-color: #e8e5de;
+  --md-typeset-a-color: #d9bd82;
+  --md-code-bg-color: #050914;
+  --md-code-fg-color: #f5f2ec;
+}
+
+/* Force readable text in custom dark scheme */
+[data-md-color-scheme="luxury-dark"] .md-typeset,
+[data-md-color-scheme="luxury-dark"] .md-typeset p,
+[data-md-color-scheme="luxury-dark"] .md-typeset li,
+[data-md-color-scheme="luxury-dark"] .md-typeset td,
+[data-md-color-scheme="luxury-dark"] .md-typeset dd,
+[data-md-color-scheme="luxury-dark"] .md-typeset dt {
+  color: #e1e5ec;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-typeset h1,
+[data-md-color-scheme="luxury-dark"] .md-typeset h2,
+[data-md-color-scheme="luxury-dark"] .md-typeset h3,
+[data-md-color-scheme="luxury-dark"] .md-typeset h4,
+[data-md-color-scheme="luxury-dark"] .md-typeset h5,
+[data-md-color-scheme="luxury-dark"] .md-typeset strong {
+  color: #fffaf0;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-typeset h2,
+[data-md-color-scheme="luxury-dark"] .md-typeset h3 {
+  border-color: rgba(216, 189, 130, 0.16);
+}
+
+/* Primary left navigation */
+[data-md-color-scheme="luxury-dark"] .md-sidebar--primary .md-nav__link {
+  color: #d9dee7;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-sidebar--primary .md-nav__link:hover,
+[data-md-color-scheme="luxury-dark"] .md-sidebar--primary .md-nav__link--active,
+[data-md-color-scheme="luxury-dark"] .md-sidebar--primary .md-nav__item--active > .md-nav__link {
+  color: #f2d59a !important;
+}
+
+/* Right page table of contents */
+[data-md-color-scheme="luxury-dark"] .md-sidebar--secondary .md-nav__title {
+  color: #f2d59a;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-sidebar--secondary .md-nav__link {
+  color: #cdd4df;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-sidebar--secondary .md-nav__link:hover,
+[data-md-color-scheme="luxury-dark"] .md-sidebar--secondary .md-nav__link--active {
+  color: #f2d59a !important;
+}
+
+/* Course ribbons and cards */
+[data-md-color-scheme="luxury-dark"] .course-page-ribbon {
+  background: linear-gradient(
+    135deg,
+    rgba(184, 149, 90, 0.12),
+    rgba(31, 122, 116, 0.07)
+  );
+}
+
+[data-md-color-scheme="luxury-dark"] .course-page-ribbon .page-kind {
+  color: #c5ccd6;
+}
+
+[data-md-color-scheme="luxury-dark"] .course-page-ribbon a {
+  color: #e1c88f;
+}
+
+[data-md-color-scheme="luxury-dark"] .course-page-ribbon a:hover {
+  color: #fff2ce;
+}
+
+/* Keep prose readable in callouts and quotes */
+[data-md-color-scheme="luxury-dark"] .md-typeset blockquote,
+[data-md-color-scheme="luxury-dark"] .md-typeset blockquote p,
+[data-md-color-scheme="luxury-dark"] .luxury-callout,
+[data-md-color-scheme="luxury-dark"] .luxury-callout p {
+  color: #dce2eb;
+}
+
+/* Improve table contrast */
+[data-md-color-scheme="luxury-dark"] .md-typeset table:not([class]) th {
+  background: #151f33;
+  color: #fff7e8;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-typeset table:not([class]) td {
+  color: #dfe4ec;
+}
+
+/* Reduce oversized lesson titles while keeping hierarchy */
+.md-content .md-typeset > h1:first-child {
+  font-size: clamp(2.35rem, 4.4vw, 4.7rem);
+  line-height: 1.02;
+  max-width: 17ch;
+  margin-bottom: 1.1rem;
+}
+
+@media screen and (max-width: 900px) {
+  .md-content .md-typeset > h1:first-child {
+    font-size: clamp(2rem, 7vw, 3.2rem);
+    max-width: none;
+  }
+}
