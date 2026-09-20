@@ -176,9 +176,11 @@ Do:
 
 Break/fix:
 
-- invalid_client
+- wrong client credential / client-authentication failure
 - wrong app type/client-authentication expectation
-- assignment/access mismatch
+- wrong PKCE verifier as a separate failure from client authentication
+
+Assignment and Controlled Access are introduced here and become a deliberate troubleshooting exercise on Day 13.
 
 Completion target:
 
