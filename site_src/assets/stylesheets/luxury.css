@@ -1261,3 +1261,150 @@ body.course-nav-collapsed .course-nav-toggle {
 [data-md-color-scheme="luxury-dark"] .course-nav-toggle {
   background: rgba(21, 31, 51, .96);
 }
+
+
+/* FINAL Mermaid accessibility override
+   Diagrams always use a light canvas with dark text in both site themes.
+   This intentionally avoids white node text and theme-dependent SVG colors. */
+.mermaid,
+[data-md-color-scheme="luxury-light"] .mermaid,
+[data-md-color-scheme="luxury-dark"] .mermaid {
+  background: #fffdf8 !important;
+  border: 1px solid #cdb27b !important;
+  border-radius: 16px !important;
+  padding: 1.35rem !important;
+  box-shadow: 0 14px 38px rgba(24, 32, 51, .09) !important;
+}
+
+.mermaid svg {
+  background: #fffdf8 !important;
+}
+
+/* Every visible diagram label is dark. */
+.mermaid svg text,
+.mermaid svg tspan,
+.mermaid svg foreignObject,
+.mermaid svg foreignObject *,
+.mermaid svg .nodeLabel,
+.mermaid svg .nodeLabel *,
+.mermaid svg .edgeLabel,
+.mermaid svg .edgeLabel *,
+.mermaid svg .messageText,
+.mermaid svg .messageText *,
+.mermaid svg .labelText,
+.mermaid svg .labelText *,
+.mermaid svg .loopText,
+.mermaid svg .loopText *,
+.mermaid svg .noteText,
+.mermaid svg .noteText *,
+.mermaid svg .actor,
+.mermaid svg .actor *,
+.mermaid svg .cluster-label,
+.mermaid svg .cluster-label * {
+  color: #172033 !important;
+  fill: #172033 !important;
+  opacity: 1 !important;
+}
+
+/* Nodes use warm ivory/gold surfaces. */
+.mermaid svg .node rect,
+.mermaid svg .node polygon,
+.mermaid svg .node circle,
+.mermaid svg .node ellipse,
+.mermaid svg rect.actor,
+.mermaid svg .actor rect {
+  fill: #f3e7cf !important;
+  stroke: #8c672b !important;
+  stroke-width: 1.8px !important;
+  opacity: 1 !important;
+}
+
+/* Edge labels get a solid background so lines never reduce readability. */
+.mermaid svg .edgeLabel rect,
+.mermaid svg .labelBox,
+.mermaid svg .labelBkg {
+  fill: #fffdf8 !important;
+  stroke: #c6a564 !important;
+  opacity: 1 !important;
+}
+
+/* All connectors are deliberately dark. */
+.mermaid svg .messageLine0,
+.mermaid svg .messageLine1,
+.mermaid svg .actor-line,
+.mermaid svg .flowchart-link,
+.mermaid svg path.path,
+.mermaid svg line {
+  stroke: #34445a !important;
+  stroke-width: 1.9px !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg marker path {
+  fill: #34445a !important;
+  stroke: #34445a !important;
+}
+
+/* Notes and groups. */
+.mermaid svg .note {
+  fill: #fff0c7 !important;
+  stroke: #9a7130 !important;
+}
+
+.mermaid svg .cluster rect {
+  fill: #edf3f1 !important;
+  stroke: #497f79 !important;
+}
+
+/* Bottom-left course control: compact and out of the reading flow. */
+.course-nav-toggle,
+body.course-nav-collapsed .course-nav-toggle {
+  top: auto !important;
+  left: 14px !important;
+  bottom: 18px !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  font-size: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.course-nav-toggle::before {
+  content: "☰";
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+body:not(.course-nav-collapsed) .course-nav-toggle::before {
+  content: "‹";
+  font-size: 28px;
+}
+
+.course-nav-toggle::after {
+  content: attr(aria-label);
+  position: absolute;
+  left: 52px;
+  bottom: 5px;
+  width: max-content;
+  max-width: 180px;
+  padding: .35rem .55rem;
+  border-radius: 8px;
+  background: #172033;
+  color: #fffaf0;
+  font-size: .68rem;
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-4px);
+  transition: opacity .16s ease, transform .16s ease;
+}
+
+.course-nav-toggle:hover::after {
+  opacity: 1;
+  transform: translateX(0);
+}
