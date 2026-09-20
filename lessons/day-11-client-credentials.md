@@ -425,6 +425,18 @@ Employee Reporting Service
 
 That makes the client boundary explicit.
 
+Policy priority still matters.
+
+Okta evaluates matching policies and rules in priority order and stops at the first match. If your authorization server contains an earlier broad policy such as:
+
+~~~text
+All clients
+~~~
+
+that policy can intercept the service request before the dedicated reporting policy is reached.
+
+For the lab, confirm there is no earlier broad policy that matches the Employee Reporting Service.
+
 ## The service rule must say No user
 
 This is one of the most important Okta-specific Day 11 details.
@@ -1160,6 +1172,7 @@ wrong authorization server
 unknown scope
 scope not permitted
 wrong policy
+wrong policy priority
 wrong grant
 wrong user condition
 wrong audience
