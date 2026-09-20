@@ -748,6 +748,41 @@ You may add tests based on your final design.
 
 ## Phase 16 - Build the happy paths first
 
+The core capstone assesses OAuth/OIDC engineering, not whether you already know React or Spring Boot.
+
+Choose one implementation track.
+
+### Track A - Course harness track
+
+Required if React/Spring Boot is not already comfortable.
+
+Use the existing course components to prove the protocol and security contract:
+
+~~~text
+Day 7 browser SPA
+Day 9 Employee API
+Day 10 lifecycle utilities
+Day 11 reporting service/API
+Day 12 Okta API automation design
+~~~
+
+Then map that proven design to the React + Spring Boot reference.
+
+### Track B - Stack-transfer track
+
+Use this only if React and Spring Boot are already comfortable.
+
+Implement the same OAuth/OIDC contract in:
+
+~~~text
+React SPA
+Spring Boot resource server
+~~~
+
+Do not spend Day 15 learning a new application framework from scratch. That would test framework knowledge instead of OAuth/OIDC engineering.
+
+Both tracks must produce the same architecture, trust boundaries, token behavior, authorization behavior, and evidence.
+
 Implement and prove, in this order:
 
 ~~~text
