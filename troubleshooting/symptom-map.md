@@ -102,3 +102,22 @@ A setting change is not the diagnosis. The diagnosis is the failed step, the evi
 | Org-AS access token is being decoded for authorization logic | Treat the Org-AS token as opaque. Use token response metadata and actual Okta API authorization results. |
 | Key rotation causes invalid_client | Verify the new public JWK is registered before deployment, automation uses matching private key/kid, then retire the old key only after successful overlap. |
 | Read-only automation has manage scopes | Reduce scope grants and requested scopes to read unless the process actually performs writes. |
+
+
+## Day 13 browser and authentication symptoms
+
+| Symptom | First checks |
+|---|---|
+| Browser never leaves the application | JavaScript/runtime error, SDK initialization, local route/click handler, issuer discovery/configuration |
+| Browser reaches /authorize but callback never arrives | Actual redirect_uri vs registered redirect URI, client ID/app status, authorization request error |
+| Callback reaches app but pending transaction is missing | Transaction cookie/storage, server restart, shared session store, load balancer/node affinity, browser state loss |
+| Callback reaches app but state validation fails | Expected state vs returned state; do not move to token/client-secret troubleshooting yet |
+| Token exchange succeeds but nonce validation fails | Expected nonce storage, transaction mix-up, OIDC response binding, multiple-tab state |
+| User is denied at Okta | Controlled Access/assignment, user status, Global Session Policy, app sign-in policy, authenticator state, System Log |
+| Unexpected MFA or reauthentication | Global Session Policy, app sign-in/authentication policy, current Okta session context, authenticator enrollment; do not start with Custom-AS access policy |
+| Okta SSO succeeds but application still shows signed out | Local session creation, Set-Cookie, browser cookie storage/send, SPA token/auth state, server session store |
+| Local logout is followed immediately by sign-in | Local app session ended but Okta browser session may remain; inspect whether a protected route immediately starts /authorize |
+| Postman works but browser fails | CORS/preflight, origin, browser cookies/privacy, storage, mixed content, JavaScript request construction |
+| Browser CORS error calling your own API | Configure CORS on your API. An Okta Trusted Origin does not configure your application API |
+| Browser CORS error calling Okta | Identify cookie/session vs bearer-token call, endpoint CORS support, and whether Trusted Origin is actually required |
+| Dev works but prod fails | Compare issuer, client ID, app type, redirect/sign-out URIs, origins, HTTPS/cookies, policies, Controlled Access, assignments, proxy/session-store behavior |
