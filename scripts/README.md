@@ -37,6 +37,14 @@ Dependency for the validator: `PyJWT[crypto]`.
 
 The Web Application keeps OAuth transaction data and tokens server-side and gives the browser an opaque HttpOnly application-session cookie. The SPA uses Okta Auth JS and stores tokens in browser `sessionStorage` for the lab so the trust-boundary difference is visible.
 
+### Day 8 protected API
+
+- [Python - prepare Custom Authorization Server authorization](python/day08_prepare_api_authorization.py)
+- [Python - inspect access-token claims without validation](python/day08_inspect_access_token.py)
+- [Python - protected Employee API](python/day08_employee_api.py)
+
+The Day 8 API validates Custom Authorization Server access tokens, then enforces `employee.read`. It returns 401 for missing/invalid bearer credentials and 403 for a trusted token with insufficient scope.
+
 ## Added later as the course reaches them
 
 - Client Credentials
