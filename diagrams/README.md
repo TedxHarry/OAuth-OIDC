@@ -20,6 +20,7 @@ GitHub renders the Mermaid diagrams directly in Markdown.
 - [Day 4 token lifecycle](day-04-token-lifecycle.md)
 - [Day 5 JWT validation](day-05-jwt-validation.md)
 - [Day 6 app types and client authentication](day-06-app-types-client-auth.md)
+- [Day 7 server-side Web App vs browser SPA](day-07-web-app-vs-spa.md)
 
 ## Diagram plan
 
