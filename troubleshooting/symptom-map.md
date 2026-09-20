@@ -12,12 +12,15 @@ Use this only as a starting point. Always confirm the failed step from the actua
 | API returns 401 | Bearer token present? access token vs ID token? Org AS vs Custom AS? signature, issuer, audience, `cid`, expiry, JWKS |
 | API returns 403 | Token accepted but required scope/claim/permission missing; inspect granted `scp` before changing token-validation settings |
 | Unknown `kid` | Wrong issuer/JWKS, stale key cache, signing-key rotation |
-| Audience mismatch | Wrong authorization server, wrong configured audience, wrong token sent to API |
-| Unexpected MFA | Global Session Policy, App Sign-In/Authentication Policy, existing session state |
-| Expected scope missing | Was it requested? Did the matching authorization-server rule permit it? |
-| Login works but profile claim is missing | Requested OIDC scopes, claim configuration, ID token vs `/userinfo` expectation |
+| Audience mismatch | Wrong authorization server, wrong API audience, wrong token sent to API, client/API using different authorization-server boundary |
+| Unexpected MFA | Global Session Policy, App Sign-In/Authentication Policy, existing session state; do not start by changing Custom-AS access policy |
+| Expected scope missing | Correct Custom AS? Scope defined? Was it requested? Which policy covers the client? Which rule matched first? User/group condition? Did that rule permit the custom scope? |
+| Custom access-token claim missing | Claim enabled? correct token type? expression/group filter? user attribute populated? Include-in scope condition? Token Preview vs real flow |
+| Login works but OIDC profile claim is missing | Requested OIDC scopes, claim configuration, ID token vs `/userinfo` expectation |
 | App logout signs user straight back in | Local application session ended but Okta browser session remains |
 | Postman works but SPA fails | CORS, Trusted Origins where applicable, browser cookies, callback handling, PKCE state |
+| Wrong token lifetime / specific rule never applies | Access-policy priority, rule priority, earlier broad rule, client/user/group/scope conditions |
+| Token Preview works but real flow fails | Redirect URI, assignment, PKCE/callback state, client configuration, real requested scopes, browser/application behavior |
 | Works in dev but fails in prod | Issuer, client ID, redirect URI, secret/key, policy, assignment, audience, environment config |
 | Token is revoked but API still accepts it | API is probably doing local JWT validation and not checking live revocation state |
 | Okta API token obtained but operation denied | OAuth scope may be present while admin role/resource permission is insufficient |
