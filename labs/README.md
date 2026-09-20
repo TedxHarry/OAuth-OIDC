@@ -23,6 +23,7 @@ Hands-on work is used when it helps the learner understand the concept more clea
 - [Day 7 - Run a server-side Web Application and browser SPA](day-07-web-app-vs-spa.md)
 - [Day 8 - Protect the Employee API](day-08-protect-api.md)
 - [Day 9 - Design Employee API authorization](day-09-authorization-design.md)
+- [Day 10 - Prove session and token lifecycle](day-10-session-token-lifecycle.md)
 
 More lab files will be added as we execute each day.
 
