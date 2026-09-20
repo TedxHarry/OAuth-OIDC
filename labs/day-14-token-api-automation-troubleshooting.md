@@ -155,7 +155,7 @@ Body:
 | client_id | your SPA client ID |
 | redirect_uri | http://localhost:8000/callback |
 | code | fresh code from Part 4 |
-| code_verifier | intentionally-wrong-verifier-value |
+| code_verifier | intentionally-wrong-verifier-value-0123456789-ABCDE |
 
 Send once.
 
@@ -175,6 +175,8 @@ Grant type:
 Failed credential/proof:
 First failed layer:
 ~~~
+
+The intentionally wrong verifier is still syntactically valid PKCE input, so this exercise isolates a verifier/challenge mismatch rather than a malformed verifier.
 
 Do not call this invalid client authentication merely because the request failed at /token.
 
