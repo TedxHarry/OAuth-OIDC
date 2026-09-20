@@ -54,7 +54,7 @@ Okta integration tenant
 Chrome or Edge
 Python
 Postman, optional for comparison
-Node.js 20 or newer for the SPA
+Node.js 20.19+ or 22.12+ for the SPA
 npm
 ~~~
 
@@ -498,7 +498,7 @@ cd scripts/day07_spa
 npm install
 ~~~
 
-The lab requires Node.js 20 or newer because the pinned dependency and tooling versions require a modern Node runtime.
+Vite 8 requires Node.js 20.19+ or 22.12+. If your Node version is older, upgrade Node before running the SPA.
 
 Start the SPA:
 
