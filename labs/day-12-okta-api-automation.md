@@ -1027,6 +1027,8 @@ you may retire public key A from the dedicated lab service app if no other proce
 
 If you manage signing keys through the Okta key-management API, deactivate key A before deleting it.
 
+If the service app already has Okta-scoped grants, use an administrator with the required Super Admin permission for the key-rotation management action. Do not assign Super Administrator to the service app merely to make runtime API calls work.
+
 Do not retire an old public key while an active deployment still depends on its private key.
 
 Remember:
