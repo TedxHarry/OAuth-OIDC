@@ -13,7 +13,13 @@ function ConvertTo-Base64UrlNoPadding {
 }
 
 $randomBytes = New-Object byte[] 64
-[System.Security.Cryptography.RandomNumberGenerator]::Fill($randomBytes)
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+try {
+    $rng.GetBytes($randomBytes)
+}
+finally {
+    $rng.Dispose()
+}
 
 $verifier = ConvertTo-Base64UrlNoPadding -Bytes $randomBytes
 
