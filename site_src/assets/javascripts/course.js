@@ -86,7 +86,54 @@
     }
   };
 
-  const initializeMermaid = () => {
+  const styleRenderedMermaid = () => {
+    document.querySelectorAll(".mermaid svg").forEach((svg) => {
+      svg.querySelectorAll(
+        ".node rect, .node polygon, .node circle, .node ellipse, rect.actor, .actor rect"
+      ).forEach((shape) => {
+        shape.style.setProperty("fill", "#17263d", "important");
+        shape.style.setProperty("stroke", "#b78d49", "important");
+        shape.style.setProperty("stroke-width", "1.7px", "important");
+      });
+
+      svg.querySelectorAll(
+        ".nodeLabel, .nodeLabel p, .nodeLabel span, .node foreignObject div, .actor text, .actor tspan"
+      ).forEach((label) => {
+        label.style.setProperty("color", "#fffaf0", "important");
+        label.style.setProperty("fill", "#fffaf0", "important");
+        label.style.setProperty("opacity", "1", "important");
+      });
+
+      svg.querySelectorAll(
+        ".edgeLabel, .edgeLabel p, .edgeLabel span, .edgeLabel foreignObject div, .messageText, .messageText tspan, .labelText, .labelText tspan, .loopText, .loopText tspan"
+      ).forEach((label) => {
+        label.style.setProperty("color", "#172033", "important");
+        label.style.setProperty("fill", "#172033", "important");
+        label.style.setProperty("opacity", "1", "important");
+      });
+
+      svg.querySelectorAll(".edgeLabel rect, .labelBox, .labelBkg")
+        .forEach((box) => {
+          box.style.setProperty("fill", "#fffdf8", "important");
+          box.style.setProperty("stroke", "#d1b67e", "important");
+          box.style.setProperty("opacity", "1", "important");
+        });
+
+      svg.querySelectorAll(
+        ".messageLine0, .messageLine1, .actor-line, .flowchart-link, path.path"
+      ).forEach((line) => {
+        line.style.setProperty("stroke", "#4b5b70", "important");
+        line.style.setProperty("stroke-width", "1.8px", "important");
+      });
+
+      svg.querySelectorAll("marker path").forEach((marker) => {
+        marker.style.setProperty("fill", "#4b5b70", "important");
+        marker.style.setProperty("stroke", "#4b5b70", "important");
+      });
+    });
+  };
+
+  const initializeMermaid = async () => {
     if (!window.mermaid) {
       return;
     }
@@ -96,77 +143,41 @@
       securityLevel: "strict",
       theme: "base",
       themeVariables: {
-        background: "#fbf8f1",
-        primaryColor: "#f4ead8",
-        primaryTextColor: "#172033",
-        primaryBorderColor: "#9b753a",
-        secondaryColor: "#e8f2ef",
-        secondaryTextColor: "#172033",
-        secondaryBorderColor: "#2f6f6a",
-        tertiaryColor: "#edf1f7",
+        background: "#fcfaf5",
+        primaryColor: "#17263d",
+        primaryTextColor: "#fffaf0",
+        primaryBorderColor: "#b78d49",
+        secondaryColor: "#204f4b",
+        secondaryTextColor: "#fffaf0",
+        secondaryBorderColor: "#8fbab5",
+        tertiaryColor: "#f2ede2",
         tertiaryTextColor: "#172033",
-        tertiaryBorderColor: "#52627a",
-        lineColor: "#465568",
+        tertiaryBorderColor: "#a98a55",
+        lineColor: "#4b5b70",
         textColor: "#172033",
-        mainBkg: "#f4ead8",
-        nodeBorder: "#9b753a",
-        clusterBkg: "#fffdf8",
-        clusterBorder: "#c8a76e",
+        mainBkg: "#17263d",
+        nodeBorder: "#b78d49",
+        clusterBkg: "#f2ede2",
+        clusterBorder: "#a98a55",
         edgeLabelBackground: "#fffdf8",
-        actorBkg: "#f4ead8",
-        actorBorder: "#9b753a",
-        actorTextColor: "#172033",
-        actorLineColor: "#687386",
-        signalColor: "#334155",
+        actorBkg: "#17263d",
+        actorBorder: "#b78d49",
+        actorTextColor: "#fffaf0",
+        actorLineColor: "#647086",
+        signalColor: "#4b5b70",
         signalTextColor: "#172033",
         labelBoxBkgColor: "#fffdf8",
-        labelBoxBorderColor: "#c8a76e",
+        labelBoxBorderColor: "#d1b67e",
         labelTextColor: "#172033",
         loopTextColor: "#172033",
-        noteBkgColor: "#fff0c7",
-        noteBorderColor: "#b8955a",
+        noteBkgColor: "#fff1c9",
+        noteBorderColor: "#b78d49",
         noteTextColor: "#172033",
         activationBkgColor: "#dcebea",
         activationBorderColor: "#2f6f6a",
         fontFamily: "Inter, system-ui, sans-serif",
         fontSize: "16px"
-      },
-      themeCSS: `
-        .actor, .node rect, .node polygon, .node circle {
-          stroke-width: 1.5px !important;
-        }
-
-        .messageLine0,
-        .messageLine1,
-        .actor-line,
-        .flowchart-link {
-          stroke: #465568 !important;
-          stroke-width: 1.6px !important;
-        }
-
-        marker path {
-          fill: #465568 !important;
-          stroke: #465568 !important;
-        }
-
-        .messageText,
-        .labelText,
-        .loopText,
-        .noteText,
-        .nodeLabel,
-        .edgeLabel,
-        .actor text,
-        text {
-          fill: #172033 !important;
-          color: #172033 !important;
-        }
-
-        .labelBox,
-        .edgeLabel rect {
-          fill: #fffdf8 !important;
-          stroke: #c8a76e !important;
-        }
-      `
+      }
     });
 
     document.querySelectorAll(".mermaid").forEach((node) => {
@@ -176,7 +187,8 @@
     const nodes = document.querySelectorAll(".mermaid");
 
     if (nodes.length) {
-      window.mermaid.run({ nodes });
+      await window.mermaid.run({ nodes });
+      styleRenderedMermaid();
     }
   };
 
