@@ -14,13 +14,10 @@ Required environment variables:
 Register this normal redirect URI on the Web Application:
     http://localhost:5300/callback
 
-Faults are selected through /login?fault=<name>:
-    none
-    redirect
-    state
-    lost
-    nonce
-    session
+Lab cases are selected through /login?case=<letter>.
+
+The case-to-fault mapping is intentionally kept inside this file so the learner
+can diagnose from evidence before reading the answer key.
 
 Security:
 - Raw tokens, authorization codes, PKCE verifiers, client secrets, and cookie
@@ -88,6 +85,14 @@ app = Flask(__name__)
 PENDING = {}
 SESSIONS = {}
 
+CASE_MAP = {
+    "A": "redirect",
+    "B": "lost",
+    "C": "state",
+    "D": "nonce",
+    "E": "session",
+}
+
 
 def b64url(value):
     return base64.urlsafe_b64encode(value).rstrip(b"=").decode("ascii")
@@ -139,12 +144,13 @@ def home():
 <p>Status: <strong>%s</strong></p>
 
 <h2>Controlled sign-in cases</h2>
-<p><a href="/login?fault=none">Normal sign-in</a></p>
-<p><a href="/login?fault=redirect">Fault: unregistered redirect URI</a></p>
-<p><a href="/login?fault=state">Fault: state mismatch</a></p>
-<p><a href="/login?fault=lost">Fault: pending transaction missing</a></p>
-<p><a href="/login?fault=nonce">Fault: nonce mismatch</a></p>
-<p><a href="/login?fault=session">Fault: OAuth succeeds, local session not created</a></p>
+<p><a href="/login?case=NORMAL">Normal sign-in</a></p>
+<p><a href="/login?case=A">Case A</a></p>
+<p><a href="/login?case=B">Case B</a></p>
+<p><a href="/login?case=C">Case C</a></p>
+<p><a href="/login?case=D">Case D</a></p>
+<p><a href="/login?case=E">Case E</a></p>
+<p>Do not read the source mapping until you have diagnosed the cases.</p>
 
 <h2>Evidence rule</h2>
 <pre>Last confirmed successful step:
@@ -161,10 +167,14 @@ Proof after fix:</pre>
 
 @app.get("/login")
 def login():
-    fault = request.args.get("fault", "none")
+    case_id = request.args.get("case", "NORMAL").upper()
 
-    if fault not in {"none", "redirect", "state", "lost", "nonce", "session"}:
-        return page("Invalid fault", "<p>Unknown fault mode.</p>"), 400
+    if case_id == "NORMAL":
+        fault = "none"
+    elif case_id in CASE_MAP:
+        fault = CASE_MAP[case_id]
+    else:
+        return page("Invalid case", "<p>Unknown training case.</p>"), 400
 
     sent_state = secrets.token_urlsafe(32)
     sent_nonce = secrets.token_urlsafe(32)
@@ -185,6 +195,7 @@ def login():
         "expected_nonce": expected_nonce,
         "verifier": verifier,
         "fault": fault,
+        "case_id": case_id,
         "created_at": time.time(),
     }
 
@@ -205,7 +216,7 @@ def login():
     }
 
     print("[Day 13] transaction_created=True")
-    print("[Day 13] fault=%s" % fault)
+    print("[Day 13] case=%s" % case_id)
     print("[Day 13] redirect_uri=%s" % redirect_uri)
     print("[Day 13] raw_credentials_logged=False")
 
