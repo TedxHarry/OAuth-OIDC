@@ -1091,6 +1091,8 @@ Deactivate and retire public key A after safe overlap
 
 Do not remove key A before every running instance of the automation has moved to key B.
 
+Operational permission is separate from the service app's runtime role. Okta's current service-app guidance notes that after Okta-scoped grants exist on the service app, rotating its signing keys requires an administrator with Super Admin permission to perform that key-management action. That does not mean the service app itself should run with Super Administrator.
+
 When using Okta's signing-key management API, deactivate an old key before deleting it.
 
 ## Private-key storage
