@@ -366,6 +366,12 @@ def main():
     parser.add_argument("--group-id")
     parser.add_argument("--allow-write", action="store_true")
     parser.add_argument(
+        "--repeat",
+        type=int,
+        default=1,
+        help="Reuse one acquired access token for repeated read calls.",
+    )
+    parser.add_argument(
         "--fault",
         default="none",
         choices=(
@@ -402,6 +408,12 @@ def main():
     if response.status_code != 200:
         return
 
+    if args.repeat < 1:
+        raise SystemExit("--repeat must be at least 1.")
+
+    if args.action in ("add-user-to-group", "remove-user-from-group") and args.repeat != 1:
+        raise SystemExit("Write actions require --repeat 1.")
+
     access_token = body.get("access_token")
 
     if not access_token:
@@ -410,7 +422,19 @@ def main():
     if args.action == "token-only":
         return
 
-    execute_action(args, access_token)
+    for call_number in range(1, args.repeat + 1):
+        print("")
+        print("API CALL NUMBER")
+        print("===============")
+        print(call_number)
+        execute_action(args, access_token)
+
+    print("")
+    print("TOKEN REUSE SUMMARY")
+    print("===================")
+    print("token_requests=1")
+    print("api_calls=%s" % args.repeat)
+    print("client_assertions_created=1")
 
 
 if __name__ == "__main__":
