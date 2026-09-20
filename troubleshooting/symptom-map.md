@@ -121,3 +121,27 @@ A setting change is not the diagnosis. The diagnosis is the failed step, the evi
 | Browser CORS error calling your own API | Configure CORS on your API. An Okta Trusted Origin does not configure your application API |
 | Browser CORS error calling Okta | Identify cookie/session vs bearer-token call, endpoint CORS support, and whether Trusted Origin is actually required |
 | Dev works but prod fails | Compare issuer, client ID, app type, redirect/sign-out URIs, origins, HTTPS/cookies, policies, Controlled Access, assignments, proxy/session-store behavior |
+
+
+## Day 14 token, API, refresh, and automation symptoms
+
+| Symptom | First checks |
+|---|---|
+| Authorization Code /token fails after wrong PKCE verifier | Treat as grant validation. Use a fresh authorization transaction and the matching verifier; do not troubleshoot API scope first. |
+| Reused authorization code fails | Expected one-time grant behavior. Start a new authorization request rather than retrying the redeemed code. |
+| /token returns invalid_client | Client ID plus configured client-authentication method and credential: secret method, secret value, private key/kid/assertion, or public-client none. |
+| Scope request is rejected before token issuance | Correct authorization server? scope exists? policy/rule/grant/user condition? service-app grants collection for Okta API scopes? |
+| Custom API returns 401 | Bearer token presence/type, alg/kid/JWKS, signature, issuer, audience, time, expected cid, safe API validation stage. |
+| Custom API returns 403 insufficient_scope | Token was trusted. Compare required endpoint scope with granted scp; do not rotate keys or change issuer first. |
+| JWT kid not found in cached JWKS | Confirm trusted issuer and discovery, refresh the trusted jwks_uri, then distinguish key rotation/stale cache from wrong issuer/environment or fabricated token. Never disable signature validation. |
+| Fresh token appears expired/not-yet-valid | Check host/container/VM clock synchronization before increasing validation leeway. |
+| Refresh works after access-token-only revocation | Expected: access-token revocation doesn't revoke its refresh token. Track the current refresh token correctly. |
+| Refresh fails after refresh-token revocation | Grant credential is inactive. Resource API is not the first failed layer. |
+| Refresh-token reuse detected | Check whether the client stored the newest rotating token, grace period, and System Log reuse-detection event. Do not keep replaying the old token. |
+| Day 11 Client Credentials /token succeeds but machine API returns 401 | Resource trust: issuer, audience, signature, expiry, expected service cid, token structure. Client secret already succeeded upstream. |
+| Day 11 machine API returns 403 | Resource accepted the token but required service scope is absent. Compare requested/granted/required scope. |
+| Day 12 private_key_jwt fails before token issuance | Org AS endpoint, client ID, private key/public JWK, kid, iss/sub, exact aud, exp/iat, jti, and DPoP requirement. |
+| Day 12 Okta API scope is rejected | Scope supported? granted to service app? correct Org Authorization Server? read vs manage? |
+| Day 12 token contains scope but Management API denies operation | Scope grant isn't admin authorization. Check service-app admin role, permission, resource target, or custom role/resource-set binding. |
+| Dev works but prod fails | Compare issuer, AS ID, audience, client ID/auth method, secret/key/kid, policies, scopes, expected cid, JWKS, roles/targets, API base URL, and host clock. |
+| Service retries invalid_client forever | Configuration/credential failure, not a transient condition. Stop unbounded retry and alert for correction. |
