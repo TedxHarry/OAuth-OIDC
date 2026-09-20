@@ -106,7 +106,10 @@ Then open:
 http://127.0.0.1:8000/
 ```
 
-For GitHub Pages, use the included `.github/workflows/docs-site.yml`. If Pages has not been enabled for the repository yet, select **Settings -> Pages -> Source: GitHub Actions** once.
+For GitHub Pages, use the included `.github/workflows/docs-site.yml`.
+
+If the published site still looks like a plain rendered README with no left navigation, GitHub Pages is still using the legacy branch source. In the repository, open **Settings -> Pages -> Build and deployment -> Source** and select **GitHub Actions**. The included `.github/workflows/docs-site.yml` workflow will then publish the full course site with the collapsible sidebar.
+
 
 ## Start here
 
