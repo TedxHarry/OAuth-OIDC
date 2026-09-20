@@ -672,3 +672,830 @@ JWT time claims are numeric timestamps.
 The issue is clock synchronization, not display timezone.
 
 Do not add huge validation leeway to hide a broken clock.
+
+
+## Case 8: refresh fails
+
+First identify:
+
+~~~text
+Which refresh token is the client actually holding?
+~~~
+
+Then ask:
+
+~~~text
+Refresh Token grant enabled?
+offline_access requested on the original authorization request when required?
+correct client?
+correct authorization server?
+refresh token revoked?
+refresh token expired?
+rotation enabled?
+client stored newly returned refresh token?
+old token reused?
+grace period relevant?
+reuse detection event in System Log?
+~~~
+
+Okta rotates refresh tokens for SPAs by default and supports reuse detection.
+
+A reused refresh token can invalidate newer tokens in the authorization family.
+
+## Do not test refresh reuse carelessly
+
+A live rotating refresh token is a credential.
+
+Repeatedly replaying an old token can invalidate:
+
+~~~text
+latest refresh token
+access tokens issued since authentication
+~~~
+
+Use a disposable lab authorization if you explicitly test reuse.
+
+For the core Day 14 lab, use the controlled Day 10 revocation flow and inspect reuse-detection concepts without risking a useful token family.
+
+## Refresh failure after access-token revocation
+
+Remember Day 10:
+
+~~~text
+revoke access token only
+        |
+        +-- access token inactive at Okta
+        |
+        +-- refresh token remains active
+~~~
+
+Therefore:
+
+~~~text
+refresh succeeds after access-token-only revocation
+~~~
+
+can be expected.
+
+Do not classify it as a revocation failure.
+
+## Refresh failure after refresh-token revocation
+
+Also from Day 10:
+
+~~~text
+revoke refresh token
+        |
+        v
+refresh token inactive
+        |
+        v
+associated access token inactive at Okta
+        |
+        v
+later refresh fails
+~~~
+
+The failed credential is the refresh token.
+
+Name it.
+
+## Case 9: locally valid JWT but revoked at Okta
+
+This is not necessarily a contradiction.
+
+A locally validated Custom-AS JWT can still have:
+
+~~~text
+valid signature
+correct issuer
+correct audience
+exp in the future
+required scope
+~~~
+
+after the authorization server has marked it inactive.
+
+Therefore:
+
+~~~text
+local API = 200
+/introspect = active:false
+~~~
+
+can occur.
+
+The API is answering:
+
+> Does this JWT satisfy my local trust rules?
+
+Introspection is answering:
+
+> Does the authorization server currently consider this token active?
+
+Different evidence.
+
+## Case 10: Client Credentials token request fails
+
+For Day 11 service access, classify in this order:
+
+~~~text
+correct Custom Authorization Server?
+correct service client ID?
+client_secret_basic configured?
+secret correct?
+Client Credentials grant allowed?
+policy assigned to this client?
+policy priority correct?
+User = No user?
+service scope exists?
+scope permitted?
+~~~
+
+Browser concepts such as redirect URI, cookies, state, nonce, and CORS are not the first layer.
+
+There is no interactive browser transaction.
+
+## Case 11: service token issued but machine API returns 401
+
+Now /token is proven successful.
+
+Check Day 11 resource-server trust:
+
+~~~text
+issuer
+audience
+signature
+expiry
+expected service cid
+scp structure
+~~~
+
+If:
+
+~~~text
+stage=client_id
+~~~
+
+the API may have validated the JWT signature/issuer/audience but rejected the configured client boundary.
+
+Do not rotate the client secret.
+
+That credential already succeeded at /token.
+
+## Case 12: service token issued but machine API returns 403
+
+If the token is trusted and:
+
+~~~text
+employee.report.read
+~~~
+
+is missing from scp, the machine endpoint returns insufficient scope.
+
+Investigate:
+
+~~~text
+what scope did the service request?
+what scope did the authorization server grant?
+what scope does the endpoint require?
+~~~
+
+Do not troubleshoot MFA or user groups.
+
+There is no human user in the Day 11 transaction.
+
+## Case 13: Okta API private_key_jwt token request fails
+
+This is Day 12 Layer 1.
+
+Check:
+
+~~~text
+Org Authorization Server /oauth2/v1/token?
+private_key_jwt configured?
+correct client ID?
+private key matches registered public key?
+kid registered?
+iss = client ID?
+sub = client ID?
+aud = exact Org-AS token endpoint?
+iat/exp valid?
+jti reused?
+DPoP requirement unexpectedly enabled?
+~~~
+
+No Okta Management API call should occur if client authentication fails.
+
+## Case 14: Okta API scope request fails
+
+This is Day 12 Layer 2.
+
+Check:
+
+~~~text
+scope supported?
+scope spelling?
+scope granted on service app?
+read vs manage?
+request sent to Org Authorization Server?
+~~~
+
+Do not assign Super Administrator to solve a scope that was never granted.
+
+Administrative roles are evaluated later.
+
+## Case 15: Okta API token issued but operation denied
+
+This is the critical Day 12 distinction.
+
+Proven:
+
+~~~text
+private_key_jwt succeeded
+Org AS issued access token
+requested scope was granted to service app
+~~~
+
+Now inspect:
+
+~~~text
+admin role assigned to service app?
+role contains required permission?
+resource target contains target object?
+custom role/resource-set binding correct?
+endpoint requires a manage scope instead of read?
+~~~
+
+A new client assertion does not repair missing admin permission.
+
+## Okta API authorization has two independent controls
+
+~~~text
+OAuth scope grant
+        +
+admin role/resource authorization
+        =
+usable operation
+~~~
+
+You need both.
+
+Do not flatten them into:
+
+> The token has the scope, so Okta should allow it.
+
+## Case 16: dev works, prod fails
+
+Do not say:
+
+> Same code, so it must be Okta.
+
+The code can be identical while trust configuration differs.
+
+Compare:
+
+~~~text
+authorization server issuer
+authorization server ID
+audience
+client ID
+client authentication method
+secret/key/kid
+redirect URI when user flow
+scope definitions
+scope grants
+access policies
+policy priority
+grant type
+user/no-user condition
+admin roles
+resource targets
+JWKS
+custom domain
+API base URL
+expected cid
+token lifetime
+refresh configuration
+clock
+network/proxy
+~~~
+
+Create a difference matrix.
+
+## Dev/prod token comparison
+
+For Custom-AS JWTs, safely compare:
+
+~~~text
+iss
+aud
+cid
+scp
+kid
+iat
+exp
+~~~
+
+Do not compare full token strings.
+
+The tokens should be different.
+
+You are comparing trust metadata.
+
+## Environment-secret mismatch
+
+Common failures include:
+
+~~~text
+prod client ID
++
+dev client secret
+~~~
+
+or:
+
+~~~text
+prod client ID
++
+dev private key
+~~~
+
+or:
+
+~~~text
+prod token
++
+dev API expected audience
+~~~
+
+Those combinations are internally inconsistent.
+
+Check related values as pairs, not one field in isolation.
+
+## HTTP status alone is not enough
+
+Example:
+
+~~~text
+401
+~~~
+
+does not tell you whether the stage was:
+
+~~~text
+missing bearer token
+wrong audience
+expired token
+wrong cid
+unknown kid
+invalid signature
+~~~
+
+Use:
+
+~~~text
+WWW-Authenticate
+API correlation ID
+safe validation stage
+~~~
+
+when available.
+
+Likewise:
+
+~~~text
+/token HTTP 400
+~~~
+
+is not enough.
+
+Capture:
+
+~~~text
+error
+error_description
+grant_type
+client authentication method
+~~~
+
+without logging credentials.
+
+## System Log evidence on Day 14
+
+System Log can help with:
+
+~~~text
+OAuth token events
+refresh-token reuse detection
+service-app events
+administrative changes
+policy/configuration events
+~~~
+
+But your custom API local validation stage remains application evidence.
+
+A System Log event cannot replace:
+
+~~~text
+Employee API correlation log
+~~~
+
+when the failure happened inside your API.
+
+## Troubleshooting order by layer
+
+Use this sequence.
+
+### Layer 1: Can the client reach the correct token endpoint?
+
+~~~text
+DNS/network/TLS
+correct issuer
+correct token endpoint
+~~~
+
+### Layer 2: Can the client authenticate?
+
+~~~text
+none
+client_secret_basic
+client_secret_post
+private_key_jwt
+~~~
+
+### Layer 3: Is the grant acceptable?
+
+~~~text
+authorization code
+PKCE
+refresh token
+Client Credentials
+code/token validity
+~~~
+
+### Layer 4: Are requested scopes issuable?
+
+~~~text
+scope exists
+policy/grant/user condition
+client scope grant
+~~~
+
+### Layer 5: Was a token issued?
+
+If no:
+
+~~~text
+stop before resource-API troubleshooting
+~~~
+
+### Layer 6: Does the resource trust the token?
+
+~~~text
+token type
+alg
+kid/JWKS
+signature
+iss
+aud
+time
+cid
+~~~
+
+### Layer 7: Does the trusted token authorize the operation?
+
+~~~text
+scope
+claim/role if designed
+resource target
+admin permission
+~~~
+
+### Layer 8: Does the application process success correctly?
+
+~~~text
+response parsing
+cache
+state
+retry
+business logic
+~~~
+
+Day 14 focuses mostly on Layers 1 through 7.
+
+## Retry behavior
+
+Not every failure should be retried.
+
+### Usually configuration or credential failures
+
+Examples:
+
+~~~text
+invalid_client
+wrong audience
+ungranted scope
+wrong kid/private key
+missing admin role
+~~~
+
+Do not retry forever.
+
+Alert and correct configuration.
+
+### Potentially transient failures
+
+Examples:
+
+~~~text
+network timeout
+temporary 5xx
+rate limiting
+~~~
+
+Use bounded retry and backoff appropriate to the API.
+
+Do not turn every HTTP error into the same retry loop.
+
+## Token acquisition success should be logged safely
+
+Useful:
+
+~~~text
+token_endpoint_status=200
+grant_type=client_credentials
+client_id=...
+scope=employee.report.read
+expires_in=900
+~~~
+
+Unsafe:
+
+~~~text
+access_token=eyJ...
+client_secret=...
+refresh_token=...
+~~~
+
+Troubleshooting does not require credential leakage.
+
+## API validation success should be logged safely
+
+Useful:
+
+~~~text
+correlation_id=...
+result=allowed
+issuer=expected
+audience=expected
+client_id=expected
+required_scope=employee.report.read
+~~~
+
+Avoid dumping the full JWT.
+
+## Root cause vs symptom
+
+Symptom:
+
+> The API says 401.
+
+Root cause:
+
+> Production API expected audience api://employee-service-prod, but the client presented a token from the dev authorization server with audience api://employee-service-dev.
+
+Symptom:
+
+> Refresh stopped working.
+
+Root cause:
+
+> The SPA continued using an older rotating refresh token instead of the current token returned by the authorization server.
+
+Symptom:
+
+> Okta Users API returns an authorization error.
+
+Root cause:
+
+> The service app successfully received okta.users.read, but the administrative role required to read users was removed.
+
+The root cause names the broken relationship.
+
+## Incident-note format
+
+For every Day 14 case write:
+
+~~~text
+Observed symptom:
+
+Transaction type:
+Authorization server:
+Grant type:
+
+Last confirmed successful step:
+First failed step:
+
+HTTP evidence:
+Safe token/assertion evidence:
+API evidence:
+System Log evidence:
+
+Root cause:
+Single change:
+Proof after change:
+~~~
+
+This format is deliberately similar to Day 13.
+
+The protocol stage is different.
+
+## Common mistakes
+
+### Mistake 1: Debug API scope before a token exists
+
+Wrong layer.
+
+Fix /token first.
+
+### Mistake 2: Treat every token endpoint error as invalid_client
+
+Wrong.
+
+Grant and scope errors are separate.
+
+### Mistake 3: Treat invalid_grant as one root cause
+
+Wrong.
+
+Identify the grant type and credential.
+
+### Mistake 4: Add scopes to fix wrong audience
+
+Wrong.
+
+The token is not trusted by that resource.
+
+### Mistake 5: Interpret every denial as 401
+
+Wrong.
+
+Trusted credential with insufficient permission is normally 403 in our APIs.
+
+### Mistake 6: Disable signature validation for unknown kid
+
+Never.
+
+Refresh the trusted JWKS and verify issuer/configuration.
+
+### Mistake 7: Hardcode one signing key forever
+
+Wrong.
+
+Signing keys rotate.
+
+### Mistake 8: Increase token lifetime to hide refresh bugs
+
+Wrong operational fix.
+
+Repair renewal behavior.
+
+### Mistake 9: Replay rotating refresh tokens casually
+
+Risky.
+
+Reuse detection can invalidate the authorization family.
+
+### Mistake 10: Debug browser CORS for Client Credentials
+
+Wrong transaction.
+
+### Mistake 11: Rotate private_key_jwt keys when the Okta API token was already issued
+
+Wrong layer.
+
+Investigate Management API authorization.
+
+### Mistake 12: Assign Super Admin because one Okta API call is denied
+
+Overprivileged workaround.
+
+Find the required scope, role, permission, and resource target.
+
+### Mistake 13: Compare dev and prod only by source code
+
+Incomplete.
+
+OAuth trust configuration is part of the system.
+
+### Mistake 14: Log credentials to make troubleshooting easier
+
+Never.
+
+Log safe metadata and correlation identifiers.
+
+## What you should be able to explain
+
+1. What is the first Day 14 question?
+2. Why does no token mean the API is not the first failed layer?
+3. What does invalid_client point you toward?
+4. Why does invalid_grant require knowing the grant type?
+5. How can PKCE cause token exchange failure without a client-secret problem?
+6. What is the difference between scope existence and scope authorization?
+7. What is the difference between token-endpoint scope rejection and API 403?
+8. What does 401 mean in the course resource servers?
+9. What does 403 mean?
+10. Why can a signed token still fail audience validation?
+11. How should unknown kid be investigated?
+12. Why is disabling signature validation never the fix?
+13. What should happen when an access token expires?
+14. Why should huge clock leeway not hide time-sync problems?
+15. What should you inspect when refresh fails?
+16. Why is refresh-token replay a dangerous casual lab test?
+17. Why can local JWT validation disagree with introspection?
+18. What should you check for a Day 11 Client Credentials failure?
+19. Why is a Day 11 API 401 different from invalid_client at /token?
+20. What are the three Day 12 failure layers?
+21. Why can an Okta API token contain a scope while the operation is denied?
+22. How do you compare dev and prod safely?
+23. Which failures should not be retried forever?
+24. What evidence belongs in a useful incident note?
+
+## Day 14 lab
+
+[Day 14 Lab - Token, API, Refresh, and Automation Troubleshooting](../labs/day-14-token-api-automation-troubleshooting.md)
+
+The lab reuses the working systems from Days 8 through 12 and adds one safe local token probe.
+
+You will diagnose failures without changing unrelated layers.
+
+## Day 14 completion standard
+
+Day 14 is complete when you can take:
+
+> API access is broken.
+
+and ask, in order:
+
+~~~text
+Was a token issued?
+        |
+        +-- no
+        |    |
+        |    v
+        | client auth?
+        | grant?
+        | scope/policy?
+        |
+        +-- yes
+             |
+             v
+        Did resource trust token?
+             |
+             +-- no -> 401 validation path
+             |
+             +-- yes
+                  |
+                  v
+             Was operation allowed?
+                  |
+                  +-- no -> 403 / permission path
+                  |
+                  +-- yes -> next application layer
+~~~
+
+For refresh:
+
+~~~text
+Which refresh token?
+Which client?
+Which issuer?
+Revoked/expired?
+Rotated?
+Latest token stored?
+Reuse detected?
+~~~
+
+For Okta API automation:
+
+~~~text
+private_key_jwt
+        |
+        v
+scope grant
+        |
+        v
+admin/resource authorization
+~~~
+
+You must be able to identify the first failed layer without random configuration changes.
+
+## Official references
+
+- [Okta: Client authentication methods](https://developer.okta.com/docs/api/openapi/okta-oauth/guides/client-auth)
+- [Okta: Validate access tokens](https://developer.okta.com/docs/guides/validate-access-tokens/main/)
+- [Okta: Key rotation](https://developer.okta.com/docs/concepts/key-rotation/)
+- [Okta: Refresh access tokens and rotate refresh tokens](https://developer.okta.com/docs/guides/refresh-tokens/main/)
+- [Okta: Protect your API endpoints](https://developer.okta.com/docs/guides/protect-your-api/main/)
+- [Okta: Implement OAuth for Okta with a service app](https://developer.okta.com/docs/guides/implement-oauth-for-okta-serviceapp/main/)
