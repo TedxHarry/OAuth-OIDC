@@ -32,7 +32,7 @@ The goal is understanding first. Hands-on work is used to make that understandin
 12. [Day 12 - Okta Management API automation](day-12-okta-api-automation.md)
 13. [Day 13 - Browser and authentication troubleshooting](day-13-browser-auth-troubleshooting.md)
 14. [Day 14 - Token, API, and automation troubleshooting](day-14-token-api-automation-troubleshooting.md)
-15. [Day 15 - Capstone](day-15-capstone-operate-like-the-implementation-engineer.md)
+15. [Day 15 - Capstone](day-15-capstone.md)
 
 ## Working rule
 
