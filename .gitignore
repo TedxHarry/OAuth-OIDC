@@ -1,0 +1,15 @@
+# Local credentials and generated key material
+secrets/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.pyc
+
+# Local tooling
+.vscode/
+.idea/
