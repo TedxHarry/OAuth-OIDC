@@ -56,3 +56,17 @@ When available, use all three:
 3. Okta System Log
 
 A setting change is not the diagnosis. The diagnosis is the failed step, the evidence showing why it failed, and proof that the corrected configuration changed that behavior.
+
+
+## Day 10 lifecycle symptoms
+
+| Symptom | First checks |
+|---|---|
+| Immediate SSO after local logout | Did the app only delete its local session? Is the Okta browser session still active? Did a protected route immediately start /authorize again? |
+| Okta logout completed but API token still works | Session logout and token revocation are separate. Check token exp, introspection state, and whether the API uses local JWT validation only. |
+| Revoked JWT still returns 200 from local API | Compare /introspect with local validation. A purely local JWT validator has no live revocation state. |
+| /revoke returned 200 but token state seems unchanged | 200 does not prove prior token state. Verify the correct token, authorization server, client ID, token type, and introspection result. |
+| Refresh works after access-token revocation | Expected if the refresh token was not revoked. Access-token revocation does not revoke its refresh token. |
+| Refresh fails after refresh-token rotation | Confirm the client stored the newest refresh token and did not reuse an older rotated value outside the grace behavior. |
+| UserInfo profile/email missing | Verify profile/email were granted, correct UserInfo endpoint from discovery, active access token, and which claims the app expects from ID token vs UserInfo. |
+| Unexpected logout behavior | Separate local app session, Okta browser session, local token storage, access-token revocation, and refresh-token revocation before changing configuration. |
