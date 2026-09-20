@@ -141,6 +141,7 @@ Where are client secrets/private keys stored?
 What is the rotation process?
 What correlation IDs are available?
 Which Okta Management API tasks might be automated later?
+Is API Access Management available in every production environment that needs a Custom Authorization Server?
 ~~~
 
 ## Do not invent missing business requirements
@@ -591,6 +592,8 @@ Create a configuration matrix.
 | Reporting credential/key |  |  |
 | API URL |  |  |
 | allowed browser origin |  |  |
+| Okta Trusted Origin when required by SPA sign-out |  |  |
+| API Access Management available |  |  |
 | access policies |  |  |
 | token lifetimes |  |  |
 | secret/key store |  |  |
