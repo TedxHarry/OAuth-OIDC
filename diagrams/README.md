@@ -23,6 +23,7 @@ GitHub renders the Mermaid diagrams directly in Markdown.
 - [Day 7 server-side Web App vs browser SPA](day-07-web-app-vs-spa.md)
 - [Day 8 protected API](day-08-protect-api.md)
 - [Day 9 authorization-server design](day-09-authorization-design.md)
+- [Day 10 session and token lifecycle](day-10-session-token-lifecycle.md)
 
 ## Diagram plan
 
