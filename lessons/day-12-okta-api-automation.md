@@ -605,3 +605,783 @@ The course uses explicit role assignment and least privilege.
 
 If that setting is enabled in a lab org, understand its effect before interpreting the service app's permissions.
 
+
+
+## Optional controlled write exercise
+
+After the read-only path is fully understood, the lab adds an optional controlled write test.
+
+Create a dedicated group:
+
+~~~text
+OAuth-Day12-Test-Group
+~~~
+
+Then configure a narrow administrative assignment that permits the service app to manage membership for that test group.
+
+Grant only the required OAuth scope for the operation.
+
+For the lab operation:
+
+~~~text
+PUT /api/v1/groups/{groupId}/users/{userId}
+~~~
+
+the service needs the appropriate Okta API scope and sufficient administrative permission for that group.
+
+The lab adds a test user, proves the result, removes the user, and restores the test group.
+
+Do not use a production group for this exercise.
+
+## The assertion and access token have different lifetimes
+
+Client assertion:
+
+~~~text
+short lived
+created per token request
+used for client authentication
+~~~
+
+Access token:
+
+~~~text
+returned by Org Authorization Server
+used as Bearer token for Okta Management API
+fixed service-app access-token lifetime
+~~~
+
+Do not cache the assertion as if it were the access token.
+
+## Access-token lifetime
+
+Okta documents the OAuth service-app Org AS access token lifetime as fixed at one hour.
+
+Your automation can cache that access token until shortly before expiry.
+
+When it needs another:
+
+~~~text
+create fresh client assertion
+        |
+        v
+POST /oauth2/v1/token
+        |
+        v
+receive new access token
+~~~
+
+Do not reuse an expired assertion.
+
+## Access-token caching
+
+A normal automation pattern is:
+
+~~~text
+Need Okta API call
+        |
+        v
+Cached access token exists?
+        |
+        +-- no -> build assertion and get token
+        |
+        +-- yes
+              |
+              v
+near expiry?
+        |
+        +-- yes -> build NEW assertion and get token
+        |
+        +-- no -> reuse access token
+~~~
+
+The client assertion is generated only when a token request is needed.
+
+## Treat the Org AS access token as opaque
+
+The Day 12 helper will not decode the Okta API access token.
+
+It records only:
+
+~~~text
+token_type
+expires_in
+scope response
+~~~
+
+Then it proves the token works by making an actual Okta API request.
+
+That is intentional.
+
+## Read users
+
+With:
+
+~~~text
+okta.users.read
++
+Read-only Administrator
+~~~
+
+the automation calls:
+
+~~~http
+GET https://YOUR-OKTA-DOMAIN/api/v1/users
+Authorization: Bearer <access_token>
+~~~
+
+Record:
+
+~~~text
+HTTP status
+number of returned records in the page
+request ID or correlation headers when available
+~~~
+
+Do not dump user profiles into ordinary logs.
+
+## Read one test user
+
+Use a known lab user.
+
+Call:
+
+~~~text
+GET /api/v1/users/{id-or-login}
+~~~
+
+This proves targeted reads separately from broad list calls.
+
+Record only the small set of user fields you actually need for the exercise.
+
+## Read groups
+
+Grant:
+
+~~~text
+okta.groups.read
+~~~
+
+and call:
+
+~~~text
+GET /api/v1/groups
+~~~
+
+The pattern is:
+
+~~~text
+scope grant
++
+admin role
++
+Bearer access token
++
+supported endpoint
+~~~
+
+## Three separate authorization layers
+
+Day 12 failures must be classified into three layers.
+
+### Layer 1: client authentication
+
+Can Okta verify:
+
+~~~text
+client ID
+kid
+registered public key
+signature
+aud
+exp
+iss
+sub
+jti / replay
+~~~
+
+Failure here means:
+
+~~~text
+no access token
+~~~
+
+### Layer 2: scope grant
+
+Did the service app receive permission to request:
+
+~~~text
+okta.users.read
+okta.groups.read
+and other required okta.* scopes
+~~~
+
+Failure here also means:
+
+~~~text
+no access token for that requested scope
+~~~
+
+### Layer 3: admin authorization
+
+A token can be issued successfully.
+
+Then the Management API can still deny the operation because the service app lacks:
+
+~~~text
+required admin role
+resource target
+custom-role permission
+resource-set access
+~~~
+
+This is a post-token authorization failure.
+
+Do not rebuild the client assertion when Layer 3 is the problem.
+
+## Break/fix: wrong private key
+
+Use a different private key from the one whose public key is registered for the kid.
+
+Expected layer:
+
+~~~text
+client authentication
+~~~
+
+No Management API call should occur.
+
+## Break/fix: wrong kid
+
+Sign with the correct private key but place an unregistered kid in the JWT header.
+
+Expected:
+
+~~~text
+Okta cannot select the matching registered verification key
+-> client authentication fails
+~~~
+
+## Break/fix: wrong aud
+
+Use:
+
+~~~text
+https://YOUR-OKTA-DOMAIN/oauth2/default/v1/token
+~~~
+
+inside the assertion while posting to:
+
+~~~text
+https://YOUR-OKTA-DOMAIN/oauth2/v1/token
+~~~
+
+Expected:
+
+~~~text
+client assertion rejected
+~~~
+
+The aud identifies the resource the assertion authenticates to.
+
+## Break/fix: expired assertion
+
+Build:
+
+~~~text
+exp < current time
+~~~
+
+Expected:
+
+~~~text
+client authentication fails
+~~~
+
+The access token does not exist yet.
+
+## Break/fix: replay assertion
+
+Use the exact same assertion again when it contains the same jti.
+
+Expected:
+
+~~~text
+replay protection rejects the reused assertion
+~~~
+
+Production automation should create a fresh assertion for each token request.
+
+## Break/fix: scope not granted
+
+Request:
+
+~~~text
+okta.apps.read
+~~~
+
+without granting that scope to the service app.
+
+Expected:
+
+~~~text
+token acquisition fails
+~~~
+
+This is not an admin-role problem because the scope is not in the app's grants collection.
+
+## Break/fix: scope granted but admin role removed
+
+Keep:
+
+~~~text
+okta.users.read
+~~~
+
+granted to the service app.
+
+Temporarily remove the admin role that gives the service principal permission to read the relevant users.
+
+Request the token again.
+
+Okta can still issue the granted scope.
+
+Then call:
+
+~~~text
+GET /api/v1/users
+~~~
+
+Expected:
+
+~~~text
+Management API authorization failure
+~~~
+
+This proves:
+
+~~~text
+scope present
+!=
+administrative permission
+~~~
+
+Restore the admin role after the test.
+
+## Break/fix: wrong resource target
+
+This is easiest to see in the optional targeted group-membership exercise.
+
+The service app can have:
+
+~~~text
+appropriate OAuth scope
++
+admin role
+~~~
+
+but still be limited to:
+
+~~~text
+OAuth-Day12-Test-Group
+~~~
+
+A write to another group should fail if that group is outside the assigned administrative target.
+
+This is the value of resource-scoped admin authorization.
+
+## Standard role vs custom role
+
+You should understand both.
+
+### Standard role
+
+Examples:
+
+~~~text
+Read-only Administrator
+Group Membership Administrator
+User Administrator
+Application Administrator
+~~~
+
+These are quicker to configure.
+
+Permissions are predefined.
+
+Some standard roles support resource targets.
+
+### Custom admin role
+
+You define:
+
+~~~text
+specific permissions
+~~~
+
+and bind the role to:
+
+~~~text
+specific resource sets
+~~~
+
+Then the client app principal is included in the role/resource-set binding.
+
+Custom roles are useful when a standard role is broader than the automation requirement.
+
+You do not need to become a custom-role specialist today.
+
+You do need to understand where custom roles fit into least privilege.
+
+## Key rotation
+
+A production service should not depend forever on one signing key.
+
+A safe rotation pattern is:
+
+~~~text
+Current key A registered in Okta
+        |
+        v
+Generate key B
+        |
+        v
+Register public key B
+        |
+        v
+Deploy private key B to automation
+        |
+        v
+Automation signs with kid B
+        |
+        v
+Verify successful token acquisition
+        |
+        v
+Retire public key A after safe overlap
+~~~
+
+Do not remove key A before every running instance of the automation has moved to key B.
+
+## Private-key storage
+
+The private key should live in infrastructure designed for secrets or keys.
+
+Examples:
+
+~~~text
+secret manager
+key vault
+protected filesystem with strict permissions
+HSM or KMS-backed signing when supported
+CI/CD secret store
+~~~
+
+Not:
+
+~~~text
+Git repository
+shared ticket
+wiki page
+chat message
+source-code constant
+~~~
+
+## Do not log the client assertion
+
+The assertion is short lived, but it is still an authentication credential while valid.
+
+Normal logs should contain:
+
+~~~text
+operation
+client ID
+kid
+requested scope names
+HTTP status
+safe request/correlation identifiers
+~~~
+
+Not:
+
+~~~text
+private key
+full client assertion
+full access token
+~~~
+
+## Failure classification: invalid_client or token request rejected
+
+Check:
+
+~~~text
+Org AS token endpoint?
+private_key_jwt configured?
+correct client ID?
+correct private key?
+kid registered?
+iss = client ID?
+sub = client ID?
+aud = exact token endpoint?
+exp valid?
+jti replay?
+clock reasonable?
+~~~
+
+## Failure classification: requested scope rejected
+
+Check:
+
+~~~text
+scope name correct?
+scope supported for Okta API?
+scope granted on service app?
+requesting only granted scopes?
+~~~
+
+## Failure classification: token succeeds but Okta API denies operation
+
+Check:
+
+~~~text
+service app admin role?
+role has required permission?
+resource target includes this object?
+custom role/resource-set binding correct?
+endpoint supports that OAuth scope?
+read vs manage scope appropriate?
+~~~
+
+Do not rotate keys first.
+
+Client authentication already succeeded.
+
+## Read vs manage
+
+For GET-only automation:
+
+~~~text
+okta.users.read
+okta.groups.read
+~~~
+
+is the right direction.
+
+For create, update, or delete operations:
+
+~~~text
+okta.<resource>.manage
+~~~
+
+is normally required.
+
+A manage scope includes read access for that resource family, so do not request read and manage redundantly without a reason.
+
+## Day 12 evidence sources
+
+The usual troubleshooting evidence changes slightly.
+
+Use:
+
+~~~text
+automation HTTP response from /oauth2/v1/token
+safe assertion metadata
+token response scope and expires_in
+Okta Management API HTTP response
+Okta request/correlation identifiers
+Okta System Log where applicable
+service app scope grants
+service app Admin Roles configuration
+~~~
+
+Do not rely on Browser Network.
+
+There is no browser transaction.
+
+## Common mistakes
+
+### Mistake 1: Use a Custom Authorization Server
+
+Wrong resource boundary.
+
+Okta API scopes come from the Org Authorization Server.
+
+### Mistake 2: Use client_secret_basic
+
+Wrong service-app authentication model for custom OAuth access to Okta API scopes.
+
+Use private_key_jwt.
+
+### Mistake 3: Put the private key in source control
+
+Wrong key handling.
+
+Register the public key with Okta and protect the private key.
+
+### Mistake 4: Set assertion aud to the Okta API endpoint
+
+Wrong.
+
+The assertion authenticates to the token endpoint.
+
+### Mistake 5: Use the Custom-AS token endpoint in aud
+
+Wrong.
+
+Use:
+
+~~~text
+https://YOUR-OKTA-DOMAIN/oauth2/v1/token
+~~~
+
+### Mistake 6: Assume the scope string proves admin permission
+
+Wrong.
+
+Scope grant and administrative authorization are separate.
+
+### Mistake 7: Give the service app Super Admin for convenience
+
+Poor implementation practice.
+
+Start with least privilege.
+
+### Mistake 8: Decode the Org AS access token and make authorization decisions from its payload
+
+Wrong consumer.
+
+Treat it as opaque and use it with Okta.
+
+### Mistake 9: Reuse one client assertion indefinitely
+
+Wrong credential lifecycle.
+
+Build a fresh short-lived assertion for each token request.
+
+### Mistake 10: Store the private key casually
+
+Use protected key storage and strict access controls.
+
+### Mistake 11: Troubleshoot an API authorization failure by changing kid
+
+Wrong layer.
+
+If the token was issued, client authentication already succeeded.
+
+### Mistake 12: Grant manage scopes for read-only automation
+
+Poor least privilege.
+
+Grant only what the process needs.
+
+## What you should be able to explain
+
+1. Why does Day 12 use the Org Authorization Server?
+2. Why is a Custom Authorization Server wrong for Okta API scopes?
+3. What does private_key_jwt authenticate?
+4. Which key stays with the automation?
+5. Which key is registered with Okta?
+6. What is kid used for?
+7. Why are iss and sub both the client ID?
+8. What must aud be?
+9. Why should the assertion be short lived?
+10. Why is jti useful?
+11. What is the client assertion used for?
+12. What is the access token used for?
+13. Why should the Org AS access token be treated as opaque?
+14. What are Okta API scope grants?
+15. Why are scopes not enough?
+16. What does an admin role add?
+17. What do resource targets and resource sets add?
+18. Why can token acquisition succeed but the API call fail?
+19. When should you use read vs manage scopes?
+20. How do you rotate signing keys safely?
+21. How is Day 12 different from Day 11?
+
+## Day 12 lab
+
+[Day 12 Lab - Automate Okta Management APIs](../labs/day-12-okta-api-automation.md)
+
+You will:
+
+- generate a local RSA signing key pair
+- keep private key material out of Git
+- create an API Services app
+- configure Public key / Private key client authentication
+- register the public JWK
+- grant okta.users.read and okta.groups.read
+- assign a read-only admin role to the service app
+- create a signed private_key_jwt client assertion
+- obtain an Org AS access token
+- call List Users
+- read one test user
+- call List Groups
+- treat the Org AS access token as opaque
+- deliberately use the wrong private key
+- deliberately use the wrong kid
+- deliberately use the wrong assertion aud
+- deliberately use an expired assertion
+- deliberately replay an assertion
+- request an ungranted scope
+- prove scope grant without admin permission is insufficient
+- optionally perform a targeted test-group membership write
+- practice a safe signing-key rotation
+- classify every failure by layer
+
+## Day 12 completion standard
+
+Day 12 is complete when you can draw and explain:
+
+~~~text
+Automation
+    |
+    | create short-lived JWT assertion
+    | iss = client_id
+    | sub = client_id
+    | aud = https://org/oauth2/v1/token
+    | kid = registered public key
+    | sign with private key
+    v
+Org Authorization Server /oauth2/v1/token
+    |
+    | validate private_key_jwt
+    | requested scope granted to app?
+    v
+Okta API access token
+    |
+    | Bearer token
+    v
+Okta Management API
+    |
+    | required OAuth scope?
+    | service app admin permission?
+    | target resource allowed?
+    v
+operation
+~~~
+
+You should be able to diagnose:
+
+~~~text
+wrong key
+wrong kid
+wrong aud
+expired assertion
+replayed assertion
+scope not granted
+wrong scope
+token succeeds but API denied
+missing admin role
+wrong resource target
+read vs manage mismatch
+~~~
+
+without confusing those layers.
+
+## Official references
+
+- [Okta: Implement OAuth for Okta with a service app](https://developer.okta.com/docs/guides/implement-oauth-for-okta-serviceapp/main/)
+- [Okta: Set up Okta for OAuth API access](https://developer.okta.com/docs/guides/set-up-oauth-api/main/)
+- [Okta: Client authentication methods](https://developer.okta.com/docs/api/openapi/okta-oauth/guides/client-auth/)
+- [Okta: OAuth 2.0 scopes](https://developer.okta.com/docs/api/oauth2)
+- [Okta: Roles in Okta](https://developer.okta.com/docs/api/openapi/okta-management/guides/roles)
