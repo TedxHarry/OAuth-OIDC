@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 7 Browser SPA</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+    }
+    input {
+      width: 100%;
+      max-width: 700px;
+      padding: 8px;
+    }
+    button {
+      margin: 12px 8px 0 0;
+      padding: 8px 12px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 12px;
+      overflow: auto;
+    }
+    .warning {
+      border-left: 4px solid #555;
+      padding-left: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Day 7 Browser SPA</h1>
+
+  <p class="warning">
+    This lab deliberately stores OAuth tokens in browser sessionStorage so you
+    can compare the SPA trust boundary with the server-side Web Application.
+    Do not treat this storage choice as a universal production recommendation.
+  </p>
+
+  <section id="config-section">
+    <h2>SPA configuration</h2>
+    <form id="config-form">
+      <label>
+        Okta issuer
+        <input
+          id="issuer"
+          placeholder="https://integrator-123456.okta.com"
+          required
+        >
+      </label>
+
+      <label>
+        SPA client ID
+        <input
+          id="client-id"
+          placeholder="0oa..."
+          required
+        >
+      </label>
+
+      <button type="submit">Save lab configuration</button>
+    </form>
+  </section>
+
+  <section id="app-section" hidden>
+    <h2>Application state</h2>
+    <pre id="status">Starting...</pre>
+
+    <button id="login-button">Sign in with Okta</button>
+    <button id="clear-button">Clear local SPA tokens</button>
+    <button id="reset-button">Reset lab configuration</button>
+
+    <h2>What to inspect</h2>
+    <ol>
+      <li>Browser DevTools Network tab during sign-in.</li>
+      <li>The callback request containing code and state.</li>
+      <li>The browser-side POST to the Okta token endpoint.</li>
+      <li>Application > Session Storage for this localhost origin.</li>
+    </ol>
+
+    <p>
+      This page never prints the raw token strings. Inspect their existence and
+      storage location, not the credentials themselves.
+    </p>
+  </section>
+
+  <section>
+    <h2>Architecture reminder</h2>
+    <pre>Browser JavaScript = OAuth client
+Client secret       = none
+PKCE                = yes
+/token caller       = browser client
+Token storage       = browser environment in this lab</pre>
+  </section>
+
+  <script type="module" src="/main.js"></script>
+</body>
+</html>
