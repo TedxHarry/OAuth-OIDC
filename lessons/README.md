@@ -28,7 +28,7 @@ The goal is understanding first. Hands-on work is used to make that understandin
 8. [Day 8 - Protect the API](day-08-protect-api.md)
 9. [Day 9 - Authorization servers, scopes, claims, groups, and policies](day-09-authorization-design.md)
 10. [Day 10 - Sessions, UserInfo, logout, revocation, and introspection](day-10-session-token-lifecycle.md)
-11. [Day 11 - Client Credentials and machine-to-machine](day-11-client-credentials-machine-to-machine-without-pretending-the.md)
+11. [Day 11 - Client Credentials and machine-to-machine](day-11-client-credentials.md)
 12. [Day 12 - Okta Management API automation](day-12-automate-okta-management-apis-with-an-oauth-service-app.md)
 13. [Day 13 - Browser and authentication troubleshooting](day-13-browser-and-authentication-troubleshooting-work-from-evidenc.md)
 14. [Day 14 - Token, API, and automation troubleshooting](day-14-token-api-and-automation-troubleshooting.md)
