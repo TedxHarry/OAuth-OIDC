@@ -52,6 +52,13 @@ The Day 8 API validates Custom Authorization Server access tokens, then enforces
 
 Day 9 reuses the Day 8 Custom Authorization Server authorization helper because that helper accepts any trusted Custom Authorization Server issuer. The Day 9 API enforces scopes only; `department` and filtered `groups` are returned as context and are not hidden extra authorization checks.
 
+### Day 10 session and token lifecycle
+
+- [Python - server-side local vs Okta session logout app](python/day10_session_app.py)
+- [Python - public-client UserInfo, introspection, and revocation utility](python/day10_lifecycle_client.py)
+
+Day 10 reuses the Day 9 API to demonstrate that a revoked but unexpired JWT can still satisfy purely local JWT validation while Okta introspection reports it inactive.
+
 ## Added later as the course reaches them
 
 - Client Credentials
