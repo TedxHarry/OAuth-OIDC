@@ -66,10 +66,11 @@ Day 10 reuses the Day 9 API to demonstrate that a revoked but unexpired JWT can 
 
 The Day 11 service client uses an API Services client with `client_secret_basic` against the Employee API Custom Authorization Server. It keeps the bearer token only in process memory and reuses it until near expiry. The Day 11 API expects the service `cid` and `employee.report.read`; it does not require a human user `uid`.
 
-## Added later as the course reaches them
+### Day 12 Okta Management API automation
 
-- `private_key_jwt`
-- Okta OAuth token acquisition
-- Okta Management API calls
+- [Python - generate a local RSA signing key pair](python/day12_generate_keypair.py)
+- [Python - private_key_jwt Okta Management API client](python/day12_okta_api_client.py)
+
+Day 12 uses the Org Authorization Server and `private_key_jwt`. The private key stays under the ignored local `secrets/` directory; only the public JWK is registered with Okta. The automation client never prints or decodes the Org-AS access token.
 
 Production integrations should normally use maintained OAuth/OIDC libraries and proper secret/key storage rather than hand-built protocol code.
