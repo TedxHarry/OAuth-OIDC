@@ -417,9 +417,13 @@ Correct client authentication does not fix invalid PKCE.
 
 If it only receives and validates access tokens, it is a resource server, not an OAuth client in that role.
 
-### API Service
+### API Services
 
-It represents a service client. It is not another name for every custom API.
+It represents a machine-to-machine service client. It is not another name for every custom API.
+
+For your own API, the service-client flow later uses a Custom Authorization Server.
+
+For Okta Management APIs, the service app later uses the Org Authorization Server with Okta scopes and `private_key_jwt`.
 
 ### Desktop software
 
