@@ -862,3 +862,284 @@ input {
     max-width: none;
   }
 }
+
+
+/* Premium readability pass v2 */
+:root {
+  --luxury-ink: #111827;
+  --luxury-ink-soft: #1b2638;
+  --luxury-ivory: #f7f4ed;
+  --luxury-paper: #fffdf8;
+  --luxury-gold: #8a6428;
+  --luxury-gold-bright: #d8bd82;
+  --luxury-teal: #2f6f6a;
+  --luxury-muted: #596273;
+}
+
+[data-md-color-scheme="luxury-light"] {
+  --md-default-bg-color: #f7f4ed;
+  --md-default-fg-color: #1b2434;
+  --md-default-fg-color--light: #596273;
+  --md-default-fg-color--lighter: #717b8d;
+  --md-default-fg-color--lightest: rgba(27, 36, 52, .08);
+  --md-primary-fg-color: #111827;
+  --md-primary-bg-color: #fffdf8;
+  --md-accent-fg-color: #8a6428;
+  --md-typeset-a-color: #7c5923;
+}
+
+[data-md-color-scheme="luxury-dark"] {
+  --md-default-bg-color: #0b1220;
+  --md-default-fg-color: #e8ecf2;
+  --md-default-fg-color--light: #c8cfda;
+  --md-default-fg-color--lighter: #a3adbb;
+  --md-default-fg-color--lightest: rgba(232, 236, 242, .09);
+  --md-primary-fg-color: #08101e;
+  --md-primary-bg-color: #fff8ea;
+  --md-accent-fg-color: #d8bd82;
+  --md-typeset-a-color: #e2c98f;
+}
+
+/* Use color primarily as an accent, not as low-contrast body text. */
+[data-md-color-scheme="luxury-light"] .md-typeset {
+  color: #293244;
+}
+
+[data-md-color-scheme="luxury-light"] .md-typeset h1,
+[data-md-color-scheme="luxury-light"] .md-typeset h2,
+[data-md-color-scheme="luxury-light"] .md-typeset h3,
+[data-md-color-scheme="luxury-light"] .md-typeset h4,
+[data-md-color-scheme="luxury-light"] .md-typeset strong {
+  color: #172033;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-typeset {
+  color: #dfe5ee;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-typeset h1,
+[data-md-color-scheme="luxury-dark"] .md-typeset h2,
+[data-md-color-scheme="luxury-dark"] .md-typeset h3,
+[data-md-color-scheme="luxury-dark"] .md-typeset h4,
+[data-md-color-scheme="luxury-dark"] .md-typeset strong {
+  color: #fff8ea;
+}
+
+/* Reading layout: no right-side table of contents. */
+.md-sidebar--secondary {
+  display: none !important;
+}
+
+.md-content {
+  min-width: 0;
+}
+
+.md-content__inner {
+  max-width: 1080px;
+}
+
+@media screen and (min-width: 76.25em) {
+  .md-main__inner {
+    max-width: 1540px;
+  }
+
+  body.course-nav-collapsed .md-sidebar--primary {
+    display: none !important;
+  }
+
+  body.course-nav-collapsed .md-content__inner {
+    max-width: 1240px;
+  }
+}
+
+/* Collapsible left course navigation button */
+.course-nav-toggle {
+  position: fixed;
+  z-index: 20;
+  top: 5.15rem;
+  left: 16.15rem;
+  min-width: 96px;
+  height: 36px;
+  padding: 0 .75rem;
+  border: 1px solid rgba(138, 100, 40, .28);
+  border-radius: 999px;
+  background: #fffdf8;
+  color: #172033;
+  box-shadow: 0 8px 24px rgba(17, 24, 39, .12);
+  font: inherit;
+  font-size: .69rem;
+  font-weight: 800;
+  letter-spacing: .015em;
+  cursor: pointer;
+  transition:
+    left .2s ease,
+    background .2s ease,
+    border-color .2s ease,
+    transform .2s ease;
+}
+
+.course-nav-toggle:hover {
+  transform: translateY(-1px);
+  border-color: rgba(138, 100, 40, .54);
+  background: #f6efe2;
+}
+
+body.course-nav-collapsed .course-nav-toggle {
+  left: .85rem;
+}
+
+[data-md-color-scheme="luxury-dark"] .course-nav-toggle {
+  background: #151f33;
+  color: #fff8ea;
+  border-color: rgba(216, 189, 130, .32);
+}
+
+[data-md-color-scheme="luxury-dark"] .course-nav-toggle:hover {
+  background: #1c2940;
+  border-color: rgba(216, 189, 130, .58);
+}
+
+@media screen and (max-width: 76.234375em) {
+  .course-nav-toggle {
+    display: none !important;
+  }
+}
+
+/* Left navigation contrast and selected state */
+[data-md-color-scheme="luxury-light"] .md-sidebar--primary .md-nav__link {
+  color: #273142;
+}
+
+[data-md-color-scheme="luxury-light"] .md-sidebar--primary .md-nav__link:hover {
+  color: #7c5923;
+  background: rgba(138, 100, 40, .07);
+}
+
+[data-md-color-scheme="luxury-light"] .md-sidebar--primary .md-nav__link--active,
+[data-md-color-scheme="luxury-light"] .md-sidebar--primary .md-nav__item--active > .md-nav__link {
+  color: #76531f !important;
+  background: #efe6d6;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-sidebar--primary .md-nav__link {
+  color: #d9e0ea;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-sidebar--primary .md-nav__link--active,
+[data-md-color-scheme="luxury-dark"] .md-sidebar--primary .md-nav__item--active > .md-nav__link {
+  color: #f2d59a !important;
+  background: rgba(216, 189, 130, .10);
+}
+
+/* Inline lesson diagram gallery */
+.lesson-visual-intro {
+  margin: 1rem 0 1.3rem;
+  padding: 1rem 1.15rem;
+  border-left: 4px solid #2f6f6a;
+  border-radius: 0 12px 12px 0;
+  background: #edf4f2;
+  color: #243244;
+}
+
+.lesson-diagram-card {
+  margin: 1.25rem 0 1.75rem;
+  padding: 1.2rem 1.25rem 1.35rem;
+  border: 1px solid #d8c49d;
+  border-radius: 18px;
+  background: #fffdf8;
+  box-shadow: 0 16px 40px rgba(17, 24, 39, .08);
+}
+
+.lesson-diagram-card h3,
+.lesson-diagram-card h4,
+.lesson-diagram-card p,
+.lesson-diagram-card strong {
+  color: #172033 !important;
+}
+
+.lesson-diagram-card h3 {
+  margin-top: .1rem;
+  margin-bottom: .7rem;
+  font-family: Georgia, "Times New Roman", ui-serif, serif;
+  font-size: 1.45rem;
+}
+
+.lesson-diagram-card > p:first-of-type {
+  color: #465568 !important;
+}
+
+[data-md-color-scheme="luxury-dark"] .lesson-visual-intro {
+  background: #132522;
+  color: #e0e8e6;
+  border-left-color: #78aaa5;
+}
+
+[data-md-color-scheme="luxury-dark"] .lesson-diagram-card {
+  border-color: rgba(216, 189, 130, .32);
+  background: #fffdf8;
+}
+
+/* Mermaid diagrams use one premium light canvas in BOTH site themes.
+   This removes the light-canvas / white-text mismatch completely. */
+.mermaid,
+[data-md-color-scheme="luxury-dark"] .mermaid {
+  background: #fbf8f1 !important;
+  border: 1px solid #d8c49d !important;
+  border-radius: 16px;
+  padding: 1.3rem;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+}
+
+.mermaid svg {
+  display: block;
+  max-width: 100% !important;
+  height: auto;
+  margin-inline: auto;
+}
+
+.mermaid svg text,
+.mermaid .messageText,
+.mermaid .labelText,
+.mermaid .loopText,
+.mermaid .noteText,
+.mermaid .nodeLabel,
+.mermaid .edgeLabel,
+.mermaid .actor text {
+  fill: #172033 !important;
+  color: #172033 !important;
+}
+
+.mermaid .messageLine0,
+.mermaid .messageLine1,
+.mermaid .actor-line,
+.mermaid .flowchart-link {
+  stroke: #465568 !important;
+}
+
+.mermaid .actor {
+  fill: #f4ead8 !important;
+  stroke: #9b753a !important;
+}
+
+.mermaid .labelBox,
+.mermaid .edgeLabel rect {
+  fill: #fffdf8 !important;
+  stroke: #c8a76e !important;
+}
+
+.mermaid .note {
+  fill: #fff0c7 !important;
+  stroke: #b8955a !important;
+}
+
+/* Slightly calmer heading scale for long course titles. */
+.md-content .md-typeset > h1:first-child {
+  color: #233047;
+  font-size: clamp(2.25rem, 3.75vw, 4.15rem);
+  line-height: 1.03;
+  max-width: 19ch;
+}
+
+[data-md-color-scheme="luxury-dark"] .md-content .md-typeset > h1:first-child {
+  color: #fff8ea;
+}
