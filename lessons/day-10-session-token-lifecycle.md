@@ -553,3 +553,633 @@ The revocation endpoint accepted the request.
 
 Use separate evidence to test active state.
 
+
+
+## Public SPA requests to lifecycle endpoints
+
+Our Day 10 SPA is a public client.
+
+It has:
+
+~~~text
+client_id
+~~~
+
+but no protected client secret.
+
+For Okta introspection and revocation requests from a public client, include the client_id with the form request.
+
+Do not invent a client secret for the SPA.
+
+A confidential client instead authenticates according to its configured client-authentication method.
+
+## Introspection
+
+The authorization server exposes:
+
+~~~text
+/introspect
+~~~
+
+Introspection asks:
+
+> What is the authorization server's current state for this token?
+
+For an active access token, the response can contain:
+
+~~~json
+{
+  "active": true,
+  "scope": "...",
+  "client_id": "...",
+  "exp": 1234567890,
+  "iss": "..."
+}
+~~~
+
+For an inactive token:
+
+~~~json
+{
+  "active": false
+}
+~~~
+
+The exact additional fields depend on token type and state.
+
+The key lifecycle signal is:
+
+~~~text
+active
+~~~
+
+## Local JWT validation and introspection answer different questions
+
+### Local JWT validation
+
+Our Day 9 Employee API validates:
+
+~~~text
+signature
+issuer
+audience
+time
+cid
+scp
+~~~
+
+using public signing keys.
+
+Question:
+
+> Does this JWT satisfy the API's locally configured trust rules?
+
+### Introspection
+
+The caller asks Okta:
+
+> Does the authorization server currently consider this token active?
+
+Those are different questions.
+
+## Why a revoked JWT can still pass local validation
+
+Assume an access token is valid for 15 minutes.
+
+At minute 2:
+
+~~~text
+signature = valid
+issuer = correct
+audience = correct
+exp = minute 15
+employee.read present
+~~~
+
+Then the access token is revoked at Okta.
+
+The JWT bytes already held by the caller do not change.
+
+A purely local resource server checks:
+
+~~~text
+signature
+issuer
+audience
+exp
+scope
+~~~
+
+It has no live query telling it:
+
+~~~text
+this token was revoked at minute 2
+~~~
+
+Therefore that same JWT can continue to pass the local validator until its normal expiry.
+
+At the same time:
+
+~~~text
+/introspect
+-> active = false
+~~~
+
+The results are different because the checks use different information.
+
+## Local validation vs introspection
+
+### Local validation advantages
+
+~~~text
+no Okta network call per API request
+lower latency
+works through temporary authorization-server network problems
+fits short-lived JWT access tokens well
+~~~
+
+Tradeoff:
+
+~~~text
+no live revocation knowledge by itself
+~~~
+
+### Introspection advantages
+
+~~~text
+authorization server reports current active state
+revocation can be observed
+server can evaluate token state centrally
+~~~
+
+Tradeoffs:
+
+~~~text
+network call
+latency
+availability dependency
+caching decisions
+~~~
+
+Do not teach:
+
+~~~text
+introspection is always better
+~~~
+
+or:
+
+~~~text
+local JWT validation is always enough
+~~~
+
+Choose based on requirements.
+
+## Day 10 proves the revocation gap
+
+Before access-token revocation:
+
+~~~text
+Day 9 API local validation
+-> 200
+
+/introspect
+-> active = true
+~~~
+
+Then revoke only the access token.
+
+After revocation, while the JWT is still unexpired:
+
+~~~text
+/introspect
+-> active = false
+~~~
+
+but our Day 9 API can still return:
+
+~~~text
+200
+~~~
+
+because it performs local JWT validation only.
+
+This experiment is one of the most important Day 10 exercises.
+
+## Refresh token after access-token revocation
+
+After access-token-only revocation:
+
+~~~text
+old access token
+-> inactive at Okta
+
+refresh token
+-> still active
+~~~
+
+Use the refresh token.
+
+A successful refresh proves:
+
+~~~text
+access-token revocation
+does not revoke the refresh token
+~~~
+
+The newly issued access token is a different credential.
+
+## Refresh-token revocation test
+
+Later:
+
+~~~text
+revoke refresh token
+        |
+        v
+refresh token inactive
+        |
+        v
+associated access token inactive at Okta
+        |
+        v
+next refresh attempt fails
+~~~
+
+If an already-issued JWT is checked only by local validation, that local result can still differ until the JWT expires.
+
+## Clear local storage vs revoke
+
+Suppose a SPA removes its token-manager state.
+
+That changes:
+
+~~~text
+what this browser application currently stores
+~~~
+
+It does not automatically tell the authorization server:
+
+~~~text
+revoke this token
+~~~
+
+unless the library/application also makes a revocation request.
+
+So:
+
+~~~text
+remove locally
+!=
+revoke at authorization server
+~~~
+
+This mirrors:
+
+~~~text
+local application logout
+!=
+Okta browser-session logout
+~~~
+
+## Expiration vs revocation
+
+Expiration:
+
+~~~text
+current time reaches exp
+        |
+        v
+local validator rejects token
+~~~
+
+Revocation:
+
+~~~text
+authorization server marks token inactive
+before normal expiry
+~~~
+
+The words are not interchangeable.
+
+## Session expiration is separate again
+
+The Okta browser session can expire independently of:
+
+~~~text
+application-session lifetime
+access-token lifetime
+refresh-token lifetime
+ID-token lifetime
+~~~
+
+When troubleshooting, name the exact object.
+
+## Troubleshooting: logout followed by immediate SSO
+
+Ask:
+
+~~~text
+Which local session did the app destroy?
+Did it call the Okta end-session endpoint?
+Was the post-logout redirect URI registered?
+Did it immediately navigate to a protected route?
+Did that route start /authorize again?
+Was the Okta browser session still active?
+~~~
+
+Do not start with JWT signature debugging.
+
+## Troubleshooting: profile or email missing
+
+Ask:
+
+~~~text
+Was profile requested?
+Was email requested?
+Which response/token is the app reading?
+Is the app expecting the claim in the ID token?
+Should it use /userinfo?
+What does /userinfo actually return?
+~~~
+
+A missing profile claim is not proof of failed authentication.
+
+## Troubleshooting: revoked token still works
+
+First define "works."
+
+### Introspection inactive, local API still 200
+
+~~~text
+/introspect = inactive
+Employee API = 200
+~~~
+
+Likely explanation:
+
+~~~text
+API performs local JWT validation
+and has no live revocation check
+~~~
+
+### Introspection still active
+
+Investigate:
+
+~~~text
+Did you revoke the correct token?
+Correct authorization server?
+Correct client_id?
+Access token or refresh token?
+Did you accidentally test a newly refreshed access token?
+~~~
+
+## Troubleshooting: revoke returned 200 but behavior did not change
+
+Remember:
+
+~~~text
+/revoke returns 200 for invalid and already-revoked values too
+~~~
+
+A 200 alone is not proof.
+
+Use:
+
+~~~text
+/introspect
+resource request
+refresh attempt
+token type
+issuer
+client ID
+~~~
+
+to establish what changed.
+
+## Troubleshooting: refresh stopped working
+
+Check:
+
+~~~text
+Refresh Token grant enabled?
+offline_access requested at /authorize?
+correct current refresh token?
+refresh token revoked?
+rotation enabled?
+client failed to store rotated token?
+reuse detection triggered?
+refresh-token lifetime or idle window?
+correct authorization server?
+correct client_id?
+~~~
+
+Do not automatically blame the Okta browser session.
+
+Refresh tokens are specifically intended to obtain new tokens without depending on the browser session cookie.
+
+## Troubleshooting: UserInfo fails
+
+Check:
+
+~~~text
+correct authorization server's userinfo endpoint?
+Bearer access token sent?
+access token still active?
+openid requested?
+profile/email scopes granted?
+wrong token type?
+token from another authorization server?
+~~~
+
+Use discovery rather than guessing the endpoint path.
+
+## A lifecycle requirement should name the desired effect
+
+Bad requirement:
+
+> Log the user out everywhere.
+
+Too vague.
+
+Ask what the business actually requires:
+
+~~~text
+Destroy only this app's local session?
+
+End this browser's Okta SSO session?
+
+Remove tokens from this browser?
+
+Revoke access token at authorization server?
+
+Revoke refresh token / authorization grant?
+
+Force other applications to sign out too?
+
+Require immediate API revocation awareness?
+~~~
+
+Different requirements need different controls.
+
+## Common mistakes
+
+### Mistake 1: Treat every state object as one session
+
+Wrong.
+
+Name the exact object.
+
+### Mistake 2: Delete local app session and expect Okta SSO to disappear
+
+Wrong.
+
+They are separate.
+
+### Mistake 3: End Okta browser session and assume all OAuth tokens are revoked
+
+Wrong.
+
+Session logout and token revocation are separate.
+
+### Mistake 4: Clear local token storage and call the token revoked
+
+Wrong.
+
+Local removal is not server-side revocation.
+
+### Mistake 5: Revoke access token and assume refresh token is revoked
+
+Wrong.
+
+Okta documents that the refresh token remains active.
+
+### Mistake 6: Revoke refresh token and expect associated access token to remain active at Okta
+
+Wrong.
+
+Okta revokes the associated access token too.
+
+### Mistake 7: Treat /revoke HTTP 200 as proof the token was active
+
+Wrong.
+
+Okta intentionally avoids revealing that state through the response.
+
+### Mistake 8: Expect local JWT validation to know live revocation state
+
+Wrong.
+
+A purely local verifier has no live state query.
+
+### Mistake 9: Introspect at the wrong authorization server
+
+Wrong trust boundary.
+
+Use the authorization server that issued the token.
+
+### Mistake 10: Put a client secret into SPA lifecycle calls
+
+Wrong.
+
+Our SPA is public.
+
+### Mistake 11: Expect every requested profile claim in the ID token
+
+Wrong.
+
+Understand claim placement and use UserInfo appropriately.
+
+### Mistake 12: Reuse an old rotating refresh token casually
+
+Risky.
+
+Reuse detection can invalidate the current token family outside the configured grace behavior.
+
+## What you should be able to explain
+
+1. What is the Okta browser session?
+2. What is the application session?
+3. How are those different from ID, access, and refresh tokens?
+4. Why can local logout be followed by immediate SSO?
+5. What does OIDC end-session logout end?
+6. Does ending the Okta browser session automatically revoke OAuth tokens?
+7. What does UserInfo do?
+8. Why can UserInfo contain claims not present in an ID token?
+9. What does offline_access do?
+10. Why are rotating refresh tokens useful for SPAs?
+11. What happens when only an access token is revoked?
+12. What happens to the refresh token after access-token-only revocation?
+13. What happens when a refresh token is revoked?
+14. Why is /revoke 200 not proof of prior token state?
+15. What does introspection active mean?
+16. Why can introspection say inactive while local JWT validation still succeeds?
+17. What is the difference between expiration and revocation?
+18. When is local validation attractive?
+19. When might live introspection be required?
+20. Why must a lifecycle requirement specify exactly which state should end?
+
+## Day 10 lab
+
+[Day 10 Lab - Prove Session and Token Lifecycle](../labs/day-10-session-token-lifecycle.md)
+
+You will:
+
+- enable Refresh Token on the SPA
+- add a sign-out redirect URI
+- obtain access, ID, and refresh tokens from the Day 9 authorization server
+- compare ID-token claims with UserInfo
+- refresh the token set
+- observe SPA refresh-token rotation behavior
+- perform local application logout only
+- prove immediate SSO can occur while the Okta session remains
+- perform Okta browser-session logout
+- introspect an active access token
+- revoke only the access token
+- prove introspection becomes inactive
+- prove the refresh token can still obtain a new access token
+- compare revoked-token introspection with Day 9 API local JWT validation
+- revoke the refresh token
+- prove refresh fails afterward
+- prove the associated access token becomes inactive at Okta
+- correlate evidence without exposing credentials
+
+## Day 10 completion standard
+
+Day 10 is complete when you can draw:
+
+~~~text
+Okta browser session
+Application session
+ID token
+Access token
+Refresh token
+~~~
+
+as five separate lifecycle objects.
+
+You must be able to predict the effect of:
+
+~~~text
+local app logout
+Okta browser-session logout
+clear local token storage
+access-token revocation
+refresh-token revocation
+access-token expiration
+refresh-token use
+UserInfo
+local JWT validation
+introspection
+~~~
+
+without calling all of them "logout."
+
+## Official references
+
+- [Okta: OpenID Connect and OAuth 2.0](https://developer.okta.com/docs/api/openapi/okta-oauth/guides/overview)
+- [Okta: Sign users out](https://developer.okta.com/docs/guides/sign-users-out/main/)
+- [Okta: Revoke tokens](https://developer.okta.com/docs/guides/revoke-tokens/main/)
+- [Okta: Refresh access tokens and rotate refresh tokens](https://developer.okta.com/docs/guides/refresh-tokens/main/)
+- [Okta: Manage user credentials](https://developer.okta.com/docs/concepts/manage-user-creds/)
