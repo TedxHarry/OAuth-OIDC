@@ -356,6 +356,10 @@ Example:
 openid employee.read salary.read
 ~~~
 
+For Custom Authorization Server access-policy rules, Okta treats the reserved OIDC scopes as built-in scopes. The important Day 9 allowlist work is restricting our custom API scopes such as employee.read and salary.read.
+
+This is why the lab rule configuration focuses on the custom scopes instead of asking you to recreate openid as a custom scope.
+
 Keep the conceptual split clear:
 
 ~~~text
@@ -413,7 +417,7 @@ Grant type:
 Authorization Code
 
 User condition:
-Employee-API-HR group
+Assigned the app and a member of Employee-API-HR
 
 Custom scopes allowed:
 employee.read
