@@ -1006,6 +1006,10 @@ The capstone lab intentionally gives fewer instructions than earlier days.
 
 You are expected to reuse the knowledge, scripts, tools, and evidence methods from Days 1 through 14.
 
+After you have attempted the capstone, compare your implementation with:
+
+[Day 15 React + Spring Boot reference implementation](../reference/day15-react-java-reference.md)
+
 ## Day 15 completion standard
 
 Day 15 is complete when you can receive the requirement and independently produce:
