@@ -16,6 +16,11 @@ on:
       - "mkdocs.yml"
       - "requirements-docs.txt"
       - ".github/workflows/docs-site.yml"
+  workflow_run:
+    workflows:
+      - "pages build and deployment"
+    types:
+      - completed
   workflow_dispatch:
 
 permissions:
@@ -33,6 +38,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          ref: main
 
       - name: Set up Python
         uses: actions/setup-python@v7
