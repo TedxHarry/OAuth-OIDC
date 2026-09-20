@@ -20,7 +20,9 @@ Okta Web Application redirect URIs:
 
 Training note:
 The in-memory stores and HTTP localhost cookies are deliberately simple.
-They are not a production session store or production cookie configuration.
+The POST logout forms also omit production CSRF protection so the lifecycle
+steps remain visible. A production web application must use its framework's
+CSRF protections and production session/cookie controls.
 """
 
 import base64
@@ -449,4 +451,5 @@ if __name__ == "__main__":
     print("Training note:")
     print("- Local logout and Okta browser-session logout are separate routes.")
     print("- This sample does not revoke OAuth tokens during session logout.")
+    print("- Training POST forms omit production CSRF protection.")
     app.run(host=HOST, port=PORT, debug=False)
