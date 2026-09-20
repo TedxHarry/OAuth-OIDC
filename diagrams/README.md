@@ -25,6 +25,7 @@ GitHub renders the Mermaid diagrams directly in Markdown.
 - [Day 9 authorization-server design](day-09-authorization-design.md)
 - [Day 10 session and token lifecycle](day-10-session-token-lifecycle.md)
 - [Day 11 Client Credentials and machine-to-machine](day-11-client-credentials.md)
+- [Day 12 Okta Management API automation](day-12-okta-api-automation.md)
 
 ## Diagram plan
 
