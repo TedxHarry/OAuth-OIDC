@@ -292,6 +292,10 @@ Save.
 
 Do not add the service client to the SPA policy as a shortcut.
 
+Check the authorization server's policy order.
+
+Confirm there is no earlier broad policy, such as an All clients policy, that can match the Employee Reporting Service before this dedicated policy. Okta stops after the first matching policy and rule.
+
 ## Part 8 - Create the Client Credentials rule
 
 Inside the service policy add:
@@ -903,6 +907,9 @@ Scope:
 employee.report.read
 
 Temporary rules:
+none
+
+Earlier broad policy matching this service:
 none
 ~~~
 
