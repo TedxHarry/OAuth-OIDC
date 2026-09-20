@@ -86,3 +86,19 @@ A setting change is not the diagnosis. The diagnosis is the failed step, the evi
 | Service retries invalid_client forever | Treat invalid client/configuration as a configuration failure to alert on, not a transient error to retry indefinitely. |
 | Browser/CORS/redirect debugging suggested for Client Credentials | Wrong flow. Inspect service HTTP requests, token endpoint response, safe token claims, API response/logs, and Okta evidence. |
 | Day 11 request copied to Okta Management APIs | Wrong model. Day 11 protects your own API with a Custom AS and client-secret auth; Okta API service access uses the Org AS and a different authorization model. |
+
+
+## Day 12 Okta Management API automation symptoms
+
+| Symptom | First checks |
+|---|---|
+| private_key_jwt token request fails | Org AS /oauth2/v1/token? public/private key auth configured? correct client ID, kid, private key, iss/sub, exact aud, exp, clock, jti replay? |
+| Correct key but requested Okta API scope is rejected | Is the scope supported and granted on the service app's Okta API Scopes tab? |
+| Token issued with scope but Management API returns authorization error | Scope grant is not admin permission. Check service-app admin role, permission, resource target, or custom role/resource-set binding. |
+| Service app works only after Super Admin is assigned | Overprivileged workaround. Determine the actual minimum standard/custom admin role and resource target instead. |
+| Automation is using /oauth2/default/v1/token | Wrong authorization server. Okta API scopes for a service app come from the Org Authorization Server /oauth2/v1/token endpoint. |
+| Automation uses client_secret_basic for Okta API service access | Wrong client authentication model. Custom OAuth service apps requesting Okta API scopes use private_key_jwt. |
+| Assertion aud points to /api/v1/users | Wrong audience. The assertion authenticates to the exact token endpoint, not the downstream Management API endpoint. |
+| Org-AS access token is being decoded for authorization logic | Treat the Org-AS token as opaque. Use token response metadata and actual Okta API authorization results. |
+| Key rotation causes invalid_client | Verify the new public JWK is registered before deployment, automation uses matching private key/kid, then retire the old key only after successful overlap. |
+| Read-only automation has manage scopes | Reduce scope grants and requested scopes to read unless the process actually performs writes. |
