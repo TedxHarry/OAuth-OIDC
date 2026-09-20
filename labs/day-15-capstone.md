@@ -1190,3 +1190,231 @@ same validation-before-authorization behavior?:
 ~~~
 
 Differences are allowed if you can defend them and they still satisfy the requirement securely.
+
+
+## Part 53 - Blind-incident answer key
+
+Open only after attempting Parts 35 through 46.
+
+<details>
+<summary>Expected investigation direction</summary>
+
+### Incident A
+
+Investigate the authorization request before the callback:
+
+~~~text
+actual redirect_uri
+registered redirect URI
+client ID
+authorization request error
+~~~
+
+Do not begin with Java API authorization.
+
+### Incident B
+
+The browser is a public client.
+
+Investigate the Authorization Code grant:
+
+~~~text
+code
+PKCE verifier
+redirect_uri
+issuer or token endpoint
+code reuse or expiry
+~~~
+
+Do not assume a missing client secret is the defect.
+
+### Incident C
+
+A decoded scope is not trusted evidence until validation succeeds.
+
+Inspect:
+
+~~~text
+kid or JWKS
+signature
+issuer
+audience
+time
+client boundary
+~~~
+
+### Incident D
+
+Token trust passed.
+
+Inspect:
+
+~~~text
+salary.read
+~~~
+
+Do not rotate signing keys.
+
+### Incident E
+
+Client Credentials failed before any Java API call.
+
+Inspect:
+
+~~~text
+reporting client ID
+configured client-authentication method
+secret
+environment pairing
+~~~
+
+Human MFA and browser CORS are not first-layer causes.
+
+### Incident F
+
+Token acquisition already succeeded.
+
+Inspect:
+
+~~~text
+Java API expected service client ID
+token cid
+environment
+~~~
+
+The client secret already worked upstream.
+
+### Incident G
+
+Review rotating-refresh-token handling:
+
+~~~text
+newest returned refresh token stored?
+old token replayed?
+grace period?
+reuse detection?
+~~~
+
+Do not repeatedly replay the old token.
+
+### Incident H
+
+Compare environment trust:
+
+~~~text
+prod issuer
+prod audience
+token iss
+token aud
+prod API expectations
+~~~
+
+### Incident I
+
+OAuth scope grant already succeeded.
+
+Inspect:
+
+~~~text
+service-app admin role
+permission
+resource target
+custom role or resource set
+~~~
+
+### Incident J
+
+OAuth/OIDC and API success are already proven.
+
+Inspect:
+
+~~~text
+SPA auth-state manager
+token manager or storage
+route guard
+local application state
+~~~
+
+### Incident K
+
+This is a browser CORS or preflight path.
+
+Configure CORS on the Java API for the intended SPA origin.
+
+An Okta Trusted Origin does not configure Java API response headers.
+
+### Incident L
+
+The cached JWKS was stale during legitimate key rotation.
+
+Refresh the trusted-issuer JWKS and continue normal validation.
+
+Never disable signature validation.
+
+</details>
+
+## Part 54 - Final engineer confidence review
+
+Revisit:
+
+~~~text
+reference/engineer-confidence-checklist.md
+~~~
+
+For every item mark:
+
+~~~text
+Can explain
+Can demonstrate
+Need more practice
+~~~
+
+Do not mark an item complete merely because you recognize the terminology.
+
+## Part 55 - Final capstone statement
+
+You should now be able to say:
+
+~~~text
+I can take an OAuth/OIDC requirement and separate authentication, user API authorization, machine authorization, token lifecycle, and Okta administrative automation.
+
+I can choose the client type, grant, authorization server, scopes, claims, policy, and client authentication based on the actual trust relationship.
+
+I can validate access tokens at the resource server before authorizing from their claims.
+
+I can distinguish 401 from 403, token-endpoint failures from API failures, local JWT validation from live token state, and OAuth scope grants from Okta admin permissions.
+
+I can design refresh and logout behavior deliberately rather than treating them as one operation.
+
+I can keep dev and prod trust configuration separate.
+
+When something fails, I follow the transaction, find the last step I can prove succeeded, identify the first failed layer, change only that layer, and prove the behavior changed.
+~~~
+
+If any sentence still feels theoretical, return to the corresponding day and repeat the hands-on proof.
+
+## Day 15 completion check
+
+The core course is complete when you have produced:
+
+~~~text
+requirement questions
+assumptions
+architecture
+working user flow
+working API authorization
+working refresh behavior
+documented logout behavior
+working machine flow
+environment-isolation proof
+future Okta automation design
+acceptance matrix
+at least twelve evidence-based break/fix incident notes
+restored lab configuration
+project handoff
+three audience explanations
+~~~
+
+The capstone is not complete if the only proof is:
+
+> Login works.
