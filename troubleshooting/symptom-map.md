@@ -70,3 +70,19 @@ A setting change is not the diagnosis. The diagnosis is the failed step, the evi
 | Refresh fails after refresh-token rotation | Confirm the client stored the newest refresh token and did not reuse an older rotated value outside the grace behavior. |
 | UserInfo profile/email missing | Verify profile/email were granted, correct UserInfo endpoint from discovery, active access token, and which claims the app expects from ID token vs UserInfo. |
 | Unexpected logout behavior | Separate local app session, Okta browser session, local token storage, access-token revocation, and refresh-token revocation before changing configuration. |
+
+
+## Day 11 machine-to-machine symptoms
+
+| Symptom | First checks |
+|---|---|
+| Client Credentials /token fails before API call | Correct Custom AS? API Services client? client ID/secret? client auth method? service policy assigned to this client? |
+| Client authenticates but requested service scope is rejected | Scope exists? service-compatible consent? policy/rule permits scope? rule grant is Client Credentials? user condition is No user? |
+| Service rule uses user/group condition | Client Credentials has no user. Use a rule that matches No user rather than inventing a human assignment. |
+| Machine token unexpectedly has no user uid | Expected for no-user Client Credentials. Validate the service client using the intended client boundary such as cid, not a human uid requirement. |
+| Machine API returns 401 | Bearer token present? issuer, audience, signature, expiry, expected service cid, correct Custom AS token? |
+| Machine API returns 403 | Token accepted but required service scope is absent. Compare endpoint requirement with token scp. |
+| Service asks for token before every API call | Reuse a still-valid cached token and renew shortly before expiry; do not create needless token traffic. |
+| Service retries invalid_client forever | Treat invalid client/configuration as a configuration failure to alert on, not a transient error to retry indefinitely. |
+| Browser/CORS/redirect debugging suggested for Client Credentials | Wrong flow. Inspect service HTTP requests, token endpoint response, safe token claims, API response/logs, and Okta evidence. |
+| Day 11 request copied to Okta Management APIs | Wrong model. Day 11 protects your own API with a Custom AS and client-secret auth; Okta API service access uses the Org AS and a different authorization model. |
