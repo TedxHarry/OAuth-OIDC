@@ -491,9 +491,21 @@ Do not copy values from an earlier environment blindly.
 
 Record only safe identifiers and configuration.
 
-## Part 21 - Implement the Java API resource-server contract
+## Part 21 - Prove the Java API resource-server contract
 
-Your Java implementation must enforce the contract you designed.
+The target project uses a Java API, but this course is not a Spring Boot programming course.
+
+Choose one path:
+
+~~~text
+Path A
+Implement the resource server in Spring Boot if Java/Spring is already comfortable to you.
+
+Path B
+Use the existing course Employee API harness to prove the OAuth/OIDC security contract, then map every required check to the Day 15 Spring Boot reference.
+~~~
+
+Whichever path you choose, your final Java API design must enforce the contract you designed.
 
 Minimum required behavior:
 
@@ -515,11 +527,30 @@ never log the raw bearer token
 
 If your Java framework performs some checks automatically, document which component performs each check.
 
+If you use Path B, explicitly map:
+
+~~~text
+course API validation behavior
+-> equivalent Spring Security resource-server responsibility
+~~~
+
 Do not claim the API is protected merely because a framework dependency is installed.
 
-## Part 22 - Implement the React SPA contract
+## Part 22 - Prove the React SPA contract
 
-The SPA must demonstrate:
+The target project uses React, but the OAuth/OIDC requirements are the assessment.
+
+Choose one path:
+
+~~~text
+Path A
+Implement the client in React using a maintained Okta/OIDC library.
+
+Path B
+Use the existing course browser SPA to prove the browser OAuth/OIDC behavior, then map that behavior to the React reference implementation.
+~~~
+
+The SPA contract must demonstrate:
 
 ~~~text
 Authorization Code + PKCE
@@ -533,9 +564,9 @@ full sign-out behavior when included in your design
 no client secret embedded in browser code
 ~~~
 
-Use a maintained OIDC/OAuth library for the implementation.
+For a real React implementation, use a maintained OIDC/OAuth library.
 
-The capstone is not testing whether you can hand-write a production protocol client.
+The capstone is not testing whether you can hand-write a production protocol client or learn an unfamiliar frontend framework during the OAuth assessment.
 
 ## Part 23 - Implement the reporting service
 
