@@ -770,3 +770,454 @@ Complete:
 | Admin authorization |  |
 
 Your answer should reference actual break/fix results.
+
+
+## Part 31 - Prepare the optional write test
+
+Only continue if this is a lab or integration tenant where a controlled group-membership change is acceptable.
+
+Create:
+
+~~~text
+OAuth-Day12-Test-Group
+~~~
+
+Choose a disposable test user.
+
+Record:
+
+~~~text
+Test group ID:
+Test user ID:
+User currently member of test group?:
+~~~
+
+Do not use a production group.
+
+## Part 32 - Grant the write scope
+
+On the service app, grant:
+
+~~~text
+okta.groups.manage
+~~~
+
+For the write exercise set:
+
+~~~powershell
+$env:OKTA_API_SCOPES="okta.groups.manage"
+~~~
+
+Do not grant unrelated manage scopes.
+
+## Part 33 - Assign narrow group-membership administration
+
+Assign:
+
+~~~text
+Group Membership Administrator
+~~~
+
+targeted to:
+
+~~~text
+OAuth-Day12-Test-Group
+~~~
+
+If your org uses custom admin roles, use an equivalent custom permission and resource-set binding limited to this test group.
+
+The goal is:
+
+~~~text
+service can manage membership of the test group
+but not arbitrary groups
+~~~
+
+Do not use Super Administrator.
+
+## Part 34 - Add the test user to the test group
+
+Run:
+
+~~~powershell
+python scripts/python/day12_okta_api_client.py --action add-user-to-group --group-id YOUR-TEST-GROUP-ID --user-id YOUR-TEST-USER-ID --allow-write --scopes "okta.groups.manage"
+~~~
+
+Expected successful group-membership behavior:
+
+~~~text
+HTTP 204
+~~~
+
+Verify the user is now a member of:
+
+~~~text
+OAuth-Day12-Test-Group
+~~~
+
+Record:
+
+~~~text
+HTTP:
+request ID:
+membership verified?:
+~~~
+
+## Part 35 - Prove a resource target matters
+
+Choose another harmless group that is not in the service app's administrative target.
+
+Do not use a sensitive group.
+
+Attempt:
+
+~~~powershell
+python scripts/python/day12_okta_api_client.py --action add-user-to-group --group-id OUTSIDE-TARGET-GROUP-ID --user-id YOUR-TEST-USER-ID --allow-write --scopes "okta.groups.manage"
+~~~
+
+Record:
+
+~~~text
+Token acquisition succeeded?:
+Management API HTTP:
+error:
+~~~
+
+Expected concept:
+
+~~~text
+scope exists
++
+token issued
++
+admin role exists
+but
+target group is outside authorized resource
+-> operation denied
+~~~
+
+Do not change the key pair.
+
+## Part 36 - Restore the test-group membership
+
+Remove the test user from the Day 12 test group:
+
+~~~powershell
+python scripts/python/day12_okta_api_client.py --action remove-user-from-group --group-id YOUR-TEST-GROUP-ID --user-id YOUR-TEST-USER-ID --allow-write --scopes "okta.groups.manage"
+~~~
+
+Expected:
+
+~~~text
+HTTP 204
+~~~
+
+Verify the original membership state is restored.
+
+## Part 37 - Restore least privilege after the write test
+
+Remove temporary write capability that is no longer needed.
+
+Restore the service app to:
+
+~~~text
+Scopes:
+okta.users.read
+okta.groups.read
+
+Admin role:
+Read-only Administrator
+
+Temporary group-membership role/target:
+removed if no longer required
+~~~
+
+Set:
+
+~~~powershell
+$env:OKTA_API_SCOPES="okta.users.read okta.groups.read"
+~~~
+
+Prove:
+
+~~~text
+list users works
+list groups works
+write capability is no longer part of the intended configuration
+~~~
+
+## Part 38 - Generate key B for rotation
+
+Run:
+
+~~~powershell
+python scripts/python/day12_generate_keypair.py --output-dir secrets/day12-key-b
+~~~
+
+Record:
+
+~~~text
+Key A kid:
+Key B kid:
+Key B private path:
+Key B public JWK path:
+~~~
+
+Do not remove Key A from Okta yet.
+
+## Part 39 - Register public key B
+
+Add Key B's public JWK to the same service app.
+
+At this point:
+
+~~~text
+Public key A registered
+Public key B registered
+~~~
+
+This is the safe overlap period.
+
+## Part 40 - Move the automation to key B
+
+Set:
+
+~~~powershell
+$env:OKTA_API_PRIVATE_KEY="secrets/day12-key-b/day12_private_key.pem"
+$env:OKTA_API_KEY_ID="KEY-B-KID"
+~~~
+
+Run:
+
+~~~powershell
+python scripts/python/day12_okta_api_client.py --action list-users
+~~~
+
+Expected:
+
+~~~text
+token succeeds
+API succeeds
+~~~
+
+Record the assertion kid.
+
+It should be Key B.
+
+## Part 41 - Retire key A only after Key B works
+
+After you have proven:
+
+~~~text
+token acquisition with key B
++
+Management API call with key B
+~~~
+
+you may remove public key A from the dedicated lab service app if no other process uses it.
+
+Do not delete an old public key while an active deployment still depends on its private key.
+
+Remember:
+
+~~~text
+add new
+deploy new
+prove new
+retire old
+~~~
+
+## Part 42 - Explain why the token scope is not the whole answer
+
+Use the Part 28 result.
+
+Explain:
+
+~~~text
+The Org Authorization Server checks whether the requested scope is granted to the service app.
+
+The Okta Management API separately checks whether the service app's assigned administrative role and resource authorization permit the operation.
+
+Therefore a token can be issued with the scope while the API request is still denied.
+~~~
+
+## Part 43 - Troubleshoot from the last successful step
+
+For each case, identify the last successful step.
+
+### A
+
+Wrong private key.
+
+### B
+
+okta.apps.read requested but not granted.
+
+### C
+
+okta.users.read token issued, but Read-only Administrator removed.
+
+### D
+
+okta.groups.manage token issued, but target group is outside the role target.
+
+Expected layers:
+
+~~~text
+A -> client authentication
+B -> scope grant
+C -> admin authorization
+D -> resource authorization
+~~~
+
+## Part 44 - Final configuration record
+
+### Service app
+
+~~~text
+Name:
+Client ID:
+Client authentication:
+~~~
+
+### Current signing key
+
+~~~text
+kid:
+private key path:
+public JWK registered?:
+~~~
+
+Do not record key contents.
+
+### Read scopes
+
+~~~text
+okta.users.read:
+okta.groups.read:
+~~~
+
+### Current admin role
+
+~~~text
+Role:
+Resource target if any:
+~~~
+
+### Org AS
+
+~~~text
+Issuer:
+Token endpoint:
+Assertion aud:
+~~~
+
+All three endpoint values should be internally consistent.
+
+## Part 45 - Final behavior matrix
+
+Complete from actual evidence.
+
+| Test | Token issued? | API called? | Expected layer/result |
+|---|---:|---:|---|
+| Correct key + granted read scopes + read admin | Yes | Yes | 200 |
+| Wrong assertion aud | No | No | Client authentication |
+| Wrong kid | No | No | Client authentication |
+| Wrong private key | No | No | Client authentication |
+| Expired assertion | No | No | Client authentication |
+| Replayed jti assertion | First only | No/Not needed | Client-auth replay protection |
+| Supported but ungranted scope | No | No | Scope grant |
+| Scope granted, admin role removed | Yes | Yes | API authorization denied |
+| Manage scope + role, target outside resource | Yes | Yes | Resource authorization denied |
+
+Explain every row.
+
+## Part 46 - Explain the architecture to an application owner
+
+Explain naturally:
+
+~~~text
+The automation is an Okta OAuth service app.
+
+It does not use a human administrator session.
+
+The automation owns a private signing key and Okta stores the matching public key.
+
+For each token request, the automation creates a short-lived signed client assertion.
+
+That assertion authenticates the service app to the Org Authorization Server.
+
+The service app can request only Okta API scopes that have been granted to it.
+
+After the token is issued, Okta Management APIs also enforce the admin role and resource access assigned to the service app.
+
+So the OAuth scope and the administrative role are both required.
+
+The access token is for Okta and is treated as opaque by our automation.
+~~~
+
+## Self-check after you finish
+
+<details>
+<summary>Expected reasoning</summary>
+
+### Authorization server
+
+Okta API scopes come from the Org Authorization Server.
+
+### Client authentication
+
+private_key_jwt proves possession of the service app's private key.
+
+### Public/private key
+
+Automation keeps the private key. Okta stores the public verification key.
+
+### Client assertion
+
+Short-lived JWT used only to authenticate the client to the token endpoint.
+
+### Access token
+
+Returned by the Org AS and sent as a Bearer token to Okta Management APIs.
+
+### Scope grants
+
+Control which Okta API scopes the service app may request.
+
+### Admin roles
+
+Control which administrative operations and resources the service app may actually use.
+
+### Failure layers
+
+Bad assertion prevents token issuance.
+
+Ungrantable scope prevents token issuance.
+
+Missing admin or resource permission can deny the API after token issuance succeeds.
+
+</details>
+
+## Day 12 completion check
+
+You are ready for Day 13 when you can independently explain and demonstrate:
+
+~~~text
+Org Authorization Server
+API Services app
+private_key_jwt
+public vs private key
+JWK and kid
+iss / sub / aud / exp / iat / jti
+client assertion vs access token
+Okta API scope grants
+read vs manage scopes
+admin roles
+resource targets
+scope present but API denied
+safe key rotation
+three-layer troubleshooting
+~~~
+
+Do not move on while scope grant and admin permission still feel like the same control.
