@@ -73,4 +73,11 @@ The Day 11 service client uses an API Services client with `client_secret_basic`
 
 Day 12 uses the Org Authorization Server and `private_key_jwt`. The private key stays under the ignored local `secrets/` directory; only the public JWK is registered with Okta. The automation client never prints or decodes the Org-AS access token.
 
+### Day 13 browser and authentication troubleshooting
+
+- [Python - blind browser/OIDC fault harness](python/day13_web_faults.py)
+- [Python - local two-origin CORS evidence lab](python/day13_cors_lab.py)
+
+The Day 13 Web harness hides five fault causes behind Case A-E so the learner must diagnose from Browser Network, application stage logs, and Okta evidence before opening the answer key. The CORS helper demonstrates that a browser can fail at preflight while the same API succeeds from curl or Postman.
+
 Production integrations should normally use maintained OAuth/OIDC libraries and proper secret/key storage rather than hand-built protocol code.
