@@ -440,3 +440,203 @@ access_token=...
 ~~~
 
 A correlation ID should let you connect the client request, Java API response, and Java API server log without exposing credentials.
+
+
+## CORS ownership
+
+If the React SPA origin differs from the Java API origin:
+
+~~~text
+React origin:
+https://app.example.com
+
+Java API origin:
+https://api.example.com
+~~~
+
+the Java API must return the correct CORS response for the React origin.
+
+An Okta Trusted Origin does not configure CORS headers on the Spring Boot API.
+
+Configure the Java API deliberately.
+
+## Representative Spring CORS configuration
+
+One possible shape:
+
+~~~java
+@Bean
+CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+
+    config.setAllowedOrigins(
+        List.of("https://app.example.com")
+    );
+
+    config.setAllowedMethods(
+        List.of("GET", "POST", "OPTIONS")
+    );
+
+    config.setAllowedHeaders(
+        List.of("Authorization", "Content-Type")
+    );
+
+    UrlBasedCorsConfigurationSource source =
+        new UrlBasedCorsConfigurationSource();
+
+    source.registerCorsConfiguration("/**", config);
+
+    return source;
+}
+~~~
+
+Then enable CORS through the Spring Security configuration appropriate to the project.
+
+Do not use wildcard origins casually for a protected API.
+
+## Reporting service reference
+
+The scheduled process is a different client.
+
+Representative token request:
+
+~~~http
+POST https://YOUR-OKTA-DOMAIN/oauth2/YOUR-AS-ID/v1/token
+Authorization: Basic base64(client_id:client_secret)
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&
+scope=employee.report.read
+~~~
+
+Expected behavior:
+
+~~~text
+access token
+no ID token
+no user authentication
+no browser callback
+~~~
+
+The Java API validates that machine token using the same Custom Authorization Server trust boundary and enforces employee.report.read on the reporting endpoint.
+
+## Reporting token cache
+
+The service should not request a new token for every API call.
+
+Conceptual logic:
+
+~~~text
+cached token exists and is not near expiry?
+        |
+        +-- yes -> use token
+        |
+        +-- no -> request new Client Credentials token
+~~~
+
+Protect the client credential.
+
+Do not log it.
+
+## Environment configuration
+
+Use environment-specific values.
+
+React example:
+
+~~~text
+VITE_OKTA_ISSUER
+VITE_OKTA_CLIENT_ID
+VITE_EMPLOYEE_API_URL
+~~~
+
+Java example:
+
+~~~text
+OKTA_API_ISSUER
+OKTA_API_AUDIENCE
+ALLOWED_SPA_ORIGIN
+~~~
+
+Reporting service example:
+
+~~~text
+OKTA_SERVICE_ISSUER
+OKTA_SERVICE_CLIENT_ID
+OKTA_SERVICE_CLIENT_SECRET
+~~~
+
+Production secrets belong in the approved secret-management system.
+
+Do not commit environment-specific credentials to Git.
+
+## Future Okta Management automation
+
+Do not reuse the Employee API service-client pattern.
+
+Reference path:
+
+~~~text
+API Services application
+Org Authorization Server
+Client Credentials
+private_key_jwt
+minimum Okta API scopes
+service-app admin role and resource authorization
+~~~
+
+The private key stays with the automation.
+
+Okta stores the public key.
+
+Treat the resulting Org-AS access token as a credential for Okta, not as a custom JWT contract for your own application.
+
+## Reference acceptance tests
+
+The final implementation should prove at least:
+
+~~~text
+non-HR employee -> /employees 200
+non-HR employee -> /salary denied
+HR employee requesting salary.read -> /salary 200
+HR employee not requesting salary.read -> salary.read absent
+ID token -> Java API 401
+wrong audience token -> Java API 401
+valid employee.read token -> /salary 403
+refresh -> new usable access token
+revoked refresh token -> refresh failure
+reporting client -> /reports 200
+reporting client -> disallowed scope denied
+dev token -> prod API rejected
+no raw tokens or secrets in normal logs
+~~~
+
+## Reference implementation review questions
+
+Before calling your implementation equivalent to this reference, answer:
+
+1. Is the React client still public?
+2. Is there any client secret in browser code or browser-delivered configuration?
+3. Does the API trust a configured Custom Authorization Server issuer?
+4. Is audience validated?
+5. Are scopes enforced only after token validation?
+6. Does the SPA send the access token rather than the ID token?
+7. Is salary.read actually requested by the client?
+8. Does policy decide whether HR users may receive salary.read?
+9. Does the reporting service use Client Credentials with no user?
+10. Does the reporting endpoint require a service-specific scope?
+11. Are 401 and 403 distinguishable?
+12. Does the Java API own CORS for its own origin?
+13. Are refresh tokens handled as credentials?
+14. Are dev and prod values kept internally consistent?
+15. Is future Okta automation separated from the Employee API machine client?
+
+## Current implementation references
+
+- [Okta: Sign users in to a SPA using the redirect model](https://developer.okta.com/docs/guides/sign-into-spa-redirect/react/main/)
+- [Okta: Authorization Code with PKCE](https://developer.okta.com/docs/guides/implement-grant-type/authcodepkce/main/)
+- [Okta: Refresh access tokens](https://developer.okta.com/docs/guides/refresh-tokens/main/)
+- [Okta: Authorization servers](https://developer.okta.com/docs/concepts/auth-servers/)
+- [Okta: Implement OAuth for Okta with a service app](https://developer.okta.com/docs/guides/implement-oauth-for-okta-serviceapp/main/)
+- [Spring Security: OAuth 2.0 Resource Server JWT](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html)
+- [Spring Security: OAuth 2.0](https://docs.spring.io/spring-security/reference/servlet/oauth2/)
