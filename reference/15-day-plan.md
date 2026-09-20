@@ -1,63 +1,85 @@
----
-
 # The 15-day execution plan
 
-Aim for roughly **2–3 focused hours per day**. More important than the clock: every day should include hands-on work.
+The 15 days are **modules, not deadlines**.
 
-## Day 1 — Core logic and architecture
+Do not move to the next day because a clock or calendar says to move on. Move on when you can explain the current topic, complete its evidence-based lab, and meet the completion standard in the lesson.
+
+The course deliberately starts with architecture and HTTP before touching real OAuth configuration.
+
+## Day 1 - Core logic and architecture
 
 Learn:
 
-- authentication vs authorization
+- authentication vs API authorization
 - OAuth vs OIDC
-- actors
+- client, authorization server, resource server, protected resource
+- ID token vs access token consumers
 - public vs confidential clients
-- frontend vs backend
-- OIDC/OAuth vs SAML/SCIM boundaries
+- user-facing vs machine clients
+- where OAuth/OIDC stops and provisioning begins
 
 Do:
 
-- take five application examples and classify them
-- draw the actors for each
+- classify application components
+- draw the user path
+- draw the no-user service path
+- explain who consumes each token
 
-Break/fix:
+Do not configure Okta yet.
 
-- identify why “we need OAuth login and provisioning” is actually multiple requirements
+Completion target:
 
-## Day 2 — HTTP and the real transaction
+- you can look at a requirement and identify the main trust relationships without discussing protocol parameters
+
+## Day 2 - HTTP and transaction tracing
 
 Learn:
 
+- HTTP request and response
+- methods, URLs, paths, query parameters
+- headers and form bodies
+- 200, 302, 400, 401, 403
 - redirects
-- headers
+- front channel vs back channel
 - cookies
-- query/form parameters
-- bearer tokens
-- 302/400/401/403
+- bearer Authorization header
+- browser behavior vs Postman
 
 Do:
 
-- capture an Okta sign-in in browser DevTools
-- follow every redirect
+- run the local Day 2 HTTP server
+- inspect requests in Browser DevTools
+- follow a 302 redirect
+- observe a cookie
+- send a form POST
+- compare missing, wrong, and correct demo bearer credentials
 
-Break/fix:
+Do not configure Okta or troubleshoot a real OAuth callback yet.
 
-- change a callback route and identify the failed step
+Completion target:
 
-## Day 3 — Authorization Code + PKCE
+- you can read the HTTP transaction that OAuth/OIDC will use on later days
+
+## Day 3 - Authorization Code + PKCE
 
 Learn deeply:
 
 - authorization request
+- authorization code
+- callback
+- state
+- nonce
+- code_verifier
+- code_challenge
+- S256
 - code exchange
-- `state`
-- `nonce`
-- verifier/challenge
-- confidential-client authentication + PKCE
+- public-client behavior
+- PKCE vs client authentication
 
 Do:
 
-- inspect or manually build the request
+- create a real Okta SPA integration
+- manually inspect the Authorization Code + PKCE transaction using the browser, callback receiver, and Postman
 
 Break/fix:
 
@@ -65,263 +87,367 @@ Break/fix:
 - reused code
 - wrong redirect URI
 
-## Day 4 — Tokens and refresh
+Completion target:
+
+- you can draw the full flow and explain why every major value exists
+
+## Day 4 - ID, access, and refresh tokens
 
 Learn:
 
-- ID vs access vs refresh token
-- `offline_access`
-- expiry
-- refresh rotation
+- ID token consumer
+- access token consumer
+- refresh token consumer
+- expiration
+- offline_access
+- refresh-token sensitivity
+- refresh-token rotation
+- why an Org Authorization Server access token is not your custom API token
 
 Do:
 
-- decode real tokens
-- obtain and use a refresh token
+- inspect real token responses
+- decode an ID token for inspection
+- obtain a refresh token
+- refresh the token set
 
 Break/fix:
 
-- missing `offline_access`
-- expired access token
-- revoked refresh token
+- missing offline_access
+- invalid refresh token
 
-## Day 5 — JWT validation and JWKS
+Completion target:
+
+- you can explain the lifecycle and consumer of each token without mixing them
+
+## Day 5 - JWT validation, discovery, and JWKS
 
 Learn:
 
-- header/payload/signature
-- `kid`
+- JWT header, payload, signature
+- alg and kid
+- trusted issuer
 - discovery
-- JWKS
-- issuer/audience/lifetime
+- jwks_uri
+- signature validation
+- issuer, audience, expiration, issued-at, nonce
+- key rotation
+- decode vs validate
 - validation vs authorization
 
 Do:
 
-- validate a token using a standard library
+- validate a real Okta ID token using a standard library
+- tamper with a token and prove validation fails
 
 Break/fix:
 
 - wrong issuer
 - wrong audience
+- wrong nonce
 - expired token
-- unknown `kid`
+- unknown kid
+- modified signature
 
-## Day 6 — Okta application configuration and client authentication
+Completion target:
+
+- you can explain what cryptographic validation proves and what it does not prove
+
+## Day 6 - Okta app types and client authentication
 
 Learn:
 
-- app types
-- redirect/logout URIs
-- assignments/Controlled Access
-- Trusted Origins
-- `none`
-- `client_secret_basic`
-- `client_secret_post`
-- `private_key_jwt`
+- SPA, Web Application, Native, API Services
+- architecture before app type
+- none
+- client_secret_basic
+- client_secret_post
+- client_secret_jwt
+- private_key_jwt
+- redirect and sign-out URIs
+- grant types
+- assignments and Controlled Access
+- client authentication vs PKCE
+
+Do:
+
+- compare a public SPA and a confidential Web Application
+- inspect their different token-endpoint authentication behavior
 
 Break/fix:
 
-- `invalid_client`
-- unassigned user
-- wrong callback
+- invalid_client
+- wrong app type/client-authentication expectation
+- assignment/access mismatch
 
-## Day 7 — Web and SPA integrations
+Completion target:
 
-Implement both:
+- you can choose the app type and client-authentication method from the actual runtime architecture
 
-- server-side web application
-- SPA using Authorization Code + PKCE
+## Day 7 - Server-side Web Application vs browser SPA
 
-Compare:
+Implement and compare:
 
-- where tokens are held
-- how `/token` differs
-- browser-specific problems
+- server-side Web Application
+- browser SPA using Authorization Code + PKCE
 
-## Day 8 — Protected API
+Understand:
 
-Implement:
+- who is the OAuth client
+- who calls /token
+- where state, nonce, verifier, secret, and tokens live
+- local application session
+- browser-accessible token storage and XSS exposure
+- Backend for Frontend as an architectural option
+- CORS and Trusted Origins as different browser/configuration concerns
 
-- bearer access token
-- JWT validation
-- scope-based authorization
+Completion target:
+
+- you can explain the trust-boundary difference between a server-side Web Application and a SPA
+
+## Day 8 - Protect the Employee API
+
+Learn and implement:
+
+- Custom Authorization Server tokens for an API you own
+- API audience
+- employee.read
+- local JWT validation
+- validation before authorization
+- 401 vs 403
+- WWW-Authenticate
+- safe correlation logging
 
 Prove:
 
-```text
-no/invalid token -> authentication failure
-valid token + missing permission -> authorization failure
-valid token + permission -> success
-```
+~~~text
+no or invalid token
+-> 401
 
-## Day 9 — Authorization servers and policies
+valid token without employee.read
+-> 403
+
+valid token with employee.read
+-> 200
+~~~
+
+Completion target:
+
+- you can protect a resource server without using an ID token or Org-AS token as the API credential
+
+## Day 9 - Authorization-server design
 
 Learn deeply:
 
 - Org vs Custom Authorization Server
-- scope
-- claim
-- group
-- audience
-- access-policy rule order
-- requested-then-permitted scope model
-- authentication policies vs API access policies
-- custom claims, group claims, and Token Preview
+- dedicated API audience
+- custom scopes
+- requested vs permitted vs granted
+- explicit default-scope exception
+- groups as eligibility conditions
+- claims as information
+- access-policy allowlists
+- first-match rule order
+- token lifetime by rule
+- Token Preview
+- authentication policy vs Authorization Server Access Policy
 
-Do:
+Build:
 
-- create a `department` claim and a filtered groups claim
-- verify which token/response contains each claim
+- dedicated Employee API Authorization Server
+- employee.read
+- salary.read
+- HR eligibility group
+- custom claims
+- HR-specific salary rule
+- normal employee rule
 
-Break/fix:
+Prove:
 
-- wrong issuer
-- wrong audience
-- rule ordering
-- requested scope not permitted
+- HR membership does not inject an unrequested scope
+- non-HR salary request is denied
+- rule ordering changes the outcome
 
-## Day 10 — Sessions, logout, UserInfo, revocation
+Completion target:
 
-Learn:
+- scopes, claims, groups, audience, and policy no longer feel interchangeable
 
-- Okta session vs app session
-- `/userinfo`
-- `/revoke`
-- `/introspect`
+## Day 10 - Sessions and token lifecycle
+
+Learn and prove:
+
+- Okta browser session
+- local application session
+- ID token
+- access token
+- refresh token
+- UserInfo
+- refresh rotation
 - local logout vs Okta logout
+- revocation
+- introspection
+- local JWT validation vs current authorization-server state
 
 Break/fix:
 
-- “logout but immediately SSO back in”
-- “login works but email/group claim is missing”
-- revoked/expired token behavior
+- immediate SSO after local logout
+- revoked access token with refresh still active
+- revoked refresh token
+- claim differences by requested scopes
 
-## Day 11 — Client Credentials and machine-to-machine
+Completion target:
+
+- you can predict which state changes after each lifecycle action
+
+## Day 11 - Client Credentials and machine-to-machine
 
 Implement:
 
-- service app
-- Custom AS
-- service scope
+- API Services client for the Employee API
+- client_secret_basic
 - Client Credentials
-- client authentication
-- API call
+- employee.report.read
+- no-user access-policy rule
+- machine-token caching
+- protected machine endpoint
 
 Break/fix:
 
-- invalid client credential
-- wrong scope
-- access-policy mismatch
+- wrong client credential
+- unknown/disallowed scope
+- wrong expected service client ID
+- trusted token missing required service scope
 
-## Day 12 — Okta API automation
+Completion target:
 
-Implement with Python or PowerShell:
+- you can troubleshoot a no-user flow without bringing browser/MFA concepts into it
 
-- API Service app
-- key pair
-- `private_key_jwt`
-- Okta API scopes
-- admin role/resource assignment
-- token acquisition
-- real Okta API calls
+## Day 12 - Okta Management API automation
+
+Implement:
+
+- API Services app for Okta Management APIs
+- local RSA key pair
+- private_key_jwt
+- Org Authorization Server
+- Okta API scope grants
+- service-app admin role/resource authorization
+- read-only Management API calls
+- optional narrow write
+- safe key rotation
 
 Break/fix:
 
-- wrong key/assertion
-- missing scope
-- missing admin permission
+- wrong key
+- wrong kid
+- wrong assertion audience
+- expired assertion
+- assertion replay
+- ungranted scope
+- scope granted but admin permission missing
 
-## Day 13 — Browser and authentication troubleshooting day
+Completion target:
 
-No new major concepts.
+- you can keep client authentication, OAuth scope grant, and Okta administrative authorization as three separate layers
 
-Diagnose deliberately broken cases:
+## Day 13 - Browser and authentication troubleshooting
 
-- callback mismatch
-- state/nonce issue
-- CORS/origin issue
-- assignment issue
+No new major OAuth feature.
+
+Diagnose blind cases using:
+
+- Browser Network
+- Console/storage/cookies
+- application stage logs
+- Okta System Log
+- last-successful-step reasoning
+
+Cases include:
+
+- redirect mismatch
+- lost transaction
+- state mismatch
+- nonce mismatch
+- local-session failure
 - wrong issuer
+- Controlled Access/assignment
 - unexpected MFA
-- browser cookie/session behavior
+- local vs Okta logout
+- CORS/preflight
+- Trusted Origins
+- Postman works/browser fails
+- dev works/prod fails
 
-Use the three-source proof rule.
+Completion target:
 
-## Day 14 — Token/API/automation troubleshooting day
+- you can turn "login failed" into a specific failed transaction stage with evidence
+
+## Day 14 - Token, API, refresh, and automation troubleshooting
 
 Diagnose:
 
-- `invalid_client`
-- `invalid_grant`
-- `invalid_scope`
-- 401
-- 403
-- wrong audience
-- expired token
-- unknown `kid`
-- missing scope
-- refresh failure
-- Okta API scope vs admin-role problem
-- dev works / prod fails
+- invalid_client
+- invalid_grant by grant type
+- scope rejection
+- malformed/invalid bearer token
+- 401 vs 403
+- wrong issuer/audience
+- unknown kid/JWKS refresh
+- signature failure
+- expiry/clock problems
+- refresh revocation/rotation issues
+- Client Credentials failures
+- Okta API private_key_jwt failures
+- Okta API scope grant vs admin-role/resource failure
+- environment drift
+- retry vs alert behavior
 
-Again, prove every diagnosis.
+Completion target:
 
-## Day 15 — Capstone: work like the implementation engineer
+- you can classify a downstream incident by token endpoint, token trust, resource authorization, refresh lifecycle, or administrative authorization
 
-Requirement:
+## Day 15 - End-to-end implementation capstone
 
-> A company has a React frontend and a Java API. Employees authenticate through Okta. Only HR employees may read `/salary`. A scheduled backend process also needs API access without a human user. The application needs refresh support, clean logout behavior, and separate dev/prod configurations.
+You receive a mixed requirement containing:
 
-Design and build it without a step-by-step guide.
+- React employee portal
+- Java API
+- employee access
+- HR-only salary access
+- scheduled no-user reporting
+- refresh
+- logout
+- dev/prod
+- future Okta Management automation
+- least privilege and safe logging
 
-A clean first design:
+First produce:
 
-```text
-React SPA
-  |
-  | Authorization Code + PKCE
-  v
-Okta Custom Authorization Server
-  |
-  | access token with salary.read when permitted
-  v
-Java API
-  |
-  | validate token
-  | require salary.read for GET /salary
-  v
-Protected data
-```
+- missing questions
+- explicit assumptions
+- architecture
+- trust-boundary table
+- client/resource classification
+- authorization-server design
+- scope/claim/policy design
+- refresh/logout behavior
+- machine design
+- environment matrix
+- observability plan
 
-Service path:
+Then prove the OAuth/OIDC security contract using either:
 
-```text
-Scheduled service
-  |
-  | Client Credentials
-  v
-Okta Custom Authorization Server
-  |
-  | service access token
-  v
-Java API
-```
+1. React + Spring Boot when that stack is comfortable to you, or
+2. the course SPA/API harnesses for protocol proof, followed by mapping the same design to the supplied React + Spring Boot reference.
 
-For the HR user path, keep the authorization model simple first:
+Finally:
 
-```text
-Client requests salary.read
-        |
-User is in HR and matching access-policy rule permits salary.read
-        |
-Access token contains salary.read
-        |
-Java API requires salary.read
-```
+- complete the acceptance matrix
+- diagnose at least twelve blind failures from different layers
+- restore temporary break/fix changes
+- produce the project and operations handoff
+- explain the same architecture to an application owner, developer, and IAM/security engineer
 
-After that works, learn the alternative of using a group/custom claim where the application design truly needs claim-based authorization.
+Completion target:
 
-Then deliberately break at least ten things and troubleshoot them without being told the category.
-
----
+- you can receive an unfamiliar OAuth/OIDC project or incident and reason from the trust relationships and evidence rather than memorized steps
