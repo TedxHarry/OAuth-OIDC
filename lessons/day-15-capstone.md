@@ -1009,6 +1009,19 @@ The capstone lab intentionally gives fewer instructions than earlier days.
 
 You are expected to reuse the knowledge, scripts, tools, and evidence methods from Days 1 through 14.
 
+The assessment is about the OAuth/OIDC security contract, not whether you can build an unfamiliar framework stack from memory. Use one of two implementation paths:
+
+~~~text
+Path A
+-> implement the React + Spring Boot shape directly when those frameworks are comfortable to you
+
+Path B
+-> prove the same OAuth/OIDC behavior with the course SPA and API harnesses
+-> then map each proven behavior to the supplied React + Spring Boot reference
+~~~
+
+In either path, you must be able to explain what the real React client and Java resource server must do.
+
 After you have attempted the capstone, compare your implementation with:
 
 [Day 15 React + Spring Boot reference implementation](../reference/day15-react-java-reference.md)
