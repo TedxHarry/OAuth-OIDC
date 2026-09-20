@@ -411,6 +411,8 @@ Create:
 | reporting credential store |  |  |
 | API URL |  |  |
 | browser origin |  |  |
+| Okta Trusted Origin when required |  |  |
+| API Access Management available |  |  |
 | policy/rules |  |  |
 | token lifetime |  |  |
 | monitoring |  |  |
