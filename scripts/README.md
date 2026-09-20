@@ -59,9 +59,15 @@ Day 9 reuses the Day 8 Custom Authorization Server authorization helper because 
 
 Day 10 reuses the Day 9 API to demonstrate that a revoked but unexpired JWT can still satisfy purely local JWT validation while Okta introspection reports it inactive.
 
+### Day 11 Client Credentials
+
+- [Python - machine-to-machine Employee API endpoint](python/day11_employee_api.py)
+- [Python - Client Credentials reporting service](python/day11_service_client.py)
+
+The Day 11 service client uses an API Services client with `client_secret_basic` against the Employee API Custom Authorization Server. It keeps the bearer token only in process memory and reuses it until near expiry. The Day 11 API expects the service `cid` and `employee.report.read`; it does not require a human user `uid`.
+
 ## Added later as the course reaches them
 
-- Client Credentials
 - `private_key_jwt`
 - Okta OAuth token acquisition
 - Okta Management API calls
