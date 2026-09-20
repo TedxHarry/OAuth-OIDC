@@ -45,6 +45,13 @@ The Web Application keeps OAuth transaction data and tokens server-side and give
 
 The Day 8 API validates Custom Authorization Server access tokens, then enforces `employee.read`. It returns 401 for missing/invalid bearer credentials and 403 for a trusted token with insufficient scope.
 
+### Day 9 authorization design
+
+- [Python - inspect Day 9 custom claims and token lifetime](python/day09_inspect_access_token.py)
+- [Python - Employee API with employee.read and salary.read](python/day09_employee_api.py)
+
+Day 9 reuses the Day 8 Custom Authorization Server authorization helper because that helper accepts any trusted Custom Authorization Server issuer. The Day 9 API enforces scopes only; `department` and filtered `groups` are returned as context and are not hidden extra authorization checks.
+
 ## Added later as the course reaches them
 
 - Client Credentials
