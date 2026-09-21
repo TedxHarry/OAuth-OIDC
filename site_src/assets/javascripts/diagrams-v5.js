@@ -83,10 +83,13 @@
     svg.setAttribute("role", "img");
     svg.style.setProperty("background", "transparent", "important");
 
+    // Only darken text. Note: in sequence diagrams the participant boxes are
+    // <rect class="actor">, so a bare ".actor" selector would paint the box
+    // dark and hide the (also dark) participant name. Target actor *text* only.
     svg.querySelectorAll(
       "text, tspan, .nodeLabel, .nodeLabel *, .edgeLabel, .edgeLabel *, " +
       ".messageText, .labelText, .loopText, .noteText, .cluster-label, " +
-      ".actor, .actor text, .actor tspan, foreignObject, foreignObject *"
+      "text.actor, .actor text, .actor tspan, foreignObject *"
     ).forEach((el) => {
       el.style.setProperty("fill", palette.ink, "important");
       el.style.setProperty("color", palette.ink, "important");
