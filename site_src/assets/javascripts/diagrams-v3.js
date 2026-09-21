@@ -1,70 +1,15 @@
 (() => {
-  let mermaidPromise;
+  // Material for MkDocs already loads Mermaid and renders every ```mermaid```
+  // block exactly once. This script must NOT render Mermaid a second time:
+  // doing so re-parses the already-rendered <svg> as diagram source and
+  // replaces it with a "Syntax error" box. Instead we wait for Material's
+  // rendered SVG and only post-process it (semantic node colors, guaranteed
+  // dark label text, and the expand-to-read control).
 
   const palette = {
     ink: "#172033",
-    muted: "#475569",
-    canvas: "#FBFCFE",
-    blue: "#EAF2FF",
-    blueBorder: "#3F6FA5",
-    green: "#E8F6EE",
-    greenBorder: "#3F7D5A",
-    amber: "#FFF4D6",
-    amberBorder: "#A66A16",
-    rose: "#FDECEC",
-    roseBorder: "#A54848",
-    violet: "#F1EDFF",
-    violetBorder: "#6D5EA8"
+    muted: "#475569"
   };
-
-  const loadMermaid = async () => {
-    if (!mermaidPromise) {
-      mermaidPromise = import(
-        "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
-      );
-    }
-    const module = await mermaidPromise;
-    return module.default;
-  };
-
-  const themeCSS = `
-    text, tspan, .nodeLabel, .nodeLabel *, .edgeLabel, .edgeLabel *,
-    .messageText, .labelText, .loopText, .noteText, .cluster-label,
-    .actor, .actor text, .actor tspan, foreignObject, foreignObject * {
-      fill: ${palette.ink} !important;
-      color: ${palette.ink} !important;
-      opacity: 1 !important;
-      font-weight: 600 !important;
-    }
-
-    .flowchart-link, .messageLine0, .messageLine1,
-    .actor-line, path.path, line {
-      stroke: ${palette.muted} !important;
-      stroke-width: 2px !important;
-      opacity: 1 !important;
-    }
-
-    marker path {
-      fill: ${palette.muted} !important;
-      stroke: ${palette.muted} !important;
-    }
-
-    .edgeLabel rect, .labelBox, .labelBkg {
-      fill: #FFFFFF !important;
-      stroke: #CBD5E1 !important;
-      opacity: 1 !important;
-    }
-
-    .note {
-      fill: ${palette.amber} !important;
-      stroke: ${palette.amberBorder} !important;
-    }
-
-    .cluster rect {
-      fill: #F3F8F7 !important;
-      stroke: #6A8F89 !important;
-    }
-  `;
 
   const hasAny = (text, words) => words.some((word) => text.includes(word));
 
@@ -193,89 +138,38 @@
     node.dataset.diagramEnhanced = "true";
   };
 
-  const renderDiagrams = async () => {
-    const nodes = Array.from(
-      document.querySelectorAll(".mermaid:not([data-processed])")
-    );
+  // Post-process every diagram Material has finished rendering. Returns true
+  // once all diagrams on the page are rendered and enhanced.
+  const processDiagrams = () => {
+    const nodes = Array.from(document.querySelectorAll(".mermaid"));
+    let allReady = nodes.length > 0;
 
-    if (!nodes.length) {
-      document.querySelectorAll(".mermaid").forEach(enhanceDiagram);
-      return;
-    }
+    nodes.forEach((node) => {
+      if (node.dataset.diagramEnhanced === "true") return;
 
-    try {
-      const mermaid = await loadMermaid();
+      const svg = node.querySelector("svg");
+      // Wait until Material has injected a real diagram (not still empty and
+      // not a Mermaid error placeholder).
+      if (!svg || svg.querySelector(".error-text")) {
+        allReady = false;
+        return;
+      }
 
-      mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: "strict",
-        theme: "base",
-        htmlLabels: true,
-        flowchart: {
-          htmlLabels: true,
-          useMaxWidth: false,
-          curve: "basis",
-          wrappingWidth: 220
-        },
-        sequence: {
-          useMaxWidth: false,
-          wrap: true,
-          width: 180,
-          messageMargin: 42,
-          noteMargin: 12
-        },
-        themeCSS,
-        themeVariables: {
-          background: palette.canvas,
-          primaryColor: palette.blue,
-          primaryTextColor: palette.ink,
-          primaryBorderColor: palette.blueBorder,
-          secondaryColor: palette.green,
-          secondaryTextColor: palette.ink,
-          secondaryBorderColor: palette.greenBorder,
-          tertiaryColor: palette.amber,
-          tertiaryTextColor: palette.ink,
-          tertiaryBorderColor: palette.amberBorder,
-          lineColor: palette.muted,
-          textColor: palette.ink,
-          mainBkg: palette.blue,
-          nodeBorder: palette.blueBorder,
-          edgeLabelBackground: "#FFFFFF",
-          actorBkg: palette.violet,
-          actorBorder: palette.violetBorder,
-          actorTextColor: palette.ink,
-          actorLineColor: palette.muted,
-          signalColor: palette.muted,
-          signalTextColor: palette.ink,
-          labelBoxBkgColor: "#FFFFFF",
-          labelBoxBorderColor: "#CBD5E1",
-          labelTextColor: palette.ink,
-          loopTextColor: palette.ink,
-          noteBkgColor: palette.amber,
-          noteBorderColor: palette.amberBorder,
-          noteTextColor: palette.ink,
-          activationBkgColor: palette.green,
-          activationBorderColor: palette.greenBorder,
-          fontFamily: "Inter, system-ui, -apple-system, Segoe UI, sans-serif",
-          fontSize: "17px"
-        }
-      });
+      normalizeSvg(svg);
+      enhanceDiagram(node);
+    });
 
-      await mermaid.run({ nodes });
-
-      nodes.forEach((node) => {
-        const svg = node.querySelector("svg");
-        if (svg) normalizeSvg(svg);
-        enhanceDiagram(node);
-      });
-    } catch (error) {
-      console.error("Diagram rendering failed", error);
-    }
+    return allReady;
   };
 
-  const initialize = () => {
-    renderDiagrams();
+  // Material renders asynchronously, so poll briefly until each diagram exists.
+  const pump = (attempts) => {
+    if (processDiagrams()) return;
+    if (attempts <= 0) return;
+    setTimeout(() => pump(attempts - 1), 150);
   };
+
+  const initialize = () => pump(40);
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeExpandedDiagram();
