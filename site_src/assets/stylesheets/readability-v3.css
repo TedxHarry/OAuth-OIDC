@@ -1,0 +1,393 @@
+/* Readability v3
+   Presentation-only layer loaded after luxury.css. */
+
+:root {
+  --course-reading-width: 78ch;
+  --diagram-ink: #172033;
+  --diagram-muted: #475569;
+  --diagram-surface: #ffffff;
+  --diagram-canvas: #fbfcfe;
+  --diagram-border: #cbd5e1;
+  --diagram-blue: #eaf2ff;
+  --diagram-blue-border: #3f6fa5;
+  --diagram-green: #e8f6ee;
+  --diagram-green-border: #3f7d5a;
+  --diagram-amber: #fff4d6;
+  --diagram-amber-border: #a66a16;
+  --diagram-rose: #fdecec;
+  --diagram-rose-border: #a54848;
+  --diagram-violet: #f1edff;
+  --diagram-violet-border: #6d5ea8;
+}
+
+html {
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+.md-grid {
+  max-width: 1680px;
+}
+
+.md-content__inner {
+  max-width: 980px;
+  padding-top: 1.6rem;
+}
+
+.md-typeset {
+  font-size: 0.98rem;
+}
+
+.md-typeset > p,
+.md-typeset > ul,
+.md-typeset > ol,
+.md-typeset > blockquote {
+  max-width: var(--course-reading-width);
+}
+
+.md-typeset p,
+.md-typeset li {
+  line-height: 1.72;
+}
+
+.md-typeset h1 {
+  max-width: 22ch;
+  font-size: clamp(2.2rem, 4vw, 3.15rem);
+  line-height: 1.08;
+  margin-bottom: 1rem;
+}
+
+.md-typeset h2 {
+  margin-top: 3.1rem;
+  padding-bottom: 0.42rem;
+  border-bottom: 1px solid var(--luxury-border);
+  font-size: 1.72rem;
+  line-height: 1.22;
+}
+
+.md-typeset h3 {
+  margin-top: 2rem;
+  line-height: 1.3;
+}
+
+.md-typeset strong {
+  color: color-mix(in srgb, var(--md-default-fg-color) 92%, var(--luxury-gold) 8%);
+}
+
+/* Keep the current course phase visible instead of collapsing everything. */
+.md-sidebar--primary .md-nav__item--active > .md-nav__link {
+  background: linear-gradient(90deg, rgba(184, 149, 90, .14), transparent);
+  color: var(--luxury-gold) !important;
+  font-weight: 800;
+}
+
+.md-sidebar--primary .md-nav[data-md-level="2"] > .md-nav__list > .md-nav__item--nested > .md-nav__link {
+  margin-top: .35rem;
+  font-weight: 800;
+}
+
+.md-sidebar--primary .md-nav[data-md-level="3"] .md-nav__link {
+  font-size: .74rem;
+}
+
+/* Restore the page outline on wide screens. Long lessons need it. */
+.md-sidebar--secondary {
+  display: none !important;
+}
+
+@media screen and (min-width: 76.25em) {
+  .md-sidebar--primary {
+    width: 17rem;
+  }
+
+  .md-sidebar--secondary {
+    display: block !important;
+    width: 13.5rem;
+  }
+
+  .md-sidebar--secondary .md-nav__title {
+    color: var(--luxury-gold);
+    font-size: .68rem;
+    font-weight: 850;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  .md-sidebar--secondary .md-nav__link {
+    font-size: .69rem;
+    line-height: 1.42;
+  }
+
+  .md-sidebar--secondary .md-nav__link--active {
+    color: var(--luxury-gold) !important;
+    font-weight: 800;
+  }
+
+  body.course-nav-collapsed .md-sidebar--primary {
+    display: none !important;
+  }
+
+  body.course-nav-collapsed .md-content__inner {
+    max-width: 1120px !important;
+  }
+}
+
+/* Course navigation toggle */
+.course-nav-toggle,
+.sidebar-toggle-button {
+  display: none !important;
+}
+
+.course-nav-toggle-v3 {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 999;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid #c7a766;
+  border-radius: 50%;
+  background: #fffdf8;
+  color: #111827;
+  box-shadow: 0 8px 22px rgba(17, 24, 39, .16);
+  cursor: pointer;
+}
+
+.course-nav-toggle-v3 span {
+  color: inherit;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.course-nav-toggle-v3:hover {
+  background: #f6e8c8;
+}
+
+[data-md-color-scheme="luxury-dark"] .course-nav-toggle-v3 {
+  background: #172033;
+  border-color: #d8bd82;
+  color: #fff8ea;
+}
+
+/* Diagram shell */
+.diagram-shell {
+  position: relative;
+  margin: 1.45rem 0 2rem;
+  border: 1px solid var(--diagram-border);
+  border-radius: 16px;
+  background: var(--diagram-canvas);
+  box-shadow: 0 12px 34px rgba(15, 23, 42, .08);
+  overflow: hidden;
+}
+
+.diagram-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+  padding: .55rem .7rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, .94);
+}
+
+.diagram-action {
+  min-height: 32px;
+  padding: .35rem .65rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font: inherit;
+  font-size: .7rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.diagram-action:hover {
+  border-color: #8a6428;
+  background: #fff8e8;
+  color: #172033;
+}
+
+.mermaid,
+[data-md-color-scheme="luxury-light"] .mermaid,
+[data-md-color-scheme="luxury-dark"] .mermaid {
+  margin: 0 !important;
+  padding: 1.35rem !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--diagram-canvas) !important;
+  color: var(--diagram-ink) !important;
+  box-shadow: none !important;
+  overflow-x: auto !important;
+  scrollbar-width: thin;
+}
+
+.mermaid svg {
+  display: block !important;
+  width: auto !important;
+  max-width: none !important;
+  height: auto !important;
+  margin-inline: auto !important;
+  background: transparent !important;
+}
+
+.mermaid svg text,
+.mermaid svg tspan,
+.mermaid svg .nodeLabel,
+.mermaid svg .nodeLabel *,
+.mermaid svg .edgeLabel,
+.mermaid svg .edgeLabel *,
+.mermaid svg .messageText,
+.mermaid svg .labelText,
+.mermaid svg .loopText,
+.mermaid svg .noteText,
+.mermaid svg .cluster-label,
+.mermaid svg .actor,
+.mermaid svg foreignObject,
+.mermaid svg foreignObject * {
+  fill: var(--diagram-ink) !important;
+  color: var(--diagram-ink) !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg .edgeLabel rect,
+.mermaid svg .labelBox,
+.mermaid svg .labelBkg {
+  fill: #ffffff !important;
+  stroke: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg .flowchart-link,
+.mermaid svg .messageLine0,
+.mermaid svg .messageLine1,
+.mermaid svg .actor-line,
+.mermaid svg path.path,
+.mermaid svg line {
+  stroke: var(--diagram-muted) !important;
+  stroke-width: 2px !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg marker path {
+  fill: var(--diagram-muted) !important;
+  stroke: var(--diagram-muted) !important;
+}
+
+/* Semantic node colors applied by diagrams-v3.js. */
+.mermaid svg .diagram-node--default rect,
+.mermaid svg .diagram-node--default polygon,
+.mermaid svg .diagram-node--default circle,
+.mermaid svg .diagram-node--default ellipse,
+.mermaid svg .diagram-node--default path {
+  fill: var(--diagram-blue) !important;
+  stroke: var(--diagram-blue-border) !important;
+}
+
+.mermaid svg .diagram-node--client rect,
+.mermaid svg .diagram-node--client polygon,
+.mermaid svg .diagram-node--client circle,
+.mermaid svg .diagram-node--client ellipse,
+.mermaid svg .diagram-node--client path {
+  fill: var(--diagram-violet) !important;
+  stroke: var(--diagram-violet-border) !important;
+}
+
+.mermaid svg .diagram-node--decision rect,
+.mermaid svg .diagram-node--decision polygon,
+.mermaid svg .diagram-node--decision circle,
+.mermaid svg .diagram-node--decision ellipse,
+.mermaid svg .diagram-node--decision path {
+  fill: var(--diagram-amber) !important;
+  stroke: var(--diagram-amber-border) !important;
+}
+
+.mermaid svg .diagram-node--success rect,
+.mermaid svg .diagram-node--success polygon,
+.mermaid svg .diagram-node--success circle,
+.mermaid svg .diagram-node--success ellipse,
+.mermaid svg .diagram-node--success path {
+  fill: var(--diagram-green) !important;
+  stroke: var(--diagram-green-border) !important;
+}
+
+.mermaid svg .diagram-node--failure rect,
+.mermaid svg .diagram-node--failure polygon,
+.mermaid svg .diagram-node--failure circle,
+.mermaid svg .diagram-node--failure ellipse,
+.mermaid svg .diagram-node--failure path {
+  fill: var(--diagram-rose) !important;
+  stroke: var(--diagram-rose-border) !important;
+}
+
+.mermaid svg .node rect,
+.mermaid svg .node polygon,
+.mermaid svg .node circle,
+.mermaid svg .node ellipse,
+.mermaid svg .node path,
+.mermaid svg rect.actor,
+.mermaid svg .actor rect {
+  stroke-width: 2px !important;
+}
+
+.mermaid svg .note {
+  fill: var(--diagram-amber) !important;
+  stroke: var(--diagram-amber-border) !important;
+}
+
+.mermaid svg .cluster rect {
+  fill: #f3f8f7 !important;
+  stroke: #6a8f89 !important;
+}
+
+/* Full-screen diagram reading mode */
+.diagram-shell.is-expanded {
+  position: fixed;
+  inset: 14px;
+  z-index: 10000;
+  margin: 0;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 30px 100px rgba(2, 6, 23, .36);
+  overflow: auto;
+}
+
+.diagram-shell.is-expanded .diagram-actions {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.diagram-shell.is-expanded .mermaid {
+  min-height: calc(100vh - 100px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+body.diagram-modal-open {
+  overflow: hidden;
+}
+
+@media screen and (max-width: 700px) {
+  .md-typeset {
+    font-size: .95rem;
+  }
+
+  .md-typeset h1 {
+    font-size: 2.1rem;
+  }
+
+  .mermaid svg {
+    min-width: 680px !important;
+  }
+
+  .diagram-shell {
+    margin-inline: -.2rem;
+  }
+}
