@@ -43,6 +43,9 @@ theme:
 plugins:
   - search
 
+hooks:
+  - hooks/mermaid_source.py
+
 markdown_extensions:
   - admonition
   - attr_list
@@ -73,7 +76,7 @@ extra_css:
 
 extra_javascript:
   - assets/javascripts/course-ui-v3.js
-  - assets/javascripts/diagrams-v4.js
+  - assets/javascripts/diagrams-v5.js
 
 extra:
   social:
