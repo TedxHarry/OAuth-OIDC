@@ -73,7 +73,7 @@ extra_css:
 
 extra_javascript:
   - assets/javascripts/course-ui-v3.js
-  - assets/javascripts/diagrams-v3.js
+  - assets/javascripts/diagrams-v4.js
 
 extra:
   social:
