@@ -1162,29 +1162,10 @@ body.course-nav-collapsed .course-nav-toggle {
   background: transparent !important;
 }
 
-.mermaid svg .node rect,
-.mermaid svg .node polygon,
-.mermaid svg .node circle,
-.mermaid svg .node ellipse,
-.mermaid svg rect.actor,
-.mermaid svg .actor rect {
-  fill: #17263d !important;
-  stroke: #b78d49 !important;
-  stroke-width: 1.7px !important;
-}
-
-.mermaid svg .nodeLabel,
-.mermaid svg .nodeLabel p,
-.mermaid svg .nodeLabel span,
-.mermaid svg .node foreignObject div,
-.mermaid svg .actor text,
-.mermaid svg .actor tspan,
-.mermaid svg text.actor,
-.mermaid svg text.actor tspan {
-  color: #fffaf0 !important;
-  fill: #fffaf0 !important;
-  opacity: 1 !important;
-}
+/* Node/actor boxes and their labels are defined by the FINAL light-canvas
+   override below (cream boxes, dark ink text). The earlier dark-box / white-text
+   rules were removed: on sequence diagrams they out-specified the dark-text
+   rules and left actor names and messages white-on-light (invisible). */
 
 .mermaid svg .edgeLabel,
 .mermaid svg .edgeLabel p,
