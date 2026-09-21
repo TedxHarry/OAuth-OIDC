@@ -71,7 +71,7 @@
   const classifyNode = (node) => {
     const text = (node.textContent || "").toLowerCase();
 
-    if (node.querySelector("polygon") || node.querySelector(".label-container[rx='0']")) {
+    if (node.querySelector("polygon")) {
       return "decision";
     }
 
@@ -120,6 +120,7 @@
 
   const normalizeSvg = (svg) => {
     svg.setAttribute("role", "img");
+    svg.setAttribute("focusable", "false");
     svg.style.setProperty("background", "transparent", "important");
 
     svg.querySelectorAll(
