@@ -1,0 +1,132 @@
+/* Final readability layer. Loaded after luxury.css. */
+
+.md-sidebar--secondary {
+  display: none !important;
+}
+
+@media screen and (min-width: 76.25em) {
+  body.course-nav-collapsed .md-sidebar--primary {
+    display: none !important;
+  }
+
+  body.course-nav-collapsed .md-content__inner {
+    max-width: 1240px !important;
+  }
+}
+
+.course-nav-toggle,
+.sidebar-toggle-button {
+  display: none !important;
+}
+
+.course-nav-toggle-v2 {
+  position: fixed;
+  left: 16px;
+  bottom: 18px;
+  z-index: 999;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid #C7A766;
+  border-radius: 50%;
+  background: #FFFDF8;
+  color: #111827;
+  box-shadow: 0 8px 22px rgba(17, 24, 39, .16);
+  cursor: pointer;
+}
+
+.course-nav-toggle-v2 span {
+  color: #111827;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.course-nav-toggle-v2:hover {
+  background: #F6E8C8;
+}
+
+[data-md-color-scheme="luxury-dark"] .course-nav-toggle-v2 {
+  background: #172033;
+  border-color: #D8BD82;
+}
+
+[data-md-color-scheme="luxury-dark"] .course-nav-toggle-v2 span {
+  color: #FFF8EA;
+}
+
+/* Diagrams deliberately stay light in both site themes for maximum contrast. */
+.mermaid,
+[data-md-color-scheme="luxury-light"] .mermaid,
+[data-md-color-scheme="luxury-dark"] .mermaid {
+  background: #FFFDF8 !important;
+  border: 1px solid #D4BB87 !important;
+  border-radius: 16px !important;
+  padding: 1.25rem !important;
+  color: #111827 !important;
+  box-shadow: 0 14px 36px rgba(17, 24, 39, .08) !important;
+}
+
+.mermaid svg {
+  display: block !important;
+  max-width: 100% !important;
+  height: auto !important;
+  margin-inline: auto !important;
+  background: #FFFDF8 !important;
+}
+
+.mermaid svg text,
+.mermaid svg tspan,
+.mermaid svg foreignObject,
+.mermaid svg foreignObject *,
+.mermaid svg .nodeLabel,
+.mermaid svg .nodeLabel *,
+.mermaid svg .edgeLabel,
+.mermaid svg .edgeLabel *,
+.mermaid svg .messageText,
+.mermaid svg .labelText,
+.mermaid svg .loopText,
+.mermaid svg .noteText,
+.mermaid svg .cluster-label,
+.mermaid svg .actor,
+.mermaid svg .actor * {
+  fill: #111827 !important;
+  color: #111827 !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg .node rect,
+.mermaid svg .node polygon,
+.mermaid svg .node circle,
+.mermaid svg .node ellipse,
+.mermaid svg rect.actor,
+.mermaid svg .actor rect {
+  fill: #F6E8C8 !important;
+  stroke: #8A6428 !important;
+  stroke-width: 2px !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg .edgeLabel rect,
+.mermaid svg .labelBox,
+.mermaid svg .labelBkg {
+  fill: #FFFDF8 !important;
+  stroke: #C7A766 !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg .flowchart-link,
+.mermaid svg .messageLine0,
+.mermaid svg .messageLine1,
+.mermaid svg .actor-line,
+.mermaid svg path.path,
+.mermaid svg line {
+  stroke: #334155 !important;
+  stroke-width: 2px !important;
+  opacity: 1 !important;
+}
+
+.mermaid svg marker path {
+  fill: #334155 !important;
+  stroke: #334155 !important;
+}
