@@ -77,6 +77,16 @@ body {
   color: color-mix(in srgb, var(--md-default-fg-color) 92%, var(--luxury-gold) 8%);
 }
 
+/* Keep wide tables usable without squeezing their contents. */
+.md-typeset__table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.md-typeset__table table {
+  min-width: 100%;
+}
+
 /* Keep the current course phase visible instead of collapsing everything. */
 .md-sidebar--primary .md-nav__item--active > .md-nav__link {
   background: linear-gradient(90deg, rgba(184, 149, 90, .14), transparent);
@@ -99,6 +109,23 @@ body {
 }
 
 @media screen and (min-width: 76.25em) {
+  /* Lesson / Lab / Diagrams stays reachable on long pages. */
+  .course-page-ribbon {
+    position: sticky;
+    top: 3.2rem;
+    z-index: 6;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
+  }
+
+  [data-md-color-scheme="luxury-light"] .course-page-ribbon {
+    background: rgba(248, 245, 239, .94);
+  }
+
+  [data-md-color-scheme="luxury-dark"] .course-page-ribbon {
+    background: rgba(11, 18, 32, .94);
+  }
+
   .md-sidebar--primary {
     width: 17rem;
   }
@@ -381,10 +408,6 @@ body.diagram-modal-open {
 
   .md-typeset h1 {
     font-size: 2.1rem;
-  }
-
-  .mermaid svg {
-    min-width: 680px !important;
   }
 
   .diagram-shell {
