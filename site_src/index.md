@@ -2,7 +2,7 @@
 
 <div class="course-eyebrow">15-DAY IMPLEMENTATION ENGINEERING COURSE</div>
 
-# OAuth & OIDC<br><span class="hero-accent">with Okta</span>
+<h1 class="course-hero-title">OAuth &amp; OIDC<br><span class="hero-accent">with Okta</span></h1>
 
 <div class="hero-copy">
 Learn the part of OAuth and OpenID Connect that implementation engineers actually use: redirects, PKCE, tokens, validation, APIs, machine access, Okta automation, and evidence-driven troubleshooting.

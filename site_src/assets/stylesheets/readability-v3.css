@@ -33,7 +33,8 @@ body {
 }
 
 .md-content__inner {
-  max-width: 980px;
+  max-width: 1000px;
+  margin-inline: auto;
   padding-top: 1.6rem;
 }
 
@@ -58,6 +59,21 @@ body {
   font-size: clamp(2.2rem, 4vw, 3.15rem);
   line-height: 1.08;
   margin-bottom: 1rem;
+}
+
+/* Landing hero title is a real heading now (not a stray "#"): keep it large. */
+.course-hero .course-hero-title,
+.md-typeset .course-hero-title {
+  max-width: none;
+  margin: .85rem 0 1rem;
+  padding: 0;
+  border: 0;
+  color: #fffdf8;
+  font-family: Georgia, "Times New Roman", ui-serif, serif;
+  font-size: clamp(2.9rem, 7vw, 5.6rem);
+  line-height: .95;
+  font-weight: 600;
+  letter-spacing: -0.025em;
 }
 
 .md-typeset h2 {
@@ -93,7 +109,8 @@ body {
   font-size: .74rem;
 }
 
-/* Restore the page outline on wide screens. Long lessons need it. */
+/* No right-hand page outline anywhere. The left course navigation is the only
+   navigation rail; the reading column is centered in the freed space. */
 .md-sidebar--secondary {
   display: none !important;
 }
@@ -103,27 +120,10 @@ body {
     width: 17rem;
   }
 
-  .md-sidebar--secondary {
-    display: block !important;
-    width: 13.5rem;
-  }
-
-  .md-sidebar--secondary .md-nav__title {
-    color: var(--luxury-gold);
-    font-size: .68rem;
-    font-weight: 850;
-    letter-spacing: .09em;
-    text-transform: uppercase;
-  }
-
-  .md-sidebar--secondary .md-nav__link {
-    font-size: .69rem;
-    line-height: 1.42;
-  }
-
-  .md-sidebar--secondary .md-nav__link--active {
-    color: var(--luxury-gold) !important;
-    font-weight: 800;
+  /* With the outline gone, keep prose centered instead of hugging the nav. */
+  .md-content__inner {
+    max-width: 1040px;
+    margin-inline: auto;
   }
 
   body.course-nav-collapsed .md-sidebar--primary {
@@ -131,7 +131,7 @@ body {
   }
 
   body.course-nav-collapsed .md-content__inner {
-    max-width: 1120px !important;
+    max-width: 1160px !important;
   }
 }
 
