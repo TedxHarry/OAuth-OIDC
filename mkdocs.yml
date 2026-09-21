@@ -67,9 +67,11 @@ markdown_extensions:
 
 extra_css:
   - assets/stylesheets/luxury.css
+  - assets/stylesheets/readability-v2.css
 
 extra_javascript:
-  - assets/javascripts/course.js
+  - assets/javascripts/course-ui-v2.js
+  - assets/javascripts/diagrams-v2.js
 
 extra:
   social:
