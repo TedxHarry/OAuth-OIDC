@@ -259,15 +259,27 @@
         });
       }
 
-      // Claim the nodes and restore their source text (Material may have
-      // blanked them), so Mermaid has a valid definition to parse.
-      nodes.forEach((node) => {
-        node.dataset.diagramRendered = "true";
-        node.removeAttribute("data-processed");
-        node.textContent = node.dataset.diagramSource;
-      });
-
-      await mermaid.run({ nodes });
+      // Replace each block with a fresh element before rendering. Material has
+      // already run its own (failed) pass over these nodes, leaving internal
+      // Mermaid state and data-processed behind; re-running Mermaid on such a
+      // node intermittently yields a spurious "Syntax error" even though the
+      // definition is valid. A clean element carries no leftover state. Each
+      // diagram is rendered in its own run() call so one failure cannot affect
+      // the others.
+      for (const node of nodes) {
+        const source = node.dataset.diagramSource;
+        const fresh = document.createElement("div");
+        fresh.className = "mermaid";
+        fresh.dataset.diagramSource = source;
+        fresh.dataset.diagramRendered = "true";
+        fresh.textContent = source;
+        node.replaceWith(fresh);
+        try {
+          await mermaid.run({ nodes: [fresh] });
+        } catch (error) {
+          console.error("Diagram rendering failed for one block", error);
+        }
+      }
     } catch (error) {
       console.error("Diagram rendering failed", error);
     } finally {
