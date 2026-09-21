@@ -17,8 +17,16 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install documentation dependencies
+        run: pip install -r requirements-docs.txt
+
       - name: Compile Python helpers
         run: python -m compileall -q scripts/python
+
+      - name: Validate site JavaScript syntax
+        run: |
+          node --check site_src/assets/javascripts/course-ui-v3.js
+          node --check site_src/assets/javascripts/diagrams-v3.js
 
       - name: Parse PowerShell helpers
         shell: pwsh
@@ -177,3 +185,8 @@ jobs:
 
           print("Course structure, local links, fences, and wording checks passed.")
           PY
+
+      - name: Build documentation site
+        run: |
+          python scripts/build_docs_site.py
+          mkdocs build --clean
